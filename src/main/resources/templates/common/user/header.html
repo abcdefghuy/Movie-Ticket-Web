@@ -1,0 +1,62 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>ValCT</title>
+</head>
+<body>
+
+<!-- ==========Overlay========== -->
+<div class="overlay"></div>
+<a href="#0" class="scrollToTop"> <i class="fas fa-angle-up"></i>
+</a>
+<!-- ==========Overlay========== -->
+
+<!-- ==========Header-Section========== -->
+<header class="header-section" th:fragment="header">
+    <div class="container">
+        <div class="header-wrapper">
+            <div class="logo">
+                <a th:href="@{/userHome}"> <img
+                        th:src="@{static/assets/images/logo/logo.png}" alt="logo">
+                </a>
+            </div>
+            <ul class="menu">
+                <li><a th:href="@{/userHome}" class="active">Home</a></li>
+                <li><a href="#0">movies</a>
+                    <ul class="submenu">
+                        <li><a th:href="@{/userMovieList}">List Movie</a></li>
+                    </ul></li>
+                <li><a href="#0">Others</a>
+                    <ul class="submenu">
+                        <li><a
+                                th:href="@{/usernewsOrDiscounts}">NewsAndDiscount</a>
+                        </li>
+                        <li><a
+                                th:href="@{/userMessage}">Chats</a>
+                        </li>
+                    </ul></li>
+                <li><a href="#0">Welcome, ${person.fullName}</a>
+                    <ul class="submenu">
+                        <li><a th:href="@{/userProfile}">Profile
+                            Information</a></li>
+                        <li><a
+                                th:href="@{/userTransaction(personId=${person.perID})}">Booking
+                            History</a></li>
+                        <li><a th:href="@{/logout}">Log
+                            Out</a></li>
+                    </ul></li>
+
+                <li>
+                <li class="header-button pr-0"><a th:href="@{/userMovieList}">Book Ticket</a></li>
+            </ul>
+            <div class="header-bar d-lg-none">
+                <span></span> <span></span> <span></span>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- ==========Header-Section========== -->
+
+</body>
+</html>
