@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      layout:decorate="~{layout/web-layout.html}"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+<div layout:fragment="content">
+    <div class="preloader">
+        <div class="preloader-inner">
+            <div class="preloader-icon">
+                <span></span> <span></span>
+            </div>
+        </div>
+    </div>
+    <!-- ==========Preloader========== -->
+
+    <!-- ==========Movie-Section========== -->
+    <section class="movie-section padding-top padding-bottom">
+        <div class="container">
+            <div class="row flex-wrap-reverse justify-content-center">
+                <div class="col-lg-11 mb-50 mb-lg-0">
+                    <div class="filter-tab tab">
+                        <div class="filter-area">
+                            <div class="filter-main">
+                                <div class="left">
+                                    <div class="item">
+                                        <span class="show">Sort By :</span>
+                                        <select class="select-bar" onchange="location = this.value;">
+                                            <option value="?filter=showing" th:selected="${param.filter != null and param.filter[0] == 'showing'}">Phim Đang Chiếu</option>
+                                            <option value="?filter=comingSoon" th:selected="${param.filter != null and param.filter[0] == 'comingSoon'}">Phim Sắp Chiếu</option>
+                                            <option value="@{/userMovieList}" th:selected="${param.filter == null}">Tất Cả Phim</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                <ul class="grid-button tab-menu">
+                                    <li><i class="fas fa-th"></i></li>
+                                    <li class="active"><i class="fas fa-bars"></i></li>
+                                </ul>
+                            </div>
+                        </div>
+                        <div class="tab-area">
+                            <div class="tab-item">
+                                <div class="row mb-10 justify-content-center">
+                                    <div class="col-sm-6 col-lg-4" th:each="movie : ${movies}">
+                                        <div class="movie-grid">
+                                            <div class="movie-thumb c-thumb">
+                                                <a th:href="@{/review(movieID=${movie.movieID})}">
+                                                    <img th:src="${movie.image.startsWith('https') ? movie.image : '/image?fname=' + movie.image}"
+                                                         th:alt="${movie.movieName}" class="movie-img">
+                                                </a>
+                                            </div>
+
+                                            <div class="movie-content bg-one">
+                                                <h5 class="title m-0">
+                                                    <a th:href="@{/review(movieID=${movie.movieID})}" th:text="${movie.movieName}"></a>
+                                                </h5>
+
+                                                <ul class="movie-action-list">
+                                                    <div>
+                                                        <a th:href="@{/signin}" class="custom-button">
+                                                            <i class="bi bi-ticket-perforated-fill"></i> Book Ticket
+                                                        </a>
+                                                    </div>
+                                                    <div>
+                                                        <a th:href="@{/review(movieID=${movie.movieID})}" class="custom-button flaticon-loupe">Detail</a>
+                                                    </div>
+                                                </ul>
+                                            </div>
+                                            <br>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="tab-item active">
+                                <div class="movie-area mb-10">
+                                    <div class="movie-list" th:each="movie : ${movies}">
+                                        <div class="movie-thumb c-thumb">
+                                            <a th:href="@{/review(movieID=${movie.movieID})}">
+                                                <img th:src="${movie.image.startsWith('https') ? movie.image : '/image?fname=' + movie.image}"
+                                                     th:alt="${movie.movieName}" class="movie-img">
+                                            </a>
+                                        </div>
+
+                                        <div class="movie-content bg-one">
+                                            <h5 class="title">
+                                                <a th:href="@{/review(movieID=${movie.movieID})}" th:text="${movie.movieName}"></a>
+                                            </h5>
+
+                                            <p class="duration">
+                                                <strong>Thời lượng:</strong> <span th:text="${movie.movieDuration}"></span>
+                                            </p>
+
+                                            <ul class="movie-rating-percent">
+                                                <li>
+                                                    <div class="thumb">
+                                                        <img th:src="@{static/assets/images/movie/tomato.png}" alt="movie">
+                                                    </div>
+                                                    <span class="content"><strong>Thể loại:</strong> <span th:text="${movie.category}"></span></span>
+                                                </li>
+                                                <li>
+                                                    <div class="thumb">
+                                                        <img th:src="@{static/assets/images/movie/cake.png}" alt="movie">
+                                                    </div>
+                                                    <span class="content">
+                                                    <strong>Khởi chiếu:</strong> <span th:text="${#dates.format(movie.releaseDay, 'dd/MM/yyyy')}"></span>
+                                                </span>
+                                                </li>
+                                            </ul>
+
+                                            <div class="book-area">
+                                                <div class="book-ticket">
+                                                    <div class="react-item mr-auto">
+                                                        <a th:href="@{/signin}">
+                                                            <div class="thumb">
+                                                                <img th:src="@{static/assets/images/icons/book.png}" alt="icons">
+                                                            </div>
+                                                            <span>book ticket</span>
+                                                        </a>
+                                                    </div>
+                                                    <div class="react-item mr-auto">
+                                                        <a th:href="@{/review(movieID=${movie.movieID})}">
+                                                            <div class="thumb">
+                                                                <img th:src="@{static/assets/images/icons/play-button.png}" alt="icons">
+                                                            </div>
+                                                            <span>Movie Detail</span>
+                                                        </a>
+                                                    </div>
+                                                    <div class="react-item">
+                                                        <a th:if="${not #strings.isEmpty(movie.movieTrailer)}" th:href="${movie.movieTrailer}" class="video-popup"
+                                                           th:title="'Watch the trailer for ' + ${movie.movieName}"
+                                                           th:aria-label="'Watch the trailer for ' + ${movie.movieName}">
+                                                            <div class="thumb">
+                                                                <img th:src="@{/assets/images/icons/heart.png}"
+                                                                     th:onerror="|this.src='@{static/assets/images/icons/default.png}'|">
+                                                            </div>
+                                                            <span>watch trailer</span>
+                                                        </a>
+                                                        <span th:unless="${not #strings.isEmpty(movie.movieTrailer)}">No trailer available</span>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div> <!-- END movie-list -->
+                                </div>
+                            </div> <!-- END tab-item active -->
+                        </div> <!-- END tab-area -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+</div>
+<!-- ==========Preloader========== -->
+
+</body>
+
+
+<!-- Mirrored from pixner.net/boleto/demo/movielist.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 06:26:33 GMT -->
+</html>
