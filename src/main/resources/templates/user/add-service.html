@@ -1,0 +1,338 @@
+
+<!--<%-->
+<!--// Đặt thời gian đếm ngược (5 phút)-->
+<!--int countdownMinutes = 5;-->
+<!--%>-->
+<!DOCTYPE html>
+<html layout:decorate="~{layout/user-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="ISO-8859-1">
+<title>Insert title here</title>
+</head>
+<body>
+
+<div layout:fragment="content">
+	<!-- ==========Banner-Section========== -->
+	<section class="details-banner hero-area bg_img"
+			 th:data-background="@{static/assets/images/banner/banner03.jpg}">
+		<div class="container">
+			<div class="details-banner-wrapper">
+				<div class="details-banner-content">
+					<!-- Display movie title -->
+					<h3 class="title">${movie.movieName}</h3>
+
+					<!-- Optional: Add additional movie information here -->
+					<div class="movie-info">
+						<!-- Example: Movie duration -->
+						<p>
+							<strong>Duration:</strong> ${movie.movieDuration}
+						</p>
+
+						<!-- Example: Movie release date -->
+						<p>
+							<strong>Category:</strong> ${movie.category}
+						</p>
+						<p>
+							<strong>Experience:</strong> ${experience}
+						</p>
+						<p>
+							<strong>version:</strong> ${version}
+						</p>
+						<p>
+							<strong>Location:</strong> ${selectedLocation}
+						</p>
+
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- ==========Banner-Section========== -->
+
+	<!-- ==========Page-Title========== -->
+	<section class="page-title bg-one">
+		<div class="container">
+			<div class="page-title-area">
+				<!-- Nút quay lại -->
+				<div class="item md-order-1">
+					<a th:href="@{/userMovieCheckout}"
+					   class="custom-button back-button"> <i
+							class="flaticon-double-right-arrows-angles"></i>back
+					</a>
+				</div>
+				<!-- Hiển thị ngày và giờ đã chọn -->
+				<div class="item date-item">
+					<!-- Hiển thị startHour theo định dạng HH:mm, dd/MM/yyyy -->
+					<div th:if="${not empty startHour}">
+						<span th:text="${#dates.format(startHour, 'HH:mm, dd/MM/yyyy')}"></span>
+					</div>
+				</div>
+				<!-- Đếm ngược thời gian -->
+				<div class="item">
+					<h5 class="title" id="countdown-timer">05:00</h5>
+					<p>Mins Left</p>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- ==========Page-Title========== -->
+
+	<!-- ==========Movie-Section========== -->
+	<div class="movie-facility padding-bottom padding-top">
+		<div class="container">
+			<div class="row">
+				<div class="col-lg-8">
+					<div class="section-header-3">
+						<span class="cate">You're hungry</span>
+						<h2 class="title">we have food</h2>
+						<p>Prebook Your Meal and Save More!</p>
+					</div>
+					<div class="grid--area">
+						<ul class="filter">
+							<li data-filter="*" class="active">all</li>
+							<li data-filter=".combos">combos</li>
+							<li data-filter=".beverage">beverage</li>
+							<li data-filter=".popcorn">popcorn</li>
+
+							<!-- <li><a href="/addService?type=all" class="active">All</a></li>
+							<li><a href="/addService?type=combos">Combos</a></li>
+							<li><a href="/addService?type=bevarage">Beverage</a></li>
+							<li><a href="/addService?type=popcorn">Popcorn</a></li> -->
+
+						</ul>
+						<div class="grid-area">
+							<th:block th:each="popcorn : ${popcornList}">
+								<div class="grid-item" th:classappend="${popcorn.typePopCorn.toLowerCase()}">
+									<div class="grid-inner">
+										<div class="grid-thumb">
+											<img th:src="@{static/assets/images/movie/popcorn/{image}(image=${popcorn.typePopCorn.toLowerCase() + '.jpg'})}"
+												 alt="movie/popcorn">
+											<div class="offer-tag">
+												<span th:text="${#numbers.formatDecimal(popcorn.price, 0, 'COMMA', 0, 'POINT') + ' VND'}"></span>
+											</div>
+										</div>
+										<div class="grid-content">
+											<h5 class="subtitle">
+												<a href="#0" th:text="${popcorn.namePopCorn}"></a>
+											</h5>
+											<form class="cart-button">
+												<div class="cart-plus-minus">
+													<input class="cart-plus-minus-box" type="text" name="qtybutton" value="1">
+												</div>
+												<input type="hidden" name="popcornID" th:value="${popcorn.popcornID}">
+												<button type="button" class="custom-button"
+														th:attr="onclick='addToBookingSummary(\'' + ${popcorn.namePopCorn} + '\', ' + ${popcorn.price} + ', this)'">
+													Add
+												</button>
+											</form>
+										</div>
+									</div>
+								</div>
+							</th:block>
+						</div>
+					</div>
+				</div>
+				<div class="col-lg-4">
+					<div class="booking-summery bg-one">
+						<h4 class="title">booking summery</h4>
+						<ul>
+							<li>
+								<h6 class="subtitle">${movie.movieName}</h6> <span class="info">${experience},
+									${version}</span>
+							</li>
+							<li>
+								<h6 class="subtitle">
+									<span>${selectedLocation}</span>
+								</h6>
+								<div class="info">
+									<span><span th:text="${#dates.format(startHour, 'HH:mm, dd/MM/yyyy')}"></span>
+</span> <span>Tickets</span>
+								</div>
+							</li>
+							<li>
+								<h6 class="subtitle mb-0">
+									<span>Tickets Price</span><span>${totalPrice} VND</span>
+								</h6>
+							</li>
+							<li>
+								<h6 class="subtitle mb-0">
+									<span>Seats</span><span>${selectedSeats}</span>
+								</h6>
+							</li>
+						</ul>
+						<ul class="side-shape">
+							<li>
+								<h6 class="subtitle">
+									<span>food & bevarage</span><span></span>
+								</h6> <span class="info"></span>
+							</li>
+							<li>
+								<h6 class="subtitle">
+									<span>discount coupon</span><span>$0</span>
+								</h6>
+							</li>
+						</ul>
+						<%-- 						<ul>
+						<li><span class="info"><span>price</span><span>${totalPrice}
+										VND</span></span></li>
+					</ul> --%>
+					</div>
+					<div class="proceed-area  text-center">
+						<h6 class="subtitle">
+							<span>Amount Payable</span><span>${totalPrice} VND</span>
+						</h6>
+
+						<form id="proceedForm" th:action="@{/userAddService}"
+							  method="post" onsubmit="prepareProceedForm()">
+							<input type="hidden"
+								   name="foodAndBeverageTotal" id="foodAndBeverageTotal" />
+							<input
+									type="hidden" name="amountPayable" id="amountPayable" />
+							<button type="submit" class="custom-button back-button">Proceed</button>
+						</form>
+
+					</div>
+					<div class="note">
+						<h5 class="title">Note :</h5>
+						<p>Please give us 15 minutes for ValCT preparation once you're
+							at the cinema</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<!-- ==========Movie-Section========== -->
+</div>
+
+
+	<script>
+		// Giả sử thời gian đếm ngược là 5 phút (5 * 60 = 300 giây)
+		var countdown = 300;
+		var countdownTimer = document.getElementById("countdown-timer");
+
+		var countdownInterval = setInterval(function() {
+			var minutes = Math.floor(countdown / 60);
+			var seconds = countdown % 60;
+			countdownTimer.textContent = minutes + ":"
+					+ (seconds < 10 ? "0" : "") + seconds;
+			countdown--;
+
+			if (countdown < 0) {
+				clearInterval(countdownInterval);
+				window.location.href = /*[[@{/userMovieCheckout}]]*/ "";
+			}
+		}, 1000);
+		
+		
+		
+		// Biến lưu danh sách sản phẩm trong Booking Summary
+	    let bookingSummary = [];
+			
+	    let initialTotalPrice = parseInt("${totalPrice}".replace(/\D/g, "")); // Tổng tiền ban đầu (tickets price)
+	    let currentTotalPrice = initialTotalPrice; // Giá trị hiện tại của tổng tiền
+	    
+
+	    function addToBookingSummary(name, price, button) {
+	        const qtyInput = button.parentElement.querySelector(".cart-plus-minus-box");
+	        const quantity = parseInt(qtyInput.value);
+
+	        // Tìm xem sản phẩm đã có trong bookingSummary chưa
+	        const existingProduct = bookingSummary.find(item => item.name === name);
+
+	        if (existingProduct) {
+	            // Nếu sản phẩm đã tồn tại, tăng số lượng
+	            existingProduct.quantity += quantity;
+	            existingProduct.totalPrice += price * quantity;
+	        } else {
+	            // Nếu sản phẩm chưa tồn tại, thêm mới vào danh sách
+	            bookingSummary.push({
+	                name: name,
+	                price: price,
+	                quantity: quantity,
+	                totalPrice: price * quantity,
+	            });
+	        }
+
+	        // Cập nhật tổng tiền
+	        currentTotalPrice += price * quantity;
+
+	        // Cập nhật lại giao diện
+	        updateBookingSummary();
+	    }
+
+	    function updateBookingSummary() {
+	    	const bookingListElement = document.querySelector(".side-shape .info"); 
+	        const totalAmountElement = document.querySelector(".proceed-area .subtitle span:last-child");
+	        
+	        const foodAndBeverageTotalElement = document.querySelector(".side-shape .subtitle span:nth-child(2)"); // Phần tử chứa tổng tiền food & beverage
+	        
+	        
+	        let dynamicContent = "";
+	        
+	        let foodAndBeverageTotal = 0;
+
+	        // Render các sản phẩm trong bookingSummary
+	         bookingSummary.forEach(item => {
+        dynamicContent += 
+            '<span>' + item.quantity +' '+ item.name +' '+ item.totalPrice + ' VND</span>';
+        foodAndBeverageTotal += item.totalPrice;
+    });
+	        
+	      // Thay thế nội dung động trong phần info
+	         bookingListElement.innerHTML = dynamicContent;
+	      
+	      // Cập nhật tổng tiền food & beverage
+	         foodAndBeverageTotalElement.textContent = foodAndBeverageTotal + " VND";
+
+	        // Cập nhật tổng tiền
+	        totalAmountElement.textContent = currentTotalPrice + " VND";
+	    }
+		
+		
+	    function prepareProceedForm() {
+	        const form = document.getElementById("proceedForm");
+
+
+	        // Lặp qua danh sách sản phẩm (bookingSummary) và thêm input ẩn
+	        bookingSummary.forEach((item, index) => {
+	        		        	        	            
+	        	// Input cho tên sản phẩm
+	            const nameInput = document.createElement("input");
+	            nameInput.type = "hidden";
+	            nameInput.name = 'product[' + index + '].name';
+	            nameInput.value = item.name;
+	            nameInput.classList.add("product-input");
+	            form.appendChild(nameInput);
+
+	            // Input cho số lượng sản phẩm
+	            const quantityInput = document.createElement("input");
+	            quantityInput.type = "hidden";
+	            quantityInput.name = 'product[' + index + '].quantity';
+	            quantityInput.value = item.quantity;
+	            quantityInput.classList.add("product-input");
+	            form.appendChild(quantityInput);
+
+	            // Input cho tổng tiền sản phẩm
+	            const totalPriceInput = document.createElement("input");
+	            totalPriceInput.type = "hidden";
+	            totalPriceInput.name = 'product[' + index + '].totalPrice';
+	            totalPriceInput.value = item.totalPrice;
+	            totalPriceInput.classList.add("product-input");
+	            form.appendChild(totalPriceInput);
+	        });
+
+	        // Input cho tổng tiền Food & Beverage
+	        const foodAndBeverageTotalInput = document.getElementById("foodAndBeverageTotal");
+	        const foodAndBeverageTotal = document.querySelector(".side-shape .subtitle span:nth-child(2)").textContent.trim();
+	        foodAndBeverageTotalInput.value = foodAndBeverageTotal;
+
+	        // Input cho tổng tiền chung
+	        const amountPayableInput = document.getElementById("amountPayable");
+	        amountPayableInput.value = currentTotalPrice;
+	    }
+
+	</script>
+</body>
+</html>

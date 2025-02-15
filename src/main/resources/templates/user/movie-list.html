@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/user-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+
+</head>
+<body>
+<style>
+	.custom-button {
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+		text-align: center;
+	}
+
+	.movie-img {
+		width: 280px; /* Đặt chiều rộng cố định */
+		height: 300px; /* Đặt chiều cao cố định */
+		object-fit: cover; /* Đảm bảo ảnh không bị méo, sẽ cắt xén nếu cần */
+	}
+
+	.movie-grid {
+		width: 350px; /* Chiều rộng cố định */
+		height: 430px; /* Chiều cao cố định */
+		background-color: #12234e; /* Màu nền */
+		margin: 10px; /* Khoảng cách giữa các khung */
+		border-radius: 10px; /* Bo góc khung phim */
+		overflow: hidden; /* Ẩn nội dung vượt khung */
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2); /* Đổ bóng */
+		display: flex;
+		flex-direction: column; /* Sắp xếp các thành phần theo chiều dọc */
+		align-items: center; /* Căn giữa theo chiều ngang */
+		justify-content: space-between;
+		/* Căn đều các thành phần theo chiều dọc */
+	}
+
+	.movie-thumb {
+		width: 100%;
+		display: flex;
+		justify-content: center; /* Căn giữa ảnh */
+	}
+
+	.movie-img {
+		width: 280px; /* Đặt chiều rộng cố định */
+		height: 300px; /* Đặt chiều cao cố định */
+		object-fit: cover; /* Đảm bảo ảnh không bị méo, sẽ cắt xén nếu cần */
+	}
+
+	.movie-content {
+		padding: 10px; /* Khoảng cách nội dung bên trong */
+		color: #fff; /* Màu chữ */
+		font-size: 14px; /* Kích thước chữ */
+	}
+
+	.movie-content h5 {
+		font-size: 18px; /* Cỡ chữ lớn cho tiêu đề */
+		font-weight: bold; /* Chữ in đậm */
+		margin-bottom: 10px; /* Khoảng cách bên dưới tiêu đề */
+	}
+
+	.movie-content ul {
+		display: flex; /* Hiển thị các icon xếp ngang */
+		list-style: none; /* Bỏ dấu đầu dòng */
+		padding: 0; /* Loại bỏ padding */
+		margin: 10px 0 0; /* Khoảng cách phía trên */
+		justify-content: center; /* Căn giữa các mục */
+	}
+
+	.movie-content ul li {
+		display: flex;
+		align-items: center; /* Căn giữa theo chiều ngang */
+		margin-right: 25px; /* Khoảng cách giữa các mục */
+		margin-bottom: 10px;
+	}
+
+	.movie-action-list>div {
+		margin-right: 15px; /* Khoảng cách giữa các thẻ theo chiều ngang */
+		display: inline-block; /* Đảm bảo các thẻ đứng cạnh nhau */
+	}
+</style>
+<div layout:fragment="content">
+	<!-- ==========Preloader========== -->
+	<div class="preloader">
+		<div class="preloader-inner">
+			<div class="preloader-icon">
+				<span></span> <span></span>
+			</div>
+		</div>
+	</div>
+	<!-- ==========Preloader========== -->
+
+	<!-- ==========Movie-Section========== -->
+	<section class="movie-section padding-top padding-bottom">
+		<div class="container">
+			<div class="row flex-wrap-reverse justify-content-center">
+				<div class="col-lg-11 mb-50 mb-lg-0">
+					<div class="filter-tab tab">
+						<div class="filter-area">
+							<div class="filter-main">
+								<div class="left">
+
+									<div class="item">
+										<span class="show">Sort By :</span>
+										<select class="select-bar" onchange="location = this.value;">
+											<option value="?filter=showing" th:selected="${param.filter != null and param.filter[0] == 'showing'}">Phim Đang Chiếu</option>
+											<option value="?filter=comingSoon" th:selected="${param.filter != null and param.filter[0] == 'comingSoon'}">Phim Sắp Chiếu</option>
+											<option value="@{/userMovieList}" th:selected="${param.filter == null}">Tất Cả Phim</option>
+										</select>
+									</div>
+								</div>
+								<ul class="grid-button tab-menu">
+									<li><i class="fas fa-th"></i></li>
+									<li class="active"><i class="fas fa-bars"></i></li>
+								</ul>
+							</div>
+						</div>
+						<div class="tab-area">
+							<div class="tab-item">
+								<div class="row mb-10 justify-content-center">
+									<th:block th:each="movie : ${movies}">
+										<div class="col-sm-6 col-lg-4">
+											<div class="movie-grid">
+												<div class="movie-thumb c-thumb">
+													<th:block th:if="${#strings.startsWith(movie.image, 'https')}">
+														<th:block th:with="imgUrl=${movie.image}"></th:block>
+													</th:block>
+													<th:block th:unless="${#strings.startsWith(movie.image, 'https')}">
+														<th:block th:with="imgUrl=@{/image(fname=${movie.image})}"></th:block>
+													</th:block>
+
+													<a th:href="@{/userReview(movieID=${movie.movieID})}">
+														<img th:src="${imgUrl}" th:alt="${movie.movieName}" class="movie-img">
+													</a>
+												</div>
+
+												<div class="movie-content bg-one">
+													<h5 class="title m-0">
+														<a th:href="@{/userReview(movieID=${movie.movieID})}" th:text="${movie.movieName}"></a>
+													</h5>
+
+													<ul class="movie-action-list">
+														<div>
+															<a th:href="@{/userBookTickets(movieId=${movie.movieID})}" class="custom-button">
+																<i class="bi bi-ticket-perforated-fill"></i> Book Ticket
+															</a>
+														</div>
+
+														<div>
+															<a th:href="@{/userReview(movieID=${movie.movieID})}" class="custom-button flaticon-loupe">
+																Detail
+															</a>
+														</div>
+													</ul>
+												</div>
+												<br>
+											</div>
+										</div>
+									</th:block>
+								</div>
+							</div>
+							<div class="tab-item active">
+								<div class="movie-area mb-10">
+									<th:block th:each="movie : ${movies}">
+										<div class="movie-list">
+											<div class="movie-thumb c-thumb">
+												<th:block th:if="${#strings.startsWith(movie.image, 'https')}">
+													<th:block th:with="imgUrl=${movie.image}"></th:block>
+												</th:block>
+												<th:block th:unless="${#strings.startsWith(movie.image, 'https')}">
+													<th:block th:with="imgUrl=@{/image(fname=${movie.image})}"></th:block>
+												</th:block>
+
+												<a th:href="@{/userReview(movieID=${movie.movieID})}">
+													<img th:src="${imgUrl}" th:alt="${movie.movieName}" class="movie-img">
+												</a>
+											</div>
+
+											<div class="movie-content bg-one">
+												<h5 class="title">
+													<a th:with="url=${session.person != null}
+                ? '/userReview(movieID=' + movie.movieID + ', perID=' + session.person.perID + ')'
+                : '/userReview(movieID=' + movie.movieID + ')'"
+													   th:href="@{${url}}">
+														[[${movie.movieName}]]
+													</a>
+												</h5>
+
+												<p class="duration">
+													<strong>Thời lượng:</strong> <span th:text="${movie.movieDuration}"></span>
+												</p>
+
+												<ul class="movie-rating-percent">
+													<li>
+														<div class="thumb">
+															<img th:src="@{/assets/images/movie/tomato.png}" alt="movie">
+														</div>
+														<span class="content"><strong>Thể loại:</strong> <span th:text="${movie.category}"></span></span>
+													</li>
+													<li>
+														<div class="thumb">
+															<img th:src="@{/assets/images/movie/cake.png}" alt="movie">
+														</div>
+														<span class="content">
+                                <strong>Khởi chiếu:</strong>
+                                <span th:text="${#dates.format(movie.releaseDay, 'dd/MM/yyyy')}"></span>
+                            </span>
+													</li>
+												</ul>
+
+												<div class="book-area">
+													<div class="book-ticket">
+														<div class="react-item mr-auto">
+															<a th:href="@{/userBookTickets(movieId=${movie.movieID})}">
+																<div class="thumb">
+																	<img th:src="@{/assets/images/icons/book.png}" alt="icons">
+																</div>
+																<span>book ticket</span>
+															</a>
+														</div>
+
+														<div class="react-item mr-auto">
+															<a th:href="@{/userReview(movieID=${movie.movieID})}">
+																<div class="thumb">
+																	<img th:src="@{/assets/images/icons/play-button.png}" alt="icons">
+																</div>
+																<span>Movie Detail</span>
+															</a>
+														</div>
+
+														<div class="react-item">
+															<th:block th:if="${not #strings.isEmpty(movie.movieTrailer)}">
+																<a th:href="${movie.movieTrailer}" class="video-popup"
+																   th:title="'Watch the trailer for ' + ${movie.movieName}"
+																   th:aria-label="'Watch the trailer for ' + ${movie.movieName}">
+																	<div class="thumb">
+																		<img th:src="@{/assets/images/icons/heart.png}"
+																			 alt="Watch trailer icon"
+																			 onerror="this.src='/assets/images/icons/default.png';">
+																	</div>
+																	<span>watch trailer</span>
+																</a>
+															</th:block>
+															<th:block th:unless="${not #strings.isEmpty(movie.movieTrailer)}">
+																<span>No trailer available</span>
+															</th:block>
+														</div>
+													</div>
+												</div>
+											</div>
+										</div>
+									</th:block>
+								</div>
+							</div>
+
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</div>
+</body>
+
+
+<!-- Mirrored from pixner.net/boleto/demo/movie-list.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 06:26:33 GMT -->
+</html>

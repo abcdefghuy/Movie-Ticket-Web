@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/user-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+<div layout:fragment="content">
+	<!-- ==========Banner-Section========== -->
+	<section class="main-page-header speaker-banner bg_img"
+			 th:data-background="@{static/assets/images/banner/banner07.jpg}">
+		<div class="container">
+			<div class="speaker-banner-content">
+				<h2 class="title">News Or Discount Detail</h2>
+				<ul class="breadcrumb">
+					<li><a th:href="@{/userHome}">
+						Home </a></li>
+					<li><a
+							th:href="@{/usernewsOrDiscounts}">News
+						Or Discount</a></li>
+					<li>blog single</li>
+				</ul>
+			</div>
+		</div>
+	</section>
+	<!-- ==========Banner-Section========== -->
+
+	<!-- ==========Blog-Section========== -->
+	<section class="blog-section padding-top padding-bottom">
+		<div class="container">
+			<div class="row justify-content-center mb-30-none">
+				<div class="col-lg-8 mb-50 mb-lg-0">
+					<article>
+						<div class="post-item post-details">
+							<div class="post-thumb">
+								<img th:src="${#strings.startsWith(newsOrDiscount.images, 'https') ? newsOrDiscount.images : '/image?fname=' + newsOrDiscount.images}"
+									 th:alt="${newsOrDiscount.title}" style="width: 100%; height: 400px; object-fit: cover; border-radius: 10px;"/>
+							</div>
+							<div class="post-content">
+
+								<div class="content">
+									<div class="entry-content p-0">
+										<div class="left">
+											<span class="date"> <span th:text="${#dates.format(newsOrDiscount.date, 'MMM dd, yyyy')}"></span>
+
+											</span>
+										</div>
+									</div>
+									<div class="post-header">
+										<h4 class="m-title">${newsOrDiscount.title}</h4>
+										<p>${newsOrDiscount.description}</p>
+										<blockquote> <pre  style="color: white">
+											${newsOrDiscount.detail}
+										</pre>
+										</blockquote>
+
+
+									</div>
+									<!-- 									<div class="post-meta text-center"> -->
+									<!-- 										<div class="item"> -->
+
+									<!-- 										</div> -->
+									<!-- 									</div> -->
+									<label>Bởi tác giả: ${newsOrDiscount.author}</label>
+
+								</div>
+								<div class="col-3,5 text-center">
+									<div class="item"
+										 style="text-align: center; display: flex; justify-content: center; padding : 10px">
+										<span> Bởi tác giả: ${newsOrDiscount.author}</span>
+									</div>
+								</div>
+							</div>
+						</div>
+					</article>
+				</div>
+				<div class="col-lg-4 col-sm-10 col-md-8">
+					<aside>
+						<!-- 						<div class="widget widget-search"> -->
+						<!-- 							<h5 class="title">search</h5> -->
+						<!-- 							<form class="search-form"> -->
+						<!-- 								<input type="text" placeholder="Enter your Search Content" -->
+						<!-- 									required> -->
+						<!-- 								<button type="submit"> -->
+						<!-- 									<i class="flaticon-loupe"></i>Search -->
+						<!-- 								</button> -->
+						<!-- 							</form> -->
+						<!-- 						</div> -->
+						<div class="widget widget-post">
+							<h5 class="title">latest post</h5>
+							<div class="slider-nav">
+								<span class="flaticon-angle-pointing-to-left widget-prev"></span>
+								<span class="flaticon-right-arrow-angle widget-next active"></span>
+							</div>
+							<div class="widget-slider owl-carousel owl-theme">
+								<th:block th:each="newsOrDiscount : ${listNewsOrDiscount}">
+									<div class="item">
+										<div class="thumb">
+											<a th:href="@{/usernewsOrDiscountDetail(id=${newsOrDiscount.newsID})}">
+												<img th:src="${#strings.startsWith(newsOrDiscount.images, 'https') ? newsOrDiscount.images
+                             : '/image?fname=' + newsOrDiscount.images}"
+													 th:alt="${newsOrDiscount.title}"
+													 style="width: 100%; height: 300px; object-fit: cover; border-radius: 10px;" />
+											</a>
+										</div>
+										<div class="content">
+											<h6 class="p-title">
+												<a th:href="@{/usernewsOrDiscountDetail(id=${newsOrDiscount.newsID})}"
+												   th:text="${newsOrDiscount.title}"></a>
+											</h6>
+											<div class="meta-post">
+												<a href="#0"><i class="flaticon-user"></i> <span th:text="${newsOrDiscount.author}"></span></a>
+											</div>
+										</div>
+									</div>
+								</th:block>
+							</div>
+						</div>
+					</aside>
+				</div>
+			</div>
+		</div>
+	</section>
+	<!-- ==========Blog-Section========== -->
+</div>
+
+</body>
+</html>
