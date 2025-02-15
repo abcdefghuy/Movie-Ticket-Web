@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+    <meta charset="UTF-8">
+    <title>ValCT</title>
+</head>
+<body>
+
+<!-- ==========Overlay========== -->
+<div class="overlay"></div>
+<a href="#" class="scrollToTop">
+    <i class="fas fa-angle-up"></i>
+</a>
+<!-- ==========Overlay========== -->
+
+<!-- ==========Header-Section========== -->
+<header th:fragment="header" class="header-section">
+    <div class="container">
+        <div class="header-wrapper">
+            <div class="logo">
+                <a th:href="@{/home}">
+                    <img th:src="@{static/assets/images/logo/logo.png}" alt="logo">
+                </a>
+            </div>
+            <ul class="menu">
+                <li>
+                    <a th:href="@{/home}" class="active">Home</a>
+                </li>
+                <li>
+                    <a href="#0">movies</a>
+                    <ul class="submenu">
+                        <li>
+                            <a th:href="@{/movieList}">Movie List</a>
+                        </li>
+                    </ul>
+                </li>
+                <li>
+                    <a href="">Other</a>
+                    <ul class="submenu">
+                        <li><a
+                                th:href="@{/newsOrDiscounts}">NewsOrDiscount</a>
+                        </li>
+                    </ul>
+                </li>
+                <li class="header-button pr-0">
+                    <a th:href="@{/signin}">Sign In</a>
+                </li>
+            </ul>
+            <div class="header-bar d-lg-none">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </div>
+</header>
+<!-- ==========Header-Section========== -->
+
+</body>
+</html>
