@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<!-- main content -->
+	<div class="container-fluid">
+		<div class="row">
+			<!-- main title -->
+			<div class="col-12">
+				<div class="main__title">
+					<h2>Admin Dashboard</h2>
+
+					<button class="sidebar__user-btn" type="button"
+							th:onclick="|window.location.href='@{/logout}'|">
+						<i class="ti ti-logout"></i>
+					</button>
+				</div>
+			</div>
+			<!-- end main title -->
+		</div>
+	</div>
+	<!-- end main content -->
+</body>
+</html>

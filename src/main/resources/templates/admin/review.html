@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+</head>
+<body>
+	<!-- main content -->
+	<main class="container-fluid" layout:fragment="content">
+		<div class="container-fluid">
+			<div class="row">
+				<!-- main title -->
+				<div class="col-12">
+					<div class="main__title">
+						<h2>Reviews</h2>
+						<span class="main__title-stat">Total Reviews:
+							${noOfRecords}</span>
+					</div>
+				</div>
+				<!-- reviews table -->
+				<div class="col-12">
+					<div class="catalog catalog--1">
+						<div class="catalog__table-container">
+							<!-- Bọc bảng trong thẻ này -->
+							<table class="catalog__table">
+								<thead>
+									<tr>
+										<th>ID</th>
+										<th>Reviewer</th>
+										<th>Rating</th>
+										<th>Content</th>
+									</tr>
+								</thead>
+								<tbody>
+										<tr th:each="review : ${reviews}">
+											<td><div class="catalog__text">${review.reviewID}</div></td>
+											<td><div class="catalog__text">${review.person.fullName}</div></td>
+											<td><div class="catalog__text catalog__text--rate">${review.evaluate}</div></td>
+											<td><div class="catalog__text">${review.content}</div></td>
+										</tr>
+								</tbody>
+							</table>
+						</div>
+					</div>
+				</div>
+				<!-- end reviews table -->
+				<div th:if="${totalPages > 0}">
+					<div class="col-12">
+						<div class="main__paginator">
+							<span class="main__paginator-pages" th:text="${currentPage} + ' of ' + ${totalPages}"></span>
+							<ul class="main__paginator-list">
+								<!-- Nút Prev: chỉ hoạt động khi currentPage > 1 -->
+								<li>
+									<a th:href="@{/adminReview(movieID=${movieId}, page=${currentPage > 1 ? currentPage - 1 : 1})}">
+										<i class="ti ti-chevron-left"></i> <span>Prev</span>
+									</a>
+								</li>
+								<!-- Nút Next: chỉ hoạt động khi currentPage < totalPages -->
+								<li>
+									<a th:href="@{/adminReview(movieID=${movieId}, page=${currentPage < totalPages ? currentPage + 1 : totalPages})}">
+										<span>Next</span> <i class="ti ti-chevron-right"></i>
+									</a>
+								</li>
+							</ul>
+							<ul class="paginator">
+								<li class="paginator__item paginator__item--prev">
+									<a th:href="@{/adminReview(movieID=${movieId}, page=${currentPage > 1 ? currentPage - 1 : 1})}">
+										<i class="ti ti-chevron-left"></i>
+									</a>
+								</li>
+								<!-- Hiển thị các trang -->
+								<li th:each="i : ${#numbers.sequence(0, totalPages - 1)}"
+									th:classappend="${i == currentPage - 1} ? 'paginator__item--active' : ''">
+									<a th:href="@{/adminReview(movieID=${movieId}, page=${i + 1})}" th:text="${i + 1}"></a>
+								</li>
+								<li class="paginator__item paginator__item--next">
+									<a th:href="@{/adminReview(movieID=${movieId}, page=${currentPage < totalPages ? currentPage + 1 : totalPages})}">
+										<i class="ti ti-chevron-right"></i>
+									</a>
+								</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</main>
+</body>
+</html>
