@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Insert title here</title>
+</head>
+<!-- Mirrored from hotflix.volkovdesign.com/admin/users.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 07:09:40 GMT -->
+<body>
+<div th:if="${not empty error}">
+    <div class="alert alert-danger">
+        ${error}
+    </div>
+</div>
+<main class="container-fluid" layout:fragment="content">
+	<div class="container-fluid">
+		<div class="main__title">
+			<div class="main__title-wrap">
+				<!-- search -->
+				<!-- end search -->
+			</div>
+		</div>
+		<!-- end main title -->
+
+		<!-- user modal -->
+		<form th:action="@{/admin/users/save}"
+			method="post" class="modal__form" style="margin-top: 20px;">
+			<h4 class="modal__title">Add User</h4>
+
+			<div class="row">
+				<div class="col-12" style="width: 50%; margin: 0 auto;">
+					<div class="sign__group">
+						<label class="sign__label" for="email2">Email</label> <input
+							id="email2" type="email" name="email" class="sign__input"
+							placeholder="email@email.com" required>
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0 auto;">
+					<div class="sign__group">
+						<label class="sign__label" for="fname">Name</label> <input
+							id="fname" type="text" name="fname" class="sign__input"
+							placeholder="Your name" required>
+					</div>
+				</div>
+
+				<div class="col-12" style="width: 50%; margin: 0 auto;">
+					<div class="sign__group">
+						<label class="sign__label" for="password">Password</label> <input
+							id="password" type="password" name="password" class="sign__input"
+							required>
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0 auto;">
+					<div class="sign__group">
+						<label class="sign__label" for="phone">Phone</label> <input
+							id="phone" type="tel" name="phone" class="sign__input"
+							placeholder="Your phone"  required pattern="^[0-9]{10}$" title="So dien thoai phai co 10 chu so">
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0 auto;">
+					<div class="sign__group">
+						<label class="sign__label" for="birthDate">BirthDate</label> <input
+							id="birthDate" type="date" name="birthDate" class="sign__input"
+							required>
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0 auto;">
+					<div class="sign__group">
+						<label class="sign__label" for="gender">Gender</label> <select
+							class="sign__select" id="gender" name="gender">
+							<option value="1">Male</option>
+							<option value="0">Female</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0; text-align: left;">
+					<div class="sign__group">
+						<label class="sign__label" for="rights">Rights</label> <select
+							class="sign__select" id="rights" name="rights">
+							<option value="User">User</option>
+						</select>
+					</div>
+				</div>
+
+			</div>
+
+			<div class="col-12"
+				style="display: flex; justify-content: center; gap: 100px;">
+				<button type="submit" class="sign__btn sign__btn--modal"
+					style="width: 150px;">Add</button>
+				<a th:href="@{/admin/users}"
+					class="sign__btn sign__btn--modal"
+					style="width: 150px; height: 50px; font-size: 16px; text-align: center; display: flex; align-items: center; justify-content: center;">Back</a>
+			</div>
+		</form>
+		<!-- end user modal -->
+	</div>
+</main>
+</body>
+</html>

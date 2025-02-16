@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Insert title here</title>
+</head>
+<body>
+<main class="container-fluid" layout:fragment="content">
+	<div class="container-fluid">
+		<form
+			th:action="@{/admin/popcorns/update(popcornID=${popcorn.popcornID})}"
+			method="post" class="modal__form">
+			<h4 class="modal__title">Edit PopCorn</h4>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="namePopCorn">PopCorn Name</label>
+						<input type="text" class="sign__input" name="namePopCorn"
+							id="namePopCorn" placeholder="Popcorn Combo Name" required
+							value="${popcorn.namePopCorn}">
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="price">Price</label> <input
+							type="number" class="sign__input" name="price" id="price"
+							placeholder="Price" required value="${popcorn.price}">
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="typePopCorn">Type</label> <select
+							class="sign__selectjs" name="typePopCorn" id="typePopCorn"
+							required value="${popcorn.typePopCorn}"
+							style="color: white; font-weight: bold;">
+							<option value="Small" style="color: white; font-weight: bold;">Small</option>
+							<option value="Regular" style="color: white; font-weight: bold;">Regular</option>
+							<option value="Large" style="color: white; font-weight: bold;">Large</option>
+							<option value="Extra Large"
+								style="color: white; font-weight: bold;">Extra Large</option>
+						</select>
+					</div>
+				</div>
+
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="status">Status</label> <select
+							class="sign__selectjs" name="status" id="status" required
+							style="color: white; font-weight: bold;">
+						<option value="1" th:selected="${popcorn.status}" style="color: white; font-weight: bold;">Available</option>
+						<option value="0" th:selected="${!popcorn.status}" style="color: white; font-weight: bold;">Unavailable</option>
+					</select>
+					</div>
+				</div>
+
+				<div class="col-12">
+					<button type="submit" class="sign__btn sign__btn--small">
+						<span>Update</span>
+					</button>
+				</div>
+			</div>
+		</form>
+		<!-- end user modal -->
+	</div>
+</main>
+</body>
+</html>

@@ -1,0 +1,160 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Chat Application</title>
+	<style>
+		textarea {
+			font-family: monospace;
+			font-size: 14px;
+			line-height: 1.5;
+			white-space: pre-wrap;
+			background-color: #1d1d1d;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			padding: 10px;
+			width: 100%;
+			height: 300px;
+			overflow-y: auto;
+		}
+		textarea:focus {
+			outline: none;
+		}
+		.chat-input {
+			display: flex;
+			align-items: center;
+			gap: 10px;
+		}
+		.chat-input .sign__input {
+			flex: 1;
+			padding: 10px;
+			border-radius: 5px;
+			background-color: #1d1d1d;
+			color: #fff;
+			border: none;
+		}
+		.chat-input button {
+			padding: 10px 20px;
+			border-radius: 5px;
+			background-color: #ffb74d;
+			border: none;
+			color: #fff;
+			font-weight: bold;
+			cursor: pointer;
+			transition: background-color 0.3s ease;
+		}
+		.chat-input button:hover {
+			background-color: #ff9800;
+		}
+	</style>
+</head>
+<body>
+<div class="container-fluid" layout:fragment="content">
+	<div class="row">
+		<!-- Sidebar -->
+		<div class="col-3">
+			<div class="main__title">
+				<h2>List of customers</h2>
+			</div>
+			<ul class="list-group">
+				<li th:each="customer : ${customers}" class="sidebar__nav-item">
+					<form th:action="@{/adminMessage}" method="post">
+						<input type="hidden" name="customerId" th:value="${customer.perID}">
+						<button type="submit" class="sign__btn" th:text="${customer.fullName}"></button>
+					</form>
+				</li>
+				<li th:if="${#lists.isEmpty(customers)}" class="list-group-item">Không có khách hàng nào</li>
+			</ul>
+		</div>
+
+		<!-- Chat Section -->
+		<div class="col-9">
+			<div class="main__title">
+				<h2>Chat Application</h2>
+			</div>
+			<div class="chat-container">
+				<div class="col-12">
+                        <textarea id="content" class="sign__textarea" readonly>
+                            <th:block th:if="${#lists.isEmpty(messages)}">
+                                Cuộc hội thoại chưa được chọn hoặc đang chưa có tin nhắn, hãy nhắn thứ gì đó...
+                            </th:block>
+                            <th:block th:each="message : ${messages}">
+                                [[${message.person.fullName}]]: [[${message.content}]]
+                            </th:block>
+                        </textarea>
+				</div>
+
+				<!-- Input Message -->
+				<div class="row">
+					<div class="col-8">
+						<textarea id="inputText" class="sign__textarea" placeholder="Type your message..." rows="3"></textarea>
+					</div>
+					<div class="col-4">
+						<button id="sendButton" class="sign__btn sign__btn--small" onclick="sendData()">Send</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	const currentConversationId = "[[${selectedConversationId}]]";
+	const username = "[[${session.person.fullName}]]";
+
+	var websocket = new WebSocket("ws://localhost:8181");
+
+	websocket.onopen = function() {
+		console.log(username + " joined the chat.");
+	};
+
+	websocket.onmessage = function(message) {
+		const parsedMessage = JSON.parse(message.data);
+		if (parsedMessage.username && parsedMessage.content) {
+			const displayMessage = parsedMessage.username + ": " + parsedMessage.content;
+			addMessage(displayMessage);
+		}
+	};
+
+	function addMessage(text) {
+		const content = document.getElementById("content");
+		content.value += "\n" + text;
+		content.scrollTop = content.scrollHeight;
+	}
+
+	function sendData() {
+		const input = document.getElementById("inputText");
+		if (input.value.trim() !== "") {
+			const messageContent = input.value.trim();
+
+			if (!currentConversationId) {
+				alert("Vui lòng chọn đoạn chat!");
+				return;
+			}
+
+			const mes = JSON.stringify({
+				username: username,
+				content: messageContent,
+				conversationId: currentConversationId
+			});
+			websocket.send(mes);
+
+			fetch("/saveMessage", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				body: JSON.stringify({
+					content: messageContent,
+					conversationId: currentConversationId,
+					senderId: "[[${session.person.perID}]]"
+				})
+			}).catch(error => console.error("Error:", error));
+
+			input.value = "";
+		}
+	}
+</script>
+</body>
+</html>

@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<body>
+    <!-- main content -->
+    <main class="container-fluid" layout:fragment="content">
+        <div class="container-fluid">
+            <div class="row">
+                <!-- main title -->
+                <div class="col-12">
+                    <div class="main__title">
+						<h2>
+						  <a th:href="@{/admin/cinemas}" style="text-decoration: none; color: inherit;">
+						    Cinemas
+						  </a>
+						</h2>
+                        <span class="main__title-stat">Total Cinemas : ${noOfRecords}</span>
+                        <div class="main__title-wrap">
+                            <button class="main__title-link main__title-link--wrap" data-bs-toggle="modal" data-bs-target="#modal-add-cinema">Add Cinema</button>
+                            
+							<!-- search -->
+							<form th:action="@{/admin/searchCinema}" method="get" class="main__title-form">
+                                <select name="location" class="sign__select" required>
+                                    <option value="All" th:selected="${location == 'All'}">All Locations</option>
+                                    <option value="Hồ Chí Minh" th:selected="${location == 'Hồ Chí Minh'}">Hồ Chí Minh</option>
+                                    <option value="Hà Nội" th:selected="${location == 'Hà Nội'}">Hà Nội</option>
+                                    <option value="Đà Nẵng" th:selected="${location == 'Đà Nẵng'}">Đà Nẵng</option>
+                                    <option value="Hải Phòng" th:selected="${location == 'Hải Phòng'}">Hải Phòng</option>
+                                </select>
+							    <button type="submit">
+							        <i class="ti ti-search"></i>
+							    </button>
+							</form>
+
+
+							<!-- end search -->
+                        </div>
+                    </div>
+                </div>
+                <!-- end main title -->
+
+                <!-- items -->
+                <div class="col-12">
+                    <div class="catalog catalog--1">
+                        <table class="catalog__table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>CINEMA NAME</th>
+                                    <th>ADDRESS</th>
+                                    <th>Location</th>
+                                    <th>NUMBER OF ROOMS</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <th:block th:each="cinema : ${cinemas}">
+                                    <tr>
+                                        <td><div class="catalog__text">${cinema.cinemaID}</div></td>
+                                        <td><div class="catalog__text"><a th:href="@{/admin/rooms(id=${cinema.cinemaID})}">${cinema.cinemaName}</a></div></td>
+                                        <td><div class="catalog__text">${cinema.address}</div></td>
+                                        <td><div class="catalog__text">${cinema.location}</div></td>
+                                        <td><div class="catalog__text">${cinema.roomCount}</div></td>
+                                        <td><div class="catalog__text ${cinema.status ? 'catalog__text--green' : 'catalog__text--red'}">${cinema.status ? 'Active' : 'Inactive'}</div></td>
+                                        <td>
+                                            <div class="catalog__btns">
+                                                <a th:href="@{/admin/editCinema(id=${cinema.cinemaID})}" class="catalog__btn catalog__btn--edit">
+                                                    <i class="ti ti-edit"></i>
+                                                </a>
+                                                <button type="button" data-bs-toggle="modal" class="catalog__btn catalog__btn--delete" data-bs-target="#modal-delete" data-cinema-id="${cinema.cinemaID}">
+                                                    <i class="ti ti-trash"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </th:block>
+                            </tbody>
+                        </table>
+                    </div>
+<!-- pagination -->
+<div class="col-12">
+    <div class="main__paginator">
+        <!-- amount -->
+        <span class="main__paginator-pages">${currentPage} of ${noOfPages}</span>
+        <!-- end amount -->
+
+        <ul class="main__paginator-list">
+            <!-- Previous Page Link -->
+            <li>
+                <a th:href="@{${location != null and location != 'All' ? '/admin/searchCinema' : '/admin/cinemas'}(location=${location}, page=${currentPage > 1 ? currentPage - 1 : 1})}">
+                    <i class="ti ti-chevron-left"></i>
+                    <span>Prev</span>
+                </a>
+            </li>
+
+            <!-- Next Page Link -->
+            <li>
+                <a th:href="@{${location != null and location != 'All' ? '/admin/searchCinema' : '/admin/cinemas'}
+        (location=${location}, page=${currentPage < noOfPages ? currentPage + 1 : noOfPages})}">
+                    <span>Next</span>
+                    <i class="ti ti-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+
+        <ul class="paginator">
+            <!-- Previous Page Link -->
+            <li class="paginator__item paginator__item--prev">
+                <a th:href="@{${location != null and location != 'All' ? '/admin/searchCinema' : '/admin/cinemas'}
+        (location=${location}, page=${currentPage > 1 ? currentPage - 1 : 1})}">
+                    <i class="ti ti-chevron-left"></i>
+                </a>
+            </li>
+
+            <!-- Page Numbers -->
+            <th:block th:each="pageNumber : ${#numbers.sequence(1, noOfPages)}">
+                <li th:classappend="${pageNumber == currentPage} ? 'paginator__item--active' : ''" class="paginator__item">
+                    <a th:href="@{${location != null and location != 'All' ? '/admin/searchCinema' : '/admin/cinemas'}
+            (location=${location}, page=${pageNumber})}">
+                        [[${pageNumber}]]
+                    </a>
+                </li>
+            </th:block>
+
+            <!-- Next Page Link -->
+            <li class="paginator__item paginator__item--next">
+                <a th:href="@{${location != null and location != 'All' ? '/admin/searchCinema' : '/admin/cinemas'}
+        (location=${location}, page=${currentPage < noOfPages ? currentPage + 1 : noOfPages})}">
+                    <i class="ti ti-chevron-right"></i>
+                </a>
+            </li>
+        </ul>
+    </div>
+</div>
+<!-- end pagination -->
+
+
+                </div>
+                <!-- end items -->
+            </div>
+        </div>
+    </main>
+    <!-- end main content -->
+
+    <!-- add cinema modal -->
+<div class="modal fade" id="modal-add-cinema" tabindex="-1" aria-labelledby="modal-add-cinema" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form th:action="@{/admin/addCinema}" method="POST" class="sign__form sign__form--add">
+                <h4 class="modal__title">Add Cinema</h4>
+                <div class="row">
+                    <div class="col-12">
+                        <label class="sign__label" for="cinema_name">Cinema Name</label>
+                        <div class="sign__group">
+                            <input type="text" class="sign__input" name="cinema_name" placeholder="Cinema Name" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="address">Address</label>
+                        <div class="sign__group">
+                            <input type="text" class="sign__input" name="address" placeholder="Address" required>
+                        </div>
+                    </div>
+
+					<div class="col-12">
+					    <label class="sign__label" for="location">Location</label>
+					    <div class="sign__group">
+					        <select class="sign__select" name="location" required>
+					            <option value="">Select Location</option>
+					            <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+					            <option value="Hà Nội">Hà Nội</option>
+					            <option value="Đà Nẵng">Đà Nẵng</option>
+					            <option value="Hải Phòng">Hải Phòng</option>
+					        </select>
+					    </div>
+					</div>
+
+
+                    <div class="col-12">
+                        <label class="sign__label" for="num_rooms">Number of Rooms</label>
+                        <div class="sign__group">
+                            <input type="number" class="sign__input" name="num_rooms" placeholder="Number of Rooms" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="status">Status</label>
+                        <div class="sign__group">
+                            <select class="sign__select" name="status" id="status" required>
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="sign__btn sign__btn--small"><span>Save</span></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- end add cinema modal -->
+
+
+   <!-- delete modal -->
+<div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="modal-delete" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal__content">
+                <form th:action="@{/admin/deleteCinema}" method="POST" id="deleteCinemaForm" class="modal__form">
+                    <h4 class="modal__title">Delete Cinema</h4>
+                    <p class="modal__text">Are you sure you want to permanently delete this cinema?</p>
+                    <input type="hidden" name="id" id="deleteCinemaId">
+                    <div class="modal__btns">
+                        <button class="modal__btn modal__btn--apply" type="submit"><span>Delete</span></button>
+                        <button class="modal__btn modal__btn--dismiss" type="button" data-bs-dismiss="modal" aria-label="Close"><span>Dismiss</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end delete modal -->
+
+<script>
+    // JavaScript to assign the cinema ID to the hidden input field in the delete form
+    document.querySelectorAll('.catalog__btn--delete').forEach(button => {
+        button.addEventListener('click', function () {
+            const cinemaId = this.getAttribute('data-cinema-id');
+            document.getElementById('deleteCinemaId').value = cinemaId;
+        });
+    });
+</script>
+
+
+</body>
