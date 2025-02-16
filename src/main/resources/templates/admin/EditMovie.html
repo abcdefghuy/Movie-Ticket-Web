@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+<meta charset="UTF-8">
+<title>Insert title here</title>
+</head>
+<body>
+	<!-- main content -->
+	<div class="container-fluid" layout:fragment="content">
+		<div class="row">
+			<!-- main title -->
+			<div class="col-12">
+				<div class="main__title">
+					<h2>Edit Movie</h2>
+				</div>
+			</div>
+
+			<div class="col-12">
+				<a th:href="@{/admin/movies}"
+					class="sign__btn sign__btn--small"><span>Back to Movie</span></a>
+			</div>
+			<!-- end main title -->
+
+			<!-- form -->
+			<div class="col-12">
+				<form action="${pageContext.request.contextPath}/admin/editMovie"
+					method="post" enctype="multipart/form-data"
+					class="sign__form sign__form--add">
+					<input type="hidden" name="movieID" value="${Movie.movieID}">
+					<div class="col-12 col-xl-12">
+						<label class="sign__label" for="movie_name">Movie Name</label>
+						<div class="sign__group">
+							<input type="text" class="sign__input" name="movie_name"
+								value="${Movie.movieName}" value="${movie_name}"
+								placeholder="Movie Name" required>
+						</div>
+						<div>
+							<div class="sign__group">
+								<label class="sign__label" for="category">Category</label>
+								<select class="sign__selectjs" name="category" id="sign__genre" multiple required>
+									<option value="Action" th:selected="${#strings.contains(Movie.category, 'Action')}">Action</option>
+									<option value="Animation" th:selected="${#strings.contains(Movie.category, 'Animation')}">Animation</option>
+									<option value="Comedy" th:selected="${#strings.contains(Movie.category, 'Comedy')}">Comedy</option>
+									<option value="Crime" th:selected="${#strings.contains(Movie.category, 'Crime')}">Crime</option>
+									<option value="Drama" th:selected="${#strings.contains(Movie.category, 'Drama')}">Drama</option>
+									<option value="Fantasy" th:selected="${#strings.contains(Movie.category, 'Fantasy')}">Fantasy</option>
+									<option value="Historical" th:selected="${#strings.contains(Movie.category, 'Historical')}">Historical</option>
+									<option value="Horror" th:selected="${#strings.contains(Movie.category, 'Horror')}">Horror</option>
+									<option value="Romance" th:selected="${#strings.contains(Movie.category, 'Romance')}">Romance</option>
+									<option value="Science-fiction" th:selected="${#strings.contains(Movie.category, 'Science-fiction')}">Science-fiction</option>
+									<option value="Thriller" th:selected="${#strings.contains(Movie.category, 'Thriller')}">Thriller</option>
+									<option value="Western" th:selected="${#strings.contains(Movie.category, 'Western')}">Western</option>
+									<option value="Other" th:selected="${#strings.contains(Movie.category, 'Other')}">Other</option>
+								</select>
+							</div>
+
+						</div>
+
+
+						<label class="sign__label" for="movie_name">Movie Duration</label>
+						<div class="sign__group">
+							<input type="text" class="sign__input" name="movie_duration"
+								value="${Movie.movieDuration}" placeholder="Example: 1h 30m"
+								required>
+
+						</div>
+						<label class="sign__label" for="address">Description</label>
+						<div class="sign__group">
+							<textarea id="Description" name="description"
+								class="sign__textarea" placeholder="Description"
+								style="width: 100%; height: 200px;">${Movie.description}</textarea>
+						</div>
+
+						<div class="row align-items-center"
+							style="display: flex; align-items: center;">
+							<!-- Hộp thoại yêu cầu nhập ngày -->
+							<div class="col-4">
+								<label for="publish-date" class="form-label"
+									style="font-weight: bold; color: white;">Enter Release
+									Date:</label>
+							</div>
+							<!-- Ô chọn ngày -->
+							<div class="col-8">
+								<div class="sign__group">
+									<span th:text="${#dates.format(Movie.releaseDay, 'yyyy-MM-dd')}"></span>
+									<input type="date" id="date" name="release_day"
+										class="sign__input" placeholder="Select date"
+										value="${#dates.format(Movie.releaseDay, 'yyyy-MM-dd')}">
+								</div>
+							</div>
+						</div>
+
+						<label class="sign__label" for="status">Status</label>
+						<div class="sign__group">
+							<select class="sign__select" name="status" id="status" required>
+
+								<option value="true" th:selected="${Movie.status}">Active</option>
+								<option value="false" th:selected="${!Movie.status}">Inactive</option>
+							</select>
+						</div>
+						<div class="col-6">
+							<label class="sign__label" for="status">Image</label>
+							<div class="sign__gallery">
+								<label id="gallery1" for="sign__gallery-upload">Upload
+									cover (240x340)</label> <input data-name="#gallery1"
+									id="sign__gallery-upload" name="images"
+									class="sign__gallery-upload" type="file"
+									accept=".png, .jpg, .jpeg" style="display: none;"
+									onchange="chooseFile(this)" value="${Movies.image}"> <input
+									type="hidden" name="oldImage" value="${Movie.image}">
+							</div>
+						</div>
+						<div id="image-preview-container" style="margin-left: 200px;">
+							<img id="preview-image"
+								 th:src="${#strings.startsWith(Movie.image, 'https') ? Movie.image : '/image?fname=' + Movie.image}"
+								 style="width: 400px; height: 400px;" />
+						</div>
+						<label class="sign__label" for="address">Movie Trailer Link:</label>
+						<div class="sign__group">
+						 <input type="text" class="sign__input" name="movie_trailer"
+								value="${Movie.movieTrailer}" placeholder="Trailer Link"
+								required>			
+						</div>
+					</div>
+					<button type="submit" class="sign__btn sign__btn--small">
+						<span>Update</span>
+					</button>
+
+				</form>
+			</div>
+			<!-- end form -->
+		</div>
+	</div>
+	<!-- end main content -->
+	<script>
+		function chooseFile(input) {
+			const preview = document.getElementById('preview-image');
+			const file = input.files[0];
+
+			if (file) {
+				const reader = new FileReader();
+				reader.onload = function(e) {
+					preview.src = e.target.result;
+					preview.style.display = 'block'; // Hiển thị ảnh xem trước
+				};
+				reader.readAsDataURL(file);
+			} else {
+				preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
+			}
+		}
+	</script>
+
+	<script>
+		document.getElementById('sign__gallery-upload').addEventListener(
+				'change', function(event) {
+					const preview = document.getElementById('preview-image');
+					const file = event.target.files[0];
+
+					if (file) {
+						const reader = new FileReader();
+						reader.onload = function(e) {
+							preview.src = e.target.result;
+							preview.style.display = 'block'; // Hiển thị ảnh xem trước
+						};
+						reader.readAsDataURL(file);
+					} else {
+						preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
+					}
+				});
+		document.querySelector('.sign__form').addEventListener('submit', function (e) {
+			// Lấy giá trị từ thẻ select category
+			const selectElement = document.getElementById('sign__genre');
+			const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
+			const concatenatedCategories = selectedOptions.join(", "); // Nối các thể loại đã chọn bằng dấu phẩy
+
+			// Tạo input ẩn để lưu chuỗi thể loại đã nối
+			const hiddenInput = document.createElement('input');
+			hiddenInput.type = 'hidden';
+			hiddenInput.name = 'category'; // Tên này phải khớp với tên trường trong Controller
+			hiddenInput.value = concatenatedCategories;
+
+			// Thêm input ẩn vào form
+			this.appendChild(hiddenInput);
+
+			// Vô hiệu hóa thẻ select để không gửi thông tin của nó
+			selectElement.disabled = true;
+			});
+
+
+	</script>
+	
+
+</body>
+</html>

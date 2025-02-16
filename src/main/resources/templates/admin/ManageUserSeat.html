@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Seat Management</title>
+</head>
+<body>
+<main layout:fragment="content">
+    <!-- Hiển thị danh sách ghế -->
+    <div class="seat-plan-section padding-bottom padding-top">
+        <!-- ==========Page-Title========== -->
+        <section class="page-title bg-one">
+            <div class="container">
+                <div class="page-title-area">
+                    <div class="item md-order-1">
+                        <a th:href="@{/admin/moviescreenings(id=${room.roomID},cinemaId=${cinemaID})}" class="custom-button back-button">
+                            <i class="flaticon-double-right-arrows-angles"></i>Back
+                        </a>
+                    </div>
+                    <div class="item date-item">
+                        <span class="date">
+                            <!-- Hiển thị ngày chiếu -->
+                            <h4 class="title">Date Screening</h4>
+                            <h4 class="title"><span th:text="${#temporals.format(screening.screeningDate, 'dd-MM-yyyy')}"></span></h4>
+                        </span>
+                    </div>
+                    <div class="item date-item">
+                        <span class="date">
+                            <h4 class="title">Showtime </h4>
+                            <h4 class="title">
+                            <!-- Hiển thị giờ chiếu, chỉ lấy phần giờ và phút -->
+                            <span th:text="${#temporals.format(screening.startHour, 'HH:mm')}"></span> -
+                            <span th:text="${#temporals.format(screening.endHour, 'HH:mm')}"></span>
+                            </h4>
+                       </span>
+                    </div>
+                    <section class="item date-item">
+                        <div class="container">
+                            <div class="cinema-info-area">
+                                <p><strong>Cinema:</strong> ${cinema.cinemaName}</p>
+                                <p><strong>Room:</strong> ${room.roomName}</p>
+                                <p><strong>Seats:</strong> ${availableSeats} available seats</p>
+                            </div>
+                        </div>
+                    </section>
+
+                </div>
+            </div>
+
+        </section>
+        <!-- ==========Page-Title========== -->
+        <section class="page-title bg-one">
+            <div class="container">
+                <div class="item md-order-1 legend-container-right">
+                    <div class="cinema-info-area">
+                        <img th:src="${static/assets/images/movie/seat01.png}" alt="Available Seat" class="legend-icon">
+                        <span>Seat (Available)</span>
+                    </div>
+                    <div class="cinema-info-area">
+                        <img th:src="@{static/assets/images/movie/seat01-free.png}" alt="Booked Seat" class="legend-icon">
+                        <span>Seat (Booked)</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+
+        <div class="container">
+            <!-- Chú thích ghế -->
+            <div class="screen-area">
+                <h4 class="screen">SCREEN</h4>
+                <div class="screen-thumb">
+                    <img th:src="@{static/assets/images/movie/screen-thumb.png}" alt="screen">
+                </div>
+                <div class="screen-wrapper">
+                    <form th:action="@{/selectSeats}" method="post">
+                        <input type="hidden" name="selectedSeats" id="hiddenSelectedSeats" value="">
+                        <input type="hidden" name="totalPrice" id="hiddenTotalPrice" value="">
+                        <input type="hidden" name="screeningId" value="${screeningId}">
+
+                        <h5 class="subtitle">Silver Plus</h5>
+                        <!-- Duyệt qua từng hàng -->
+                        <ul class="seat-area">
+                            <div th:if="${empty seatStatusesGroupedByRow}">
+                                <li>No seats available for this screening.</li>
+                            </div>
+                            <th:block th:each="row : ${seatStatusesGroupedByRow}">
+                                <!-- Nếu hàng là D, chèn thẻ Couple Plan -->
+                                <h5 class="subtitle" th:if="${row.key == 'D'}">Couple Plan</h5>
+
+                                <li class="seat-line" th:attr="data-row=${row.key}">
+                                    <span th:text="${row.key}"></span>
+                                    <ul class="seat--area">
+                                        <th:block th:each="seatStatus : ${row.value}">
+                                            <th:block th:if="${seatStatus != null and seatStatus.seat != null}">
+                                                <li class="single-seat"
+                                                    th:classappend="${seatStatus.status ? 'seat-booked' : 'seat-free'}"
+                                                    th:classappend="${seatCoupleMap[seatStatus.seat.seatID] == 1 ? 'seat-couple' : ''}">
+
+                                                    <label class="seat-label"
+                                                           th:attr="data-tooltip=${seatStatus.seat.seatNumber != null ? seatStatus.seat.seatNumber : 'Unknown'} + ' - ' +
+                               (${seatCoupleMap[seatStatus.seat.seatID] == 1 ? 'Couple Seat' : 'Single Seat'})">
+
+                                                        <img th:src="|static/assets/images/movie/${seatCoupleMap[seatStatus.seat.seatID] == 1 ?
+                                  (seatStatus.status ? 'seat02-free.png' : 'seat02.png') :
+                                  (seatStatus.status ? 'seat01-free.png' : 'seat01.png')}|"
+                                                             alt="seat" class="seat-img">
+                                                    </label>
+
+                                                    <!-- Hiển thị số ghế bên dưới -->
+                                                    <span class="seat-number" th:text="${seatStatus.seat.seatNumber}"></span>
+                                                </li>
+                                            </th:block>
+                                        </th:block>
+                                    </ul>
+                                </li>
+                            </th:block>
+
+                        </ul>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+</body>
+</html>

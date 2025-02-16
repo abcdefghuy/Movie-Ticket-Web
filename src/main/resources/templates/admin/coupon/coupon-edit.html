@@ -1,0 +1,79 @@
+<!-- Mirrored from hotflix.volkovdesign.com/admin/users.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 07:09:40 GMT -->
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Insert title here</title>
+</head>
+<body>
+<main class="container-fluid" layout:fragment="content">
+	<div class="container-fluid">
+		<!-- user modal -->
+		<form
+			th:action="@{/admin/coupons/update(couponID=${coupon.couponID})}"
+			method="post" class="modal__form">
+			<h4 class="modal__title">Edit Coupon</h4>
+
+			<div class="row">
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="couponName">Coupon Name</label> <input
+							type="text" class="sign__input" name="couponName" id="couponName"
+							placeholder="Coupon Name" required value="${coupon.couponName }">
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="couponType">Type</label> <select
+							class="sign__selectjs" name="couponType" id="couponType" required
+							value="${coupon.couponType }" style="color: white;">
+							<option value="Coupon 1">Coupon 1</option>
+							<option value="Coupon 2">Coupon 2</option>
+							<option value="Coupon 3">Coupon 3</option>
+							<option value="Coupon 4 ">Coupon 4</option>
+						</select>
+					</div>
+				</div>
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="couponValue">Coupon Value</label>
+						<input type="text" class="sign__input" name="couponValue"
+							id="couponValue" placeholder="Coupon Value" required
+							value="${coupon.couponValue }">
+					</div>
+					<!-- Định dạng ngày sử dụng JSTL -->
+					<span th:text="${#dates.format(coupon.startDate, 'yyyy-MM-dd')}"></span>
+
+				</div>
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="startDate">Start Date</label> <input
+							type="Date" class="sign__input" name="startDate" id="startDate"
+							required value="${#dates.format(coupon.startDate, 'yyyy-MM-dd')}">
+					</div>
+				</div>
+				<!-- Định dạng ngày sử dụng JSTL -->
+				<span th:text="${#dates.format(coupon.endDate, 'yyyy-MM-dd')}"></span>
+				<div class="col-12">
+					<div class="sign__group">
+						<label class="sign__label" for="endDate">End Date</label> <input
+							type="Date" class="sign__input" name="endDate" id="endDate"
+							required value="${#dates.format(coupon.endDate, 'yyyy-MM-dd')}">
+					</div>
+				</div>
+
+				<div class="col-12">
+					<button type="submit" class="sign__btn sign__btn--small">
+						<span>Update</span>
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
+</main>
+<!-- end user modal -->
+
+</body>
+</html>

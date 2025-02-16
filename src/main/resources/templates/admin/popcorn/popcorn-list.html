@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+	  xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+	<meta charset="ISO-8859-1">
+	<title>Insert title here</title>
+</head>
+<body>
+<main class="container-fluid" layout:fragment="content">
+	<div class="container-fluid">
+		<div class="row">
+			<!-- main title -->
+			<div class="col-12">
+				<div class="main__title">
+					<h2>Popcorns</h2>
+					<span class="main__title-stat">${popcornTotal } Total</span>
+
+					<div class="main__title-wrap">
+						<button type="button" data-bs-toggle="modal"
+								class="main__title-link main__title-link--wrap"
+								data-bs-target="#modal-user">Add PopCorn</button>
+						<!-- search -->
+						<form th:action=" @{/admin/popcorns}"
+							  method="get" class="main__title-form">
+							<input type="text" name="searchQuery" value="${searchQuery}"
+								   placeholder="Find popcorn...">
+							<button type="submit">
+								<i class="ti ti-search"></i>
+							</button>
+						</form>
+						<!-- end search -->
+					</div>
+				</div>
+			</div>
+			<!-- end main title -->
+
+			<!-- users -->
+			<div class="col-12">
+				<div class="catalog catalog--1">
+					<table class="catalog__table">
+						<thead>
+						<tr>
+							<th>ID</th>
+							<th>NAME</th>
+							<th>TYPE</th>
+							<th>PRICE</th>
+							<th>STATUS</th>
+							<th>ACTIONS</th>
+						</tr>
+						</thead>
+
+						<tbody>
+
+						<th:block th:each="popcorn :${popcorns}">
+							<tr>
+								<td><div class="catalog__text">${popcorn.popcornID }</div></td>
+								<td><div class="catalog__text">${popcorn.namePopCorn }</div></td>
+								<td><div class="catalog__text">${popcorn.typePopCorn }</div></td>
+
+								<td><div class="catalog__text"><span th:text="${#numbers.formatDecimal(popcorn.price, 0, 'COMMA', 0, 'POINT')}"></span>
+									VND</div></td>
+								<td><div class="catalog__text">${popcorn.status == true ? 'Available' : 'Unavailable'}</div></td>
+								<td>
+									<div class="catalog__btns">
+										<a href="#" class="catalog__btn catalog__btn--edit"
+										   data-bs-toggle="modal" data-bs-target="#modal-edit"
+										   data-id="${popcorn.popcornID}"
+										   data-type="${popcorn.typePopCorn}"
+										   data-name="${popcorn.namePopCorn}"
+										   data-price="${popcorn.price}"
+										   data-status="${popcorn.status}"> <i class="ti ti-edit"></i>
+										</a>
+										<button type="button" data-bs-toggle="modal"
+												class="catalog__btn catalog__btn--delete"
+												data-bs-target="#modal-delete"
+												data-id="${popcorn.popcornID}">
+											<i class="ti ti-trash"></i>
+										</button>
+									</div>
+								</td>
+							</tr>
+						</th:block>
+
+
+
+						</tbody>
+					</table>
+				</div>
+			</div>
+			<!-- end users -->
+
+			<!-- paginator -->
+			<div class="col-12">
+				<div class="main__paginator">
+					<!-- amount -->
+					<span class="main__paginator-pages" th:text="${totalPages > 0 ? currentPage + ' of ' + totalPages : '0 of ' + totalPages}"></span>
+					<!-- end amount -->
+
+					<!-- Page size selector -->
+					<div class="col-1.02">
+						<label class="sign__label" for="pageSize">Page Size: </label>
+						<select class="sign__select" id="pageSize" name="pageSize" onchange="updatePageSize(this)">
+							<option value="5" th:selected="${pageSize == 5}">5 items</option>
+							<option value="10" th:selected="${pageSize == 10}">10 items</option>
+							<option value="15" th:selected="${pageSize == 15}">15 items</option>
+							<option value="20" th:selected="${pageSize == 20}">20 items</option>
+						</select>
+					</div>
+
+					<ul class="main__paginator-list">
+						<li><a href="#"> <i class="ti ti-chevron-left"></i> <span>Prev</span> </a></li>
+						<li><a href="#"> <span>Next</span> <i class="ti ti-chevron-right"></i> </a></li>
+					</ul>
+
+					<ul class="paginator">
+						<!-- Prev button -->
+						<li class="paginator__item paginator__item--prev" th:classappend="${currentPage == 1} ? 'disabled'">
+							<a th:if="${currentPage > 1}"
+							   th:href="@{/admin/popcorns(pageNumber=${currentPage - 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
+								<i class="ti ti-chevron-left"></i>
+							</a>
+							<a th:unless="${currentPage > 1}" href="#">
+								<i class="ti ti-chevron-left"></i>
+							</a>
+						</li>
+
+						<!-- Display first page and ellipsis if needed -->
+						<li th:if="${currentPage > 3}" class="paginator__item">
+							<a th:href="@{/admin/popcorns(pageNumber=1, pageSize=${pageSize}, searchQuery=${searchQuery})}">1</a>
+						</li>
+						<li th:if="${currentPage > 3}" class="paginator__item" style="color: white;">...</li>
+
+						<!-- Page numbers around current page -->
+						<th:block th:with="startPage=${currentPage > 1 ? currentPage : 1}, endPage=${currentPage + 1 < totalPages ? currentPage + 1 : totalPages}">
+							<li th:each="pageNum : ${#numbers.sequence(startPage, endPage)}"
+								class="paginator__item" th:classappend="${pageNum == currentPage} ? 'paginator__item--active'">
+								<a th:href="@{/admin/popcorns(pageNumber=${pageNum}, pageSize=${pageSize}, searchQuery=${searchQuery})}"
+								   th:text="${pageNum}"></a>
+							</li>
+						</th:block>
+
+						<!-- Display last page and ellipsis if needed -->
+						<li th:if="${currentPage < totalPages - 2}" class="paginator__item" style="color: white;">...</li>
+						<li th:if="${currentPage < totalPages - 2}" class="paginator__item">
+							<a th:href="@{/admin/popcorns(pageNumber=${totalPages}, pageSize=${pageSize}, searchQuery=${searchQuery})}"
+							   th:text="${totalPages}"></a>
+						</li>
+
+						<!-- Next button -->
+						<li class="paginator__item paginator__item--next" th:classappend="${currentPage == totalPages} ? 'disabled'">
+							<a th:if="${currentPage < totalPages}"
+							   th:href="@{/admin/popcorns(pageNumber=${currentPage + 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
+								<i class="ti ti-chevron-right"></i>
+							</a>
+							<a th:unless="${currentPage < totalPages}" href="#">
+								<i class="ti ti-chevron-right"></i>
+							</a>
+						</li>
+					</ul>
+				</div>
+				<!-- end paginator -->
+			</div>
+
+		</div>
+	</div>
+</main>
+<!-- end main content -->
+
+<!-- user modal -->
+<div class="modal fade" id="modal-user" tabindex="-1"
+	 aria-labelledby="modal-user" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal__content">
+				<form
+						th:action="@{/admin/popcorns/save}"
+						method="post" class="modal__form">
+					<h4 class="modal__title">Add PopCorn</h4>
+
+					<div class="row">
+						<div class="col-12">
+							<div class="sign__group">
+								<label class="sign__label" for="namePopCorn">PopCorn
+									Name</label> <input type="text" class="sign__input" name="namePopCorn"
+														id="namePopCorn" placeholder="Popcorn Combo Name" required>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="sign__group">
+								<label class="sign__label" for="price">Price</label> <input
+									type="number" class="sign__input" name="price" id="price"
+									placeholder="Price" required>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="sign__group">
+								<label class="sign__label" for="typePopCorn">Type</label> <select
+									class="sign__selectjs" name="typePopCorn" id="typePopCorn"
+									required style="color: white; width: 320px;">
+								<option value="Beverage">Beverage</option>
+								<option value="Popcorn">Popcorn</option>
+								<option value="Combos">Combos</option>
+							</select>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="sign__group">
+								<label class="sign__label" for="status">Status</label> <select
+									class="sign__selectjs" name="status" id="status" required
+									style="color: white; width: 320px;">
+								<option value="1" th:selected="${popcorn.status}" >Available</option>
+								<option value="0" th:selected="${!popcorn.status}">Unavailable</option>
+							</select>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<button type="submit" class="sign__btn sign__btn--small"
+									style="width: 320px;">
+								<span>Save</span>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- end user modal -->
+
+<!-- edit popcorn modal -->
+<div class="modal fade" id="modal-edit" tabindex="-1"
+	 aria-labelledby="modal-user" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal__content">
+				<form
+						th:action="@{/admin/popcorns/update}"
+						method="post" class="modal__form" id="edit-popcorn-form">
+					<h4 class="modal__title">Edit PopCorn</h4>
+					<div class="row">
+						<div class="col-12">
+							<input type="hidden" class="sign__input" name="popcornID-edit"
+								   id="popcornID-edit">
+							<div class="sign__group">
+								<label class="sign__label" for="namePopCorn">PopCorn
+									Name</label> <input type="text" class="sign__input" name="namePopCorn"
+														id="namePopCorn" placeholder="Popcorn Combo Name" required>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="sign__group">
+								<label class="sign__label" for="price">Price</label> <input
+									type="number" class="sign__input" name="price" id="price"
+									placeholder="Price" required>
+							</div>
+						</div>
+						<div class="col-12">
+							<div class="sign__group">
+								<label class="sign__label" for="typePopCorn">Type</label> <select
+									class="sign__selectjs" name="typePopCorn" id="typePopCorn"
+									required
+									style="color: white; font-weight: bold; width: 320px;">
+								<option value="Beverage" style="color: white; font-weight: bold;">Beverage</option>
+								<option value="Popcorn"
+										style="color: white; font-weight: bold;">Popcorn</option>
+								<option value="Combos" style="color: white; font-weight: bold;">Combos</option>
+							</select>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<div class="sign__group">
+								<label class="sign__label" for="status">Status</label> <select
+									class="sign__selectjs" name="status" id="status" required
+									style="color: white; font-weight: bold; width: 320px;">
+								<option value="1" >Available</option>
+								<option value="0" >Unavailable</option>
+							</select>
+							</div>
+						</div>
+
+						<div class="col-12">
+							<button type="submit" class="sign__btn sign__btn--small"
+									style="width: 320px;">
+								<span>Update</span>
+							</button>
+						</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+
+<!-- delete modal -->
+<div class="modal fade" id="modal-delete" tabindex="-1"
+	 aria-labelledby="modal-delete" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered">
+		<div class="modal-content">
+			<div class="modal__content">
+				<form
+						th:action="@{/admin/popcorns/delete}"
+						method="POST" class="modal__form_delete">
+					<h4 class="modal__title">Service delete</h4>
+
+					<p class="modal__text">Are you sure to permanently delete this
+						Service?</p>
+					<div class="modal__btns">
+						<button class="modal__btn modal__btn--apply" type="submit">
+							<span>Delete</span>
+						</button>
+						<button class="modal__btn modal__btn--dismiss" type="button"
+								data-bs-dismiss="modal" aria-label="Close">
+							<span>Dismiss</span>
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+<!-- end delete modal -->
+
+
+
+<!-- Mirrored from hotflix.volkovdesign.com/admin/users.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 07:09:40 GMT -->
+<script>
+	//JavaScript to handle page size change
+	function updatePageSize(select) {
+		var pageSize = select.value;
+		var urlParams = new URLSearchParams(window.location.search);
+		var pageNumber = 1; // Default to 1
+		urlParams.set('pageSize', pageSize); // Update the page size query param
+		urlParams.set('pageNumber', pageNumber);
+
+		// Use window.location.href to reload the page with the updated query params
+		window.location.href = window.location.pathname + '?'
+				+ urlParams.toString();
+	}
+
+
+	// Lắng nghe sự kiện khi mở Modal
+	document.addEventListener("DOMContentLoaded", function () {
+		const deleteButtons = document.querySelectorAll(".catalog__btn--delete"); // Nút mở modal xóa
+		const modalForm = document.querySelector(".modal__form_delete"); // Form trong modal
+		deleteButtons.forEach(button => {
+			button.addEventListener("click", function () {
+				const popcornID = this.getAttribute("data-id"); // Lấy userId từ attribute
+				const baseFormAction = modalForm.getAttribute("action"); // URL ban đầu của form
+				const link = baseFormAction+'?popcornID='+popcornID;
+				console.log("link : " + link);
+				modalForm.setAttribute("action", link);
+			});
+		});
+	});
+
+	//edit user modal
+	document.addEventListener('DOMContentLoaded', function () {
+		var form = document.getElementById('edit-popcorn-form');
+		var popcornIDField = document.getElementById('popcornID-edit');
+
+		form.addEventListener('submit', function (event) {
+			// Lấy giá trị của popcornID
+			var popcornID = popcornIDField.value;
+
+			const baseFormAction = form.getAttribute("action"); // URL ban đầu của form
+			const link = baseFormAction+'?popcornID='+popcornID;
+			// Gán giá trị vào URL của action
+			form.action = link
+			console.log("url : " + form.action )
+		});
+	});
+
+
+
+	document.addEventListener('DOMContentLoaded', function () {
+		// Lắng nghe sự kiện khi modal được hiển thị
+		var editModal = document.getElementById('modal-edit');
+		editModal.addEventListener('show.bs.modal', function (event) {
+			// Nút kích hoạt modal
+			var button = event.relatedTarget;
+
+			// Lấy thông tin từ data-attribute
+			var popcornID = button.getAttribute('data-id');
+			var popcornType = button.getAttribute('data-type');
+			var popcornName = button.getAttribute('data-name');
+			var popcornPrice = button.getAttribute('data-price');
+			var popcornStatus = button.getAttribute('data-status');
+
+			// Điền thông tin vào các trường trong modal
+			var modalPopcornType = editModal.querySelector('#typePopCorn');
+			var modalPopcornPrice = editModal.querySelector('#price');
+			var modalPopcornName = editModal.querySelector('#namePopCorn');
+			var modalPopcornStatus = editModal.querySelector('#status');
+			var modalPopcornID = editModal.querySelector('#popcornID-edit');
+
+			modalPopcornID.value = popcornID;
+			modalPopcornType.value = popcornType;
+			modalPopcornPrice.value = popcornPrice;
+			modalPopcornName.value = popcornName;
+			if(popcornStatus == "true")
+			{
+				modalPopcornStatus.value = "1";
+			}
+			else
+			{
+				modalPopcornStatus.value = "0";
+			}
+			// modalPopcornStatus.value = popcornStatus;
+			console.log("popcornID" + popcornID);
+			console.log("popcornType" + popcornType);
+			console.log("popcornName" + popcornName);
+			console.log("popcornPrice" + popcornPrice);
+			console.log("popcornStatus" + popcornStatus);
+
+
+
+		});
+	});
+
+</script>
+</body>
+</html>
+
