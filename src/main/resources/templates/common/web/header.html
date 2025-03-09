@@ -5,7 +5,7 @@
     <title>ValCT</title>
 </head>
 <body>
-
+<header th:fragment="header" class="header-section">
 <!-- ==========Overlay========== -->
 <div class="overlay"></div>
 <a href="#" class="scrollToTop">
@@ -14,7 +14,7 @@
 <!-- ==========Overlay========== -->
 
 <!-- ==========Header-Section========== -->
-<header th:fragment="header" class="header-section">
+
     <div class="container">
         <div class="header-wrapper">
             <div class="logo">
@@ -43,7 +43,7 @@
                     </ul>
                 </li>
                 <li class="header-button pr-0">
-                    <a th:href="@{/signin}">Sign In</a>
+                    <a th:href="@{/login}">Sign In</a>
                 </li>
             </ul>
             <div class="header-bar d-lg-none">

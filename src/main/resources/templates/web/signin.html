@@ -5,8 +5,8 @@
 <head>
     <meta charset="UTF-8">
 </head>
-<body>
-<div layout:fragment="content">
+<body layout:fragment="content">
+<div >
 <section class="account-section bg_img"
          th:data-background="@{static/assets/images/account/account-bg.jpg}">
     <div class="container">
@@ -16,28 +16,23 @@
                     <span class="cate">hello</span>
                     <h2 class="title">welcome back</h2>
                 </div>
-                <form th:action="@{/signin}" method="post" class="account-form">
-                    <!-- Hiển thị thông báo nếu có -->
-                    <div th:if="${mess != null}">
-                        <label class="form-group" th:text="${mess}"></label>
-                    </div>
+                <form id="signinForm" class="account-form">
+                    <div id="message" style="color: red; display: none;"></div>
 
                     <div class="form-group">
                         <label for="email2">Email<span>*</span></label>
-                        <input type="text" placeholder="Enter Your Email" id="email2"
-                               th:value="${email}" name="email" required>
+                        <input type="text" placeholder="Enter Your Email" id="email2" name="email" required>
                     </div>
 
                     <div class="form-group">
                         <label for="pass3">Password<span>*</span></label>
-                        <input type="password" placeholder="Password" id="pass3"
-                               name="password" required>
+                        <input type="password" placeholder="Password" id="pass3" name="password" required>
                     </div>
 
                     <div class="form-group checkgroup">
                         <input type="checkbox" id="bal2" value="on">
                         <label for="bal2">remember password</label>
-                        <a th:href="@{/forgetpass}" class="forget-pass">Forget Password</a>
+                        <a th:href="@{/forget-pass}" class="forget-pass">Forget Password</a>
                     </div>
 
                     <div class="form-group text-center">
@@ -68,5 +63,33 @@
 </section>
 <!-- ==========Sign-In-Section========== -->
 </div>
+<script>
+    document.getElementById("signinForm").addEventListener("submit", function (event) {
+        event.preventDefault(); // Chặn hành vi submit mặc định
+
+        let email = document.getElementById("email2").value;
+        let password = document.getElementById("pass3").value;
+        let messageDiv = document.getElementById("message");
+
+        fetch("/login", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ email, password })
+        })
+            .then(response => response.json())
+            .then(data => {
+                if (data.message === "Login successful") {
+                    window.location.href = "/home"; // Chuyển hướng sau khi đăng nhập thành công
+                } else {
+                    document.getElementById("message").textContent = data.message || "Login failed!";
+                    messageDiv.style.display = "block";
+                }
+            })
+            .catch(() => {
+                document.getElementById("message").textContent = "Error connecting to server!";
+                document.getElementById("message").style.display = "block";
+            });
+    });
+</script>
 </body>
 </html>

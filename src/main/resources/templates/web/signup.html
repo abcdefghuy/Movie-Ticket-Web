@@ -4,6 +4,7 @@
       xmlns:th="http://www.thymeleaf.org" lang="en">
 <!-- Mirrored from pixner.net/boleto/demo/sign-up.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 06:27:35 GMT -->
 <head>
+    <meta charset="UTF-8">
 </head>
 <body>
 <div layout:fragment="content">
@@ -16,36 +17,37 @@
                         <span class="cate">welcome</span>
                         <h2 class="title">to ValCT</h2>
                     </div>
-                    <form th:action="@{/signup}" method="post"
-                          class="account-form">
-                        <div th:if="${exception != null}">
-                            <label class="form-group">${exception}</label>
-                        </div>>
+                    <form id="registerForm" class="account-form">
                         <div class="form-group">
-                            <label for="fullname">Full Name<span>*</span></label> <input
-                                type="text" placeholder="Enter Your Full Name" id="fullname"
-                                name="fullname" value="${fullname}" required>
+                            <label for="fullname">Full Name<span>*</span></label>
+                            <input type="text" id="fullname" placeholder="Enter Your Full Name" required>
+                            <span class="text-danger" id="error-fullname"></span>
                         </div>
+
                         <div class="form-group">
-                            <label for="email1">Email<span>*</span></label> <input
-                                type="text" placeholder="Enter Your Email" id="email1"
-                                name="email" value="${email}" required>
+                            <label for="email">Email<span>*</span></label>
+                            <input type="email" id="email" placeholder="Enter Your Email" required>
+                            <span class="text-danger" id="error-email"></span>
                         </div>
+
                         <div class="form-group">
-                            <label for="pass1">Password<span>*</span></label> <input
-                                type="password" placeholder="Password" id="pass1"
-                                name="passsignup" value="${passsignup}" required>
+                            <label for="password">Password<span>*</span></label>
+                            <input type="password" id="password" placeholder="Password" required>
+                            <span class="text-danger" id="error-password"></span>
                         </div>
+
                         <div class="form-group">
-                            <label for="pass2">Confirm Password<span>*</span></label> <input
-                                type="password" placeholder="Re-type Password" id="pass2"
-                                name="passcheck" value="${passscheck}" required>
+                            <label for="confirmPassword">Confirm Password<span>*</span></label>
+                            <input type="password" id="confirmPassword" placeholder="Re-type Password" required>
+                            <span class="text-danger" id="error-confirmPassword"></span>
                         </div>
+
                         <div class="form-group">
-                            <label for="pass2">Phone<span>*</span></label> <input
-                                type="text" placeholder="Your Phone"
-                                name="phone" value="${phone}" required>
+                            <label for="phone">Phone<span>*</span></label>
+                            <input type="number" id="phone" placeholder="Your Phone" required>
+                            <span class="text-danger" id="error-phone"></span>
                         </div>
+
                         <div class="form-group">
                             <div class="form-check-inline" style="margin-right: 50px;">
                                 <input class="form-check-input" type="checkbox" value="0"
@@ -60,6 +62,7 @@
                                        onclick="toggleCheckbox('agreeMale', this)"> <label
                                     for="agreeFemale">Nữ</label>
                             </div>
+                            <span class="text-danger" id="error-gender"></span>
                         </div>
                         <script>
                             function toggleCheckbox(otherId, checkbox) {
@@ -68,20 +71,20 @@
                                 otherCheckbox.checked = !checkbox.checked;
                             }
                         </script>
+
                         <div class="form-group">
-                            <label>Region<span>*</span></label> <input type="text"
-                                                                       placeholder="Your Province" name="region" list="exampleList"
-                                                                       value="${region}">
-                            <datalist id="exampleList">
-                                <th:block th:each="city : ${listcity}">
-                                    <option th:value="${city}" th:text="${city}"></option>
-                                </th:block>
-                            </datalist>
+                            <label>Region<span>*</span></label>
+                            <input type="text" placeholder="Your Province" name="region" list="exampleList" id="regionInput">
+                            <datalist id="exampleList"></datalist>
+                            <span class="text-danger" id="error-region"></span>
                         </div>
+
                         <div class="form-group">
-                            <label>BirthDay<span>*</span></label> <input type="date"
-                                                                         name="dob" value="${dob}">
+                            <label>BirthDay<span>*</span></label>
+                            <input type="date" id="dob">
+                            <span class="text-danger" id="error-dob"></span>
                         </div>
+
                         <br>
                         <div class="form-group text-center">
                             <input type="submit" value="Verification">
@@ -101,11 +104,86 @@
             </div>
         </div>
     </section>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        document.getElementById("confirmPassword").addEventListener("blur", function () {
+            let password = document.getElementById("password").value;
+            let confirmPassword = this.value;
+            let errorElement = document.getElementById("error-confirmPassword");
+
+            if (confirmPassword !== password) {
+                errorElement.textContent = "Mật khẩu không khớp!";
+            } else {
+                errorElement.textContent = "";
+            }
+        });
+        $(document).ready(function () {
+            $.ajax({
+                url: "http://localhost:8080/regions",
+                type: "GET",
+                dataType: "json", // Đảm bảo dữ liệu trả về là JSON
+                success: function (data) {
+                    if (!Array.isArray(data)) {
+                        return;
+                    }
+                    let options = data.map(city => `<option value="${city}">`).join("");
+                    $("#exampleList").html(options); // Đổ dữ liệu vào datalist
+                },
+                error: function (xhr, status, error) {
+                    console.error("Failed to load regions:", error);
+                }
+            });
+        });
+        document.getElementById("registerForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+
+            let gender = document.getElementById("agreeMale").checked ? 0 :
+                document.getElementById("agreeFemale").checked ? 1 : null;
+
+            let data = {
+                username: document.getElementById("fullname").value,
+                email: document.getElementById("email").value,
+                password: document.getElementById("password").value, // Gửi mật khẩu đã mã hóa lên server
+                phone: document.getElementById("phone").value,
+                region: document.getElementById("regionInput").value,
+                dob: document.getElementById("dob").value,
+                gender: gender
+            };
+
+            try {
+                let response = await fetch("/signup", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json; charset=UTF-8" },
+                    body: JSON.stringify(data)
+                });
+
+                let result = await response.json();
+
+                if (response.ok) {
+                    alert("Đăng ký thành công!");
+                    sessionStorage.setItem("userEmail", data.email);
+                    sessionStorage.setItem("otpAction", "register");
+                    window.location.href = "/verify";
+                } else {
+                    document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+                    document.getElementById("error-fullname").textContent = result.username || "";
+                    document.getElementById("error-email").textContent = result.email || "";
+                    document.getElementById("error-password").textContent = result.password || "";
+                    document.getElementById("error-phone").textContent = result.phone || "";
+                    document.getElementById("error-region").textContent = result.region || "";
+                    document.getElementById("error-dob").textContent = result.dob || "";
+                    document.getElementById("error-gender").textContent = result.gender || "";
+                }
+            } catch (error) {
+                console.error("Error:", error);
+                alert("Đăng ký thất bại. Vui lòng thử lại.");
+            }
+        });
+    </script>
 </div>
 <!-- ==========Sign-In-Section========== -->
 <!-- ==========Sign-In-Section========== -->
+
 </body>
-
-
 <!-- Mirrored from pixner.net/boleto/demo/sign-up.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 06:27:35 GMT -->
 </html>
