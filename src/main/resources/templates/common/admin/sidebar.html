@@ -5,13 +5,12 @@
     <meta charset="UTF-8">
     <title>Insert title here</title>
 </head>
-<body>
-
-<div class="sidebar" layout:fragment="sidebar">
+<body th:fragment="sidebar">
+<div class="sidebar" >
     <!-- sidebar logo -->
-    <a th:href="@{/adminHome}"
+    <a th:href="@{/admin/adminHome}"
        class="sidebar__logo"> <img
-            th:src="@{static/assets2/img/logo.png}" alt=""
+            th:src="@{/static/assets2/img/logo.png}" alt=""
             width="300" height="300">
     </a>
     <!-- end sidebar logo -->
@@ -19,13 +18,13 @@
     <!-- sidebar user -->
     <div class="sidebar__user">
         <div class="sidebar__user-img">
-            <img  th:src="@{static/assets2/img/user.svg}"
+            <img  th:src="@{/static/assets2/img/user.svg}"
                  alt="">
         </div>
 
         <div class="sidebar__user-title">
             <span>Admin</span>
-            <p>${person.fullName}</p>
+            <p id="nameAdmin"></p>
         </div>
     </div>
     <!-- end sidebar user -->
@@ -37,9 +36,11 @@
             <li class="sidebar__nav-item"><a
                     th:href="@{/admin/cinemas}"
                     class="sidebar__nav-link"><i class="ti ti-door"></i> <span>Cinema</span></a></li>
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/admin/movies}"
-                    class="sidebar__nav-link"><i class="ti ti-movie"></i> <span>Movie</span></a></li>
+            <li class="sidebar__nav-item">
+                <a th:href="@{/admin/Movie.html}" class="sidebar__nav-link">
+                    <i class="ti ti-movie"></i> <span>Movie</span>
+                </a>
+            </li>
             <li class="sidebar__nav-item"><a
                     th:href="@{/adminnewsOrDiscounts}"
                     class="sidebar__nav-link"><i class="ti ti-news"></i> <span>News
@@ -71,6 +72,7 @@
                     class="sidebar__nav-link"><i class="ti ti-arrow-left"></i> <span>Back
 							to ValCT</span></a></li>
         </ul>
+        <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
             // Lấy URL hiện tại của trang
             const currentPath = window.location.pathname;
@@ -84,12 +86,20 @@
                     link.classList.add('sidebar__nav-link--active');
                 }
             });
+            $(async function () {
+                try {
+                    const res = await fetch('/admin/adminInfo', { credentials: 'include' });
+                    if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
+                    const data = await res.json();
+                    document.getElementById('nameAdmin').textContent = data.userName;
+                } catch (err) {
+                    document.getElementById('nameAdmin').textContent = "?";
+                }
+            });
         </script>
     </div>
     <!-- end sidebar nav -->
 </div>
-
-
-
 </body>
 </html>

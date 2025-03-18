@@ -1,4 +1,4 @@
-package com.example.movieticketWeb.controller;
+package com.example.movieticketWeb.RestController.web;
 
 import com.example.movieticketWeb.dto.request.VerifyUserRequest;
 import com.example.movieticketWeb.service.AuthenticationService;
@@ -7,37 +7,30 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
 import jakarta.validation.Valid;
 import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
-import org.springframework.validation.FieldError;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.Map;
 
 @RestController
-public class VerificationController {
+public class VerificationRestController {
     private final JwtService jwtService;
 
     private final AuthenticationService authenticationService;
 
-    public VerificationController(JwtService jwtService, AuthenticationService authenticationService) {
+    public VerificationRestController(JwtService jwtService, AuthenticationService authenticationService) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
     }
 
-    @GetMapping("/verify")
-    public ModelAndView showVerifyPage(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("verification") == null) {
-            return new ModelAndView("redirect:/login"); // Chuyển hướng đến trang đăng ký
-        }
-        return new ModelAndView("web/verification");
-    }
-
     @PostMapping(value = "/verify", consumes = "application/json", produces = "application/json")
     public ResponseEntity<?> verifyUser(@Valid @RequestBody VerifyUserRequest verifyUserRequest, BindingResult bindingResult) {
-        ResponseEntity<?> errors = SignupController.getResponseEntity(bindingResult);
+        ResponseEntity<?> errors = SignupRestController.getResponseEntity(bindingResult);
         if (errors != null) return errors;
 
         try {

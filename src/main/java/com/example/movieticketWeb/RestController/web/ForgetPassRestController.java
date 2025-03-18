@@ -1,4 +1,4 @@
-package com.example.movieticketWeb.controller;
+package com.example.movieticketWeb.RestController.web;
 
 import com.example.movieticketWeb.dto.request.ForgotPasswordRequest;
 import com.example.movieticketWeb.dto.request.ResetPasswordRequest;
@@ -8,10 +8,8 @@ import com.example.movieticketWeb.service.AuthenticationService;
 import com.example.movieticketWeb.service.JwtService;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpSession;
-import org.springframework.http.HttpRequest;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
@@ -19,21 +17,16 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.servlet.ModelAndView;
 
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 @RestController
-public class ForgetPassController {
+public class ForgetPassRestController {
     private final JwtService jwtService;
 
     private final AuthenticationService authenticationService;
 
-    public ForgetPassController(JwtService jwtService, AuthenticationService authenticationService) {
+    public ForgetPassRestController(JwtService jwtService, AuthenticationService authenticationService) {
         this.jwtService = jwtService;
         this.authenticationService = authenticationService;
-    }
-    @GetMapping("/forget-pass")
-    public ModelAndView forgetpass() {
-        return new ModelAndView("web/forgetpassword");
     }
 
     @PostMapping(value = "/forget-pass", consumes = "application/json", produces = "application/json")
@@ -50,14 +43,6 @@ public class ForgetPassController {
         } catch (Exception e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("message", "Something went wrong!"));
         }
-    }
-    @GetMapping("/change-password")
-    public ModelAndView changepass(HttpServletRequest request) {
-        HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("verification") == null) {
-            return new ModelAndView("redirect:/login"); // Chuyển hướng đến trang đăng ký
-        }
-        return new ModelAndView("web/changepassword") ;
     }
     @PostMapping("/change-password")
     public ResponseEntity<?> resetPassword(@RequestBody ResetPasswordRequest resetPasswordRequest) {

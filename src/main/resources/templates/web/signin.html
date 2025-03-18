@@ -69,26 +69,27 @@
 
         let email = document.getElementById("email2").value;
         let password = document.getElementById("pass3").value;
-        let messageDiv = document.getElementById("message");
-
         fetch("/login", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, password })
+            body: JSON.stringify({ email, password }),
+            credentials: "include"
         })
-            .then(response => response.json())
+            .then(res => res.json())
             .then(data => {
-                if (data.message === "Login successful") {
-                    window.location.href = "/home"; // Chuyển hướng sau khi đăng nhập thành công
+                if (data.role) {
+                    window.location.href = data.role === "ROLE_ADMIN" ? "/admin/adminHome" : "/user/userHome";
                 } else {
-                    document.getElementById("message").textContent = data.message || "Login failed!";
-                    messageDiv.style.display = "block";
+                    showMessage(data.message || "Login failed!");
                 }
             })
-            .catch(() => {
-                document.getElementById("message").textContent = "Error connecting to server!";
-                document.getElementById("message").style.display = "block";
-            });
+            .catch(() => showMessage("Invalid password or email!"));
+
+        function showMessage(msg) {
+            const messageDiv = document.getElementById("message");
+            messageDiv.textContent = msg;
+            messageDiv.style.display = "block";
+        }
     });
 </script>
 </body>

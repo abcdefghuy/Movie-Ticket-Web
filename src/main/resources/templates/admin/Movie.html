@@ -6,7 +6,6 @@
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
 	<style>
-
 		.main__paginator-list {
 			display: flex;
 			justify-content: center;
@@ -18,27 +17,18 @@
 
 		.main__paginator-list li {
 			padding: 0px 0px;
-
-
 			background: #1a191f;
 			cursor: pointer;
 		}
-
 		.main__paginator-list li.paginator__item--active {
 			background: #1a191f;
 			color: #fff;
 		}
-
 		.main__paginator-list li:hover {
 			background: #1a191f;
 		}
 
 
-
-		.sign__selectjs {
-			width: 716%;  /* Đảm bảo thẻ select chiếm đủ không gian của container */
-			max-width: 1540px; /* Bạn có thể điều chỉnh max-width để thẻ rộng hơn */
-		}
 		.search__keyword {
 			width: 1500%;
 			max-width: 450px; /* Thay đổi giá trị này để điều chỉnh độ dài */
@@ -47,236 +37,102 @@
 			width: 100%;
 			max-width: 300px; /* Thay đổi giá trị này để điều chỉnh độ dài */
 		}
-
-
 	</style>
 </head>
-<body>
-	<!-- main content -->
-	<main class="container-fluid" layout:fragment="content">
-		
-		<div class="container-fluid">
-			<div class="row">
-			
-				<!-- main title -->
-				<div class="col-12">
-					<div class="main__title">
-						<h2>Movie</h2>
+<body layout:fragment="content">
+	 <main class="container-fluid">
+		 <div class="container-fluid">
+			 <div class="row">
+				 <!-- Main title -->
+				 <div class="col-12">
+					 <div class="main__title">
+						 <h2>Movie</h2>
+						 <span class="main__title-stat">Total Movies: <span id="totalMovies">0</span></span>
+						 <div class="main__title-wrap">
+							 <a th:href="@{/admin/movies/add}" class="main__title-link main__title-link--wrap">Add Movie</a>
+						 </div>
+					 </div>
+				 </div>
 
-							<span class="main__title-stat">Total Movies :
-								${noOfRecords}</span>
-						<div class="main__title-wrap">		
-							<!-- search -->
-							<a
-							th:href="@{/admin/addMovie}"
-							class="main__title-link main__title-link--wrap">Add Movie</a>
-						</div>			
+				 <!-- Search Form -->
+				 <div class="container-fluid">
+					 <div class="row">
+						 <form id="searchForm" action="/admin/searchMovie">
+							 <!-- Nhập từ khóa tìm kiếm -->
+							 <div class="main__title-form">
+								 <input type="text" id="keywordInput" name="keyword"
+										placeholder="Find Movie by name..............">
+								 <button type="submit">
+									 <i class="ti ti-search"></i>
+								 </button>
+							 </div>
 
-					</div>
-				</div>
-				<div class="container-fluid">
-				    <div class="row">
-				        <!-- Form tìm kiếm -->
-					<form th:action="@{/admin/searchMovie}" method="get">
-					    <!-- Nhập từ khóa tìm kiếm -->
-					    <div class="main__title-form">
-					        <input type="text" class="sign__selectjs" name="keyword" 
-					               placeholder="Find Movie by name.............." 
-					               value="${keyword != null ? keyword : ''}">
-					        <button type="submit">
-					            <i class="ti ti-search"></i>
-					        </button>
-					    </div>
-					
-					    <!-- Chọn danh mục (multiple) -->
-					    <select name="category" class="sign__selectjs" id="sign__genre" multiple>
-							<option value="category" th:selected="${#strings.contains(Movie.category, 'All')}">All category</option>
-							<option value="Action" th:selected="${#strings.contains(Movie.category, 'Action')}">Action</option>
-							<option value="Animation" th:selected="${#strings.contains(Movie.category, 'Animation')}">Animation</option>
-							<option value="Comedy" th:selected="${#strings.contains(Movie.category, 'Comedy')}">Comedy</option>
-							<option value="Crime" th:selected="${#strings.contains(Movie.category, 'Crime')}">Crime</option>
-							<option value="Drama" th:selected="${#strings.contains(Movie.category, 'Drama')}">Drama</option>
-							<option value="Fantasy" th:selected="${#strings.contains(Movie.category, 'Fantasy')}">Fantasy</option>
-							<option value="Historical" th:selected="${#strings.contains(Movie.category, 'Historical')}">Historical</option>
-							<option value="Horror" th:selected="${#strings.contains(Movie.category, 'Horror')}">Horror</option>
-							<option value="Romance" th:selected="${#strings.contains(Movie.category, 'Romance')}">Romance</option>
-							<option value="Science-fiction" th:selected="${#strings.contains(Movie.category, 'Science-fiction')}">Science-fiction</option>
-							<option value="Thriller" th:selected="${#strings.contains(Movie.category, 'Thriller')}">Thriller</option>
-							<option value="Western" th:selected="${#strings.contains(Movie.category, 'Western')}">Western</option>
-							<option value="Other" th:selected="${#strings.contains(Movie.category, 'Other')}">Other</option>
-					    </select>
-					
-					    <!-- Duy trì giá trị recordsPerPage -->
-					     <input type="hidden" name="soluong" value="${recordsPerPage}" />
-					</form>
-				    </div>
-				</div>
+							 <!-- Chọn danh mục (multiple) -->
+							 <select name="category" class="sign__selectjs" id="sign__genre" multiple>
+								 <option value="All">All Categories</option>
+								 <option value="Action">Action</option>
+								 <option value="Animation">Animation</option>
+								 <option value="Comedy">Comedy</option>
+								 <option value="Crime">Crime</option>
+								 <option value="Drama">Drama</option>
+								 <option value="Fantasy">Fantasy</option>
+								 <option value="Historical">Historical</option>
+								 <option value="Horror">Horror</option>
+								 <option value="Romance">Romance</option>
+								 <option value="Science-fiction">Science-fiction</option>
+								 <option value="Thriller">Thriller</option>
+								 <option value="Western">Western</option>
+								 <option value="Other">Other</option>
+							 </select>
 
-				<!-- end main title -->
+							 <!-- Duy trì giá trị recordsPerPage -->
+							 <input type="hidden" name="soluong" id="recordsPerPage" value="10" />
+						 </form>
+					 </div>
+				 </div>
 
-				<!-- items -->
-				<div class="col-12">
-					<div class="catalog catalog--1">
-						<table class="catalog__table">
-							<thead>
-								<tr>
-									<th>ID</th>
-									<th>MovieName</th>
-									<th>Category</th>
-									<th>Image</th>
-									<th>MovieDuration</th>									
-									<th>Release Date</th>
-									<th>Status</th>
-									<th>Action</th>
-								</tr>
-							</thead>
-							<tbody>
-							<tr th:each="movie : ${movies}">
-								<td><div class="catalog__text" th:text="${movie.movieID}"></div></td>
-								<td><div class="catalog__text" th:text="${movie.movieName}"></div></td>
-								<td><div class="catalog__text" th:text="${movie.category}"></div></td>
-								<td>
-									<div class="catalog__text">
-										<img th:src="${#strings.startsWith(movie.image, 'https') ? movie.image : '/image?fname=' + movie.image}"
-											 th:alt="${movie.image}" width="150" height="150" />
-									</div>
-								</td>
-								<td><div class="catalog__text" th:text="${movie.movieDuration}"></div></td>
-								<td>
-									<div class="catalog__text" th:text="${#dates.format(movie.releaseDay, 'MM-dd-yyyy')}"></div>
-								</td>
-								<td>
-									<div class="catalog__text" th:classappend="${movie.status} ? 'catalog__text--green' : 'catalog__text--red'">
-										<span th:text="${movie.status ? 'Active' : 'Inactive'}"></span>
-									</div>
-								</td>
-								<td>
-									<div class="catalog__btns">
-										<a th:href="@{/admin/editMovie(id=${movie.movieID})}"
-										   class="catalog__btn catalog__btn--edit">
-											<i class="ti ti-edit"></i>
-										</a>
-										<button type="button" data-bs-toggle="modal"
-												class="catalog__btn catalog__btn--delete"
-												data-bs-target="#modal-delete"
-												th:attr="data-movie-id=${movie.movieID}">
-											<i class="ti ti-trash"></i>
-										</button>
-										<a th:href="@{/adminReview(movieID=${movie.movieID})}"
-										   class="catalog__btn catalog__btn--view">
-											<i class="ti ti-eye"></i>
-										</a>
-									</div>
-								</td>
-							</tr>
-							</tbody>
-						</table>
-					</div>
-				</div>
-				<!-- end items -->
+				 <!-- Movies Table -->
+				 <div class="col-12">
+					 <div class="catalog catalog--1">
+						 <table class="catalog__table">
+							 <thead>
+							 <tr>
+								 <th>ID</th>
+								 <th>MovieName</th>
+								 <th>Category</th>
+								 <th>Image</th>
+								 <th>MovieDuration</th>
+								 <th>Release Date</th>
+								 <th>Status</th>
+								 <th>Action</th>
+							 </tr>
+							 </thead>
+							 <tbody id="moviesTableBody">
+							 <!-- Movies will be inserted here -->
+							 </tbody>
+						 </table>
+					 </div>
+				 </div>
 
-<div class="col-12">
-    <div class="main__paginator">
-        <!-- Hiển thị số trang hiện tại và tổng số trang -->
-        <span class="main__paginator-pages">Page ${currentPage} of ${noOfPages}</span>
-        
-        <div class="col-1">
-            <div class="sign__group">
-                <label class="sign__label">Items Per Page</label>
-                <form th:action="@{/admin/searchMovie}" method="get">
-                    <!-- Select số lượng bản ghi -->
-                    <select class="sign__select" name="soluong" id="soluong" onchange="this.form.submit()">
-						<option value="5" th:selected="${pageSize == 5}">5 items</option>
-						<option value="10" th:selected="${pageSize == 10}">10 items</option>
-						<option value="15" th:selected="${pageSize == 15}">15 items</option>
-						<option value="20" th:selected="${pageSize == 20}">20 items</option>
-                    </select>
+				 <!-- Pagination -->
+				 <div class="col-12">
+					 <div class="main__paginator">
+						 <span class="main__paginator-pages">Page <span id="currentPage">1</span> of <span id="noOfPages">1</span></span>
 
-                    <!-- Hidden fields để giữ lại thông tin tìm kiếm -->
-                    <input type="hidden" name="keyword" value="${keyword}" />
-                    <th:block  th:each="cat : ${category}">
-                        <input type="hidden" name="category" value="${cat}" />
-                    </th:block>
+						 <ul class="main__paginator-list">
+							 <li class="paginator__item paginator__item--prev">
+								 <a href="#" id="prevPage"><i class="ti ti-chevron-left"></i></a>
+							 </li>
 
-                    <!-- Hidden field để giữ giá trị trang hiện tại -->
-                    <input type="hidden" name="page" value="${currentPage}">
-                </form>
-            </div>
-        </div>
-
-        <ul class="main__paginator-list">
-            <!-- Nút Previous -->
-			<li class="paginator__item paginator__item--prev" th:classappend="${currentPage == 1} ? 'disabled'">
-				<a th:href="@{/admin/searchMovie(
-        keyword=${keyword},
-        category=${category},
-        page=${currentPage > 1 ? currentPage - 1 : 1},
-        soluong=${recordsPerPage}
-    )}">
-					<i class="ti ti-chevron-left"></i>
-				</a>
-			</li>
-
-            <!-- Hiển thị trang đầu nếu cần -->
-			<th:block th:if="${currentPage > 3}">
-				<li class="paginator__item">
-					<a th:href="@{/admin/searchMovie(
-            					keyword=${keyword},
-            					category=${category},
-           						page=1,
-            					soluong=${recordsPerPage}
-        						)}">1</a>
-				</li>
-				<li class="paginator__item">...</li>
-			</th:block>
-
-			<!-- Các trang xung quanh trang hiện tại -->
-			<th:block th:with="startPage=${currentPage - 2 > 1 ? currentPage - 2 : 1},
-                   endPage=${currentPage + 2 < noOfPages ? currentPage + 2 : noOfPages}">
-				<th:block th:each="pageNumber : ${#numbers.sequence(startPage, endPage)}">
-					<li class="paginator__item" th:classappend="${pageNumber == currentPage} ? 'paginator__item--active'">
-						<a th:href="@{/admin/searchMovie(
-                keyword=${keyword},
-                category=${category},
-                page=${pageNumber},
-                soluong=${recordsPerPage}
-            )}" th:text="${pageNumber}"></a>
-					</li>
-				</th:block>
-			</th:block>
-
-
-			<!-- Hiển thị trang cuối nếu cần -->
-			<th:block th:if="${currentPage < noOfPages - 2}">
-				<li class="paginator__item">...</li>
-				<li class="paginator__item">
-					<a th:href="@{/admin/searchMovie(
-            keyword=${keyword},
-            category=${category},
-            page=${noOfPages},
-            soluong=${recordsPerPage}
-        )}" th:text="${noOfPages}"></a>
-				</li>
-			</th:block>
-
-            <!-- Nút Next -->
-			<li class="paginator__item paginator__item--next" th:classappend="${currentPage == noOfPages} ? 'disabled'">
-				<a th:href="@{/admin/searchMovie(
-        keyword=${keyword},
-        category=${category},
-        page=${currentPage < noOfPages ? currentPage + 1 : noOfPages},
-        soluong=${recordsPerPage}
-    )}">
-					<i class="ti ti-chevron-right"></i>
-				</a>
-			</li>
-        </ul>
-    </div>
-</div>
-			</div>
-			<!-- end items -->
-		</div>
-	</main>
+							 <li class="paginator__item paginator__item--next">
+								 <a href="#" id="nextPage"><i class="ti ti-chevron-right"></i></a>
+							 </li>
+						 </ul>
+					 </div>
+				 </div>
+			 </div>
+		 </div>
+	 </main>
 	<!-- end main content -->
 	<!-- delete modal -->
 	<div class="modal fade" id="modal-delete" tabindex="-1"
@@ -284,7 +140,7 @@
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal__content">
-					<form th:action="@{/admin/deleteMovie}"
+					<form th:action="@{/admin/movies}"
 						class="modal__form">
 						<h4 class="modal__title">Delete Movie</h4>
 						<p class="modal__text">Are you sure to permanently delete this
@@ -305,94 +161,109 @@
 		</div>
 	</div>
 	<!-- end delete modal -->
-	<!-- Add Item Modal -->
-	<!-- add cinema modal -->
-	<div class="modal fade" id="modal-add-movie" tabindex="-1"
-		aria-labelledby="modal-add-movie" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered modal-xl">
-			<div class="modal-content">
-				<form th:action="@{/admin/addMovie}"
-					method="POST" class="sign__form sign__form--add">
-					<h4 class="modal__title">Add Movie</h4>
-					<div class="row">
-						<div class="col-12">
-							<label class="sign__label" for="movie_name">Movie Name</label>
-							<div class="sign__group">
-								<input type="text" class="sign__input" name="movie_name"
-									placeholder="Movie Name" required>
-							</div>
-						</div>
-						<div class="col-12">
-							<label class="sign__label" for="movie_name">Category</label>
-							<div class="sign__group">
-								<input type="text" class="sign__input" name="category"
-									placeholder="Category" required>
-							</div>
-						</div>
-						<div class="col-12">
-							<label class="sign__label" for="movie_name">Movie Duration</label>
-							<div class="sign__group">
-								<input type="text" class="sign__input" name="movie_duration"
-									placeholder="Example: 1h 30m" required>
-							</div>
-						</div>
-						<div class="col-12">
-							<label class="sign__label" for="address">Description</label>
-							<div class="sign__group">
-								<input type="text" class="sign__input" name="description"
-									placeholder="Description" required>
-							</div>
-						</div>
+	 <script>
+		 document.addEventListener("DOMContentLoaded", function () {
 
-						<div class="col-12">
-							<label class="sign__label" for="location">Release Day</label>
-							<div class="sign__group">
-								<input type="text" class="sign__input" name="release_day"
-									placeholder="Release Day" required>
-							</div>
-						</div>
+			 let currentPage = 1;
+			 let recordsPerPage = 5;
+			 let keyword = "";
+			 let category = "";
 
+			 function fetchMovies() {
+				 const apiUrl = `/admin/movies?page=${currentPage}&soluong=${recordsPerPage}&keyword=${keyword}&category=${category}`;
 
-						<div class="col-12">
-							<label class="sign__label" for="status">Status</label>
-							<div class="sign__group">
-								<select class="sign__selectjs" name="status" id="sign__status"
-									required>
-									<option value="true">Active</option>
-									<option value="false">Inactive</option>
-								</select>
-							</div>
-						</div>
-						<div class="col-12">
-							<div class="sign__group">
-								<div class="sign__gallery">
-									<label id="gallery1" for="sign__gallery-upload">Upload
-										cover (240x340)</label> <input data-name="#gallery1"
-										id="sign__gallery-upload" name="images"
-										class="sign__gallery-upload" type="file"
-										accept=".png, .jpg, .jpeg" style="display: none;"
-										onchange="chooseFile(this)">
-								</div>
-							</div>
+				 fetch(apiUrl)
+						 .then(response => response.json())
+						 .then(data => {
+							 renderMovies(data.movies);
+							 updatePagination(data.noOfPages, data.currentPage);
+							 document.getElementById("totalMovies").innerText = data.noOfRecords;
+						 })
+						 .catch(error => console.error("Error fetching movies:", error));
+			 }
 
-							<div class="col-12">
-								<button type="submit" class="sign__btn sign__btn--small">
-									<span>Insert</span>
-								</button>
-							</div>
-						</div>
-						<div class="col-12">
-							<button type="submit" class="sign__btn sign__btn--small">
-								<span>Save</span>
-							</button>
-						</div>
-					</div>
-				</form>
-			</div>
-		</div>
-	</div>
-	<!-- end add cinema modal -->
+			 function renderMovies(movies) {
+				 const tableBody = document.getElementById("moviesTableBody");
+				 tableBody.innerHTML = "";
 
+				 movies.forEach(movie => {
+					 const row = `
+                <tr>
+                    <td><div class="catalog__text">${movie.movieID}</div></td>
+					<td><div class="catalog__text">${movie.movieName}</div></td>
+					<td><div class="catalog__text">${movie.category}</div></td>
+                    <td>
+                    	<img src="http://localhost:8080/uploads/movies/natra.jpg" width="50"
+                         onerror="this.src='http://localhost:8080/static/assets/images/default-image.png'"  alt=""/>
+               		</td>
+                    <td><div class="catalog__text">${movie.movieDuration}</div></td>
+                    <td><div class="catalog__text">${formatDate(movie.releaseDay)}</div></td>
+                    <td>
+                    	<div class="catalog__text ${movie.status ? 'catalog__text--green' : 'catalog__text--red'}">${movie.status ? 'Active' : 'Inactive'}</div>
+                    </td>
+                    <td>
+                    	<div class="catalog__btns">
+                        <a th:href="@{/admin/editMovie(id=${movie.movieID})}" class="catalog__btn catalog__btn--edit">
+    						<i class="ti ti-edit"></i>
+						</a>
+                        <button type="button" class="catalog__btn catalog__btn--delete"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modal-delete"
+                                data-movie-id="${movie.movieID}">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                        <a th:href="@{/adminReview(movieID=${movie.movieID})}" class="catalog__btn catalog__btn--view">
+    						<i class="ti ti-eye"></i>
+						</a>
+                    </div>
+                    </td>
+                </tr>`;
+					 tableBody.innerHTML += row;
+				 });
+			 }
+
+			 function formatDate(dateString) {
+				 if (!dateString) return 'N/A';
+				 const date = new Date(dateString);
+				 return date.toLocaleDateString('vi-VN'); // Format theo kiểu VN (DD/MM/YYYY)
+			 }
+			 function updatePagination(noOfPages, currentPage) {
+				 document.getElementById("currentPage").innerText = currentPage;
+				 document.getElementById("noOfPages").innerText = noOfPages;
+
+				 document.getElementById("prevPage").parentElement.classList.toggle("disabled", currentPage === 1);
+				 document.getElementById("nextPage").parentElement.classList.toggle("disabled", currentPage === noOfPages);
+			 }
+
+			 document.getElementById("searchForm").addEventListener("submit", function (event) {
+				 event.preventDefault();
+				 keyword = document.getElementById("keyword").value;
+				 category = document.getElementById("categoryFilter").value;
+				 fetchMovies();
+			 });
+
+			 document.getElementById("recordsPerPage").addEventListener("change", function () {
+				 recordsPerPage = this.value;
+				 fetchMovies();
+			 });
+
+			 document.getElementById("prevPage").addEventListener("click", function (event) {
+				 event.preventDefault();
+				 if (currentPage > 1) {
+					 currentPage--;
+					 fetchMovies();
+				 }
+			 });
+
+			 document.getElementById("nextPage").addEventListener("click", function (event) {
+				 event.preventDefault();
+				 currentPage++;
+				 fetchMovies();
+			 });
+
+			 fetchMovies();
+		 });
+	 </script>
 	<script>
     // JavaScript to assign the cinema ID to the hidden input field in the delete form
     document.querySelectorAll('.catalog__btn--delete').forEach(button => {
@@ -401,7 +272,7 @@
             document.getElementById('deleteMovieId').value = movieId;
         });
     });
-    
+
     function updatePageSize() {
         const soluong = document.getElementById('soluong').value;
         const url = new URL(window.location.href);
@@ -412,7 +283,7 @@
         window.location.href = url.toString();
     }
 
-    
+
     document.addEventListener("DOMContentLoaded", function () {
         const categorySelect = document.getElementById("sign__genre");
 
@@ -424,13 +295,16 @@
             }
         });
 
-        // Làm nổi bật danh mục đã chọn
-        const selectedCategories = "${category}".split(",");
-        Array.from(categorySelect.options).forEach(option => {
-            if (selectedCategories.includes(option.value)) {
-                option.selected = true;
-            }
-        });
+
+		// Lấy danh mục đã chọn từ server (nếu có)
+		const selectedCategories = ("${category}" || "").split(",").map(cat => cat.trim());
+
+		// Làm nổi bật danh mục đã chọn
+		Array.from(categorySelect.options).forEach(option => {
+			if (selectedCategories.includes(option.value)) {
+				option.selected = true;
+			}
+		});
     });
 
 	</script>

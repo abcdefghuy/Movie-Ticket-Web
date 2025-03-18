@@ -10,6 +10,7 @@ import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 
 @Data
 @NoArgsConstructor
@@ -73,7 +74,7 @@ public class Person implements UserDetails {
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
-        return List.of();
+        return List.of(new SimpleGrantedAuthority(this.role));
     }
 
     //TODO: add proper boolean checks
