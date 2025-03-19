@@ -1,17 +1,19 @@
 package com.example.movieticketWeb.service.impl;
 
 import com.example.movieticketWeb.entity.Res;
+import com.example.movieticketWeb.repository.IImageRepository;
 import com.example.movieticketWeb.service.IImageService;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
 import com.google.api.client.http.FileContent;
 import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.drive.Drive;
+import com.google.api.services.drive.DriveScopes;
+import org.springframework.beans.factory.annotation.Autowired;
 
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
+import java.io.*;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.security.GeneralSecurityException;
@@ -19,6 +21,8 @@ import java.util.Collections;
 
 @org.springframework.stereotype.Service
 public class ImageServiceImpl implements IImageService {
+    @Autowired
+    private IImageRepository imageRepository;
 
     private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
     private static final String SERVICE_ACOUNT_KEY_PATH = getPathToGoodleCredentials();
@@ -29,14 +33,14 @@ public class ImageServiceImpl implements IImageService {
         return filePath.toString();
     }
 
-    public Res uploadImageToDrive(File file) throws GeneralSecurityException, IOException {
+    public Res uploadImageToDrive(File file, String fileName) throws GeneralSecurityException, IOException {
         Res res = new Res();
 
         try{
-            String folderId = "1eW70gnMcvPmJJzaPVtSg3CjUSZeK2x21";
+            String folderId = "1HKsOgFeVrp4sYX3dPIu-FtmErOPTgUzy";
             Drive drive = createDriveService();
             com.google.api.services.drive.model.File fileMetaData = new com.google.api.services.drive.model.File();
-            fileMetaData.setName(file.getName());
+            fileMetaData.setName(fileName);
             fileMetaData.setParents(Collections.singletonList(folderId));
             FileContent mediaContent = new FileContent("image/jpeg", file);
             com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
@@ -54,6 +58,19 @@ public class ImageServiceImpl implements IImageService {
         }
         return  res;
 
+    }
+
+    @Override
+    public String findUrlByFileName(String fileName) {
+        return imageRepository.findUrlByFileName(fileName);
+    }
+
+    @Override
+    public InputStream getFileInputStream(String fileId) throws GeneralSecurityException, IOException {
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        Drive driveService = createDriveService();
+        driveService.files().get(fileId).executeMediaAndDownloadTo(outputStream);
+        return new ByteArrayInputStream(outputStream.toByteArray());
     }
 
     private Drive createDriveService() throws GeneralSecurityException, IOException {

@@ -3,6 +3,8 @@ package com.example.movieticketWeb.RestController.admin;
 import com.example.movieticketWeb.dto.request.MovieRequest;
 import com.example.movieticketWeb.dto.response.MovieResponse;
 import com.example.movieticketWeb.entity.Person;
+import com.example.movieticketWeb.entity.Res;
+import com.example.movieticketWeb.service.IImageService;
 import com.example.movieticketWeb.service.IMovieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,6 +24,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.HashMap;
@@ -35,7 +38,8 @@ import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 public class MovieRestController {
     @Autowired
     private IMovieService movieService;
-    private static final String UPLOAD_DIR = "D:/project_uploads";
+    @Autowired
+    private IImageService imageService;
     @GetMapping
     public ResponseEntity<Map<String, Object>> listMovies(
             @RequestParam(defaultValue = "1") int page,
@@ -62,13 +66,13 @@ public class MovieRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MovieResponse> getMovieById(@PathVariable int id) {
+    public ResponseEntity<MovieResponse> getMovieById(@PathVariable Long id) {
         return ResponseEntity.ok(movieService.getMovieById(id));
     }
     @PostMapping( consumes = MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<?> addMovie(@AuthenticationPrincipal Person person,
             @RequestPart("movie") @Valid MovieRequest movieRequest,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException, NoSuchAlgorithmException {
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Unauthorized");
         }
@@ -86,19 +90,32 @@ public class MovieRestController {
         if (isAdded) {
             return ResponseEntity.ok(movieRequest);
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Thêm phim thất bại");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie add failed");
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity updateMovie(@PathVariable int id, @RequestBody MovieRequest movieDTO) {
-        movieService.updateMovie(id, movieDTO);
-        return ResponseEntity.ok("Movie updated successfully");
+    public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestPart("movie") @Valid MovieRequest movieDTO, @RequestParam(value = "imageFile",required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
+
+        if(imageFile != null && !imageFile.isEmpty()) {
+            String imageUrl = handleImageUpload(imageFile);
+            movieDTO.setImage(imageUrl);
+        }
+        boolean isEdited = movieService.updateMovie(id, movieDTO);
+        if (isEdited) {
+            return ResponseEntity.ok("Movie updated successfully");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie update failed");
+//
+
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMovie(@PathVariable int id) {
-        movieService.deleteMovie(id);
-        return ResponseEntity.ok("Movie deleted successfully");
+    public ResponseEntity<String> deleteMovie(@PathVariable Long id) {
+        boolean isDeleted= movieService.deleteMovie(id);
+        if(isDeleted){
+            return ResponseEntity.ok("Movie deleted successfully");
+        }
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie delete failed");
     }
 
     @GetMapping("/search")
@@ -129,18 +146,14 @@ public class MovieRestController {
         return url;
     }
 
-    private String handleImageUpload(MultipartFile file) throws IOException, NoSuchAlgorithmException {
-        File uploadDir = new File(UPLOAD_DIR);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs(); // Tạo thư mục nếu chưa có
-        }
-
+    private String handleImageUpload(MultipartFile file) throws IOException, NoSuchAlgorithmException, GeneralSecurityException {
         String originalFileName = file.getOriginalFilename();
-        Path existingFilePath = Paths.get(UPLOAD_DIR, originalFileName);
 
-        if (Files.exists(existingFilePath)) {
-            // Ảnh đã tồn tại, kiểm tra nội dung
-            try (InputStream existingFileInputStream = new FileInputStream(existingFilePath.toFile());
+        String existingImageUrl = getSavedImageUrl(originalFileName);
+        if (existingImageUrl != null) {
+
+            // Thay vì tải file, chỉ lấy InputStream từ Google Drive
+            try (InputStream existingFileInputStream = imageService.getFileInputStream(existingImageUrl);
                  InputStream newFileInputStream = file.getInputStream()) {
 
                 String existingFileHash = getChecksum(existingFileInputStream);
@@ -148,18 +161,29 @@ public class MovieRestController {
 
                 if (existingFileHash.equals(newFileHash)) {
                     // Ảnh trùng -> Dùng lại ảnh cũ
-                    return uploadDir + originalFileName;
+                    return existingImageUrl;
                 }
+            } catch (IOException e) {
+                e.printStackTrace(); // Xử lý lỗi khi lấy InputStream từ Google Drive
             }
+
             // Ảnh khác nội dung -> Đổi tên
             originalFileName = System.currentTimeMillis() + "_" + originalFileName;
         }
 
-        // Lưu ảnh mới
-        Path filePath = Paths.get(UPLOAD_DIR, originalFileName);
-        Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+        // Lưu ảnh tạm thời
+        File tempFile = File.createTempFile("upload_", null);
+        file.transferTo(tempFile);
 
-        return "/uploads/movies/" + originalFileName;
+        // Upload ảnh lên Google Drive
+        Res res = imageService.uploadImageToDrive(tempFile, originalFileName);
+
+        if (res.getStatus() == 200) {
+            // Gán đường dẫn ảnh cho movie.image
+            return res.getUrl();
+        } else {
+            throw new IOException("Failed to upload image to Google Drive");
+        }
     }
 
     private String getChecksum(InputStream inputStream) throws IOException, NoSuchAlgorithmException {
@@ -178,5 +202,9 @@ public class MovieRestController {
         }
 
         return hexString.toString();
+    }
+    private String getSavedImageUrl(String fileName) {
+        // Truy vấn Google Drive hoặc database để lấy URL ảnh dựa trên tên file
+        return imageService.findUrlByFileName(fileName);
     }
 }

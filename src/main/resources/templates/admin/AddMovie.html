@@ -106,7 +106,7 @@
 						</div>
 
 						<div class="col-12 d-flex justify-content-start align-items-center" style="gap: 15px;">
-							<a href="/admin/movies" class="sign__btn sign__btn--small"><span>Back to List</span></a>
+							<a href="/admin/Movie.html" class="sign__btn sign__btn--small"><span>Back to List</span></a>
 							<input type="submit" class="sign__btn sign__btn--small" value="Save">
 						</div>
 					</div>
@@ -167,15 +167,45 @@
 				});
 
 				if (!response.ok) {
-					throw new Error("Lỗi khi gửi dữ liệu lên server!");
+					Swal.fire({
+						icon: "error",
+						title: "Error!",
+						text: response.message,
+						customClass: {
+							confirmButton: "btn btn-danger", // ✅ Dùng customClass
+						},
+						buttonsStyling: false
+					});
 				}
+
 				const result = await response.json();
 				console.log("📌 Response:", result);
-				alert("Thêm phim thành công!");
-				window.location.href = "/admin/movies";  // Điều hướng về trang danh sách phim
+
+				// Hiển thị thông báo thành công
+				Swal.fire({
+					icon: "success",
+					title: "Add movie successfully!",
+					customClass: {
+						cancelButton: "btn btn-primary",
+					},
+					timer: 3000
+				}).then(() => {
+					window.location.href = "/admin/Movie.html"; // Điều hướng về danh sách phim
+				});
+
 			} catch (error) {
 				console.error("📌 Fetch Error:", error);
-				alert("Thêm phim thất bại!");
+
+				// Hiển thị thông báo lỗi
+				Swal.fire({
+					icon: "error",
+					title: "Add movie failed!",
+					text: "Please try again",
+					customClass: {
+						confirmButton: "btn btn-danger",
+					},
+					buttonsStyling: false
+				});
 			}
 		});
 		document.getElementById('sign__gallery-upload').addEventListener(

@@ -5,6 +5,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
 
@@ -25,11 +26,14 @@ public class MovieController {
         }
         return new ModelAndView("admin/AddMovie");
     }
-    @GetMapping("/movies/edit")
-    public ModelAndView editMovie(@AuthenticationPrincipal Person person) {
+    @GetMapping("/movies/{id}/edit")
+    public ModelAndView editMovie(@AuthenticationPrincipal Person person,
+                                  @PathVariable("id") Long movieID) {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return new ModelAndView("web/signin");
         }
-        return new ModelAndView("admin/EditMovie");
+        ModelAndView modelAndView = new ModelAndView("admin/EditMovie");
+        modelAndView.addObject("movieID", movieID);
+        return modelAndView;
     }
 }

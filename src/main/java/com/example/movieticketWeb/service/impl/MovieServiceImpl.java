@@ -6,6 +6,7 @@ import com.example.movieticketWeb.entity.Movie;
 import com.example.movieticketWeb.mapper.MovieMapper;
 import com.example.movieticketWeb.repository.IMovieRepository;
 import com.example.movieticketWeb.service.IMovieService;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -14,8 +15,11 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
+import java.lang.reflect.Field;
 import java.time.Duration;
 import java.util.List;
+import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 @Service
@@ -31,8 +35,20 @@ public class MovieServiceImpl implements IMovieService {
     }
 
     @Override
-    public MovieResponse getMovieById(int movieID) {
-        return null;
+    public MovieResponse getMovieById(Long movieID) {
+        String cacheKey = "movie:" + movieID;
+        Movie movie = (Movie) redisTemplate.opsForValue().get(cacheKey);
+
+        if (movie == null) {
+            movie = movieRepository.findById(movieID)
+                    .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + movieID));
+
+            // 🟢 Lưu lại vào cache để lần sau lấy nhanh hơn
+            redisTemplate.opsForValue().set(cacheKey, movie, Duration.ofHours(1));
+        }
+
+        // 🎯 Chuyển đổi sang MovieResponse để trả về
+        return movieMapper.toDTO(movie);
     }
 
     @Override
@@ -48,13 +64,51 @@ public class MovieServiceImpl implements IMovieService {
     }
 
     @Override
-    public void updateMovie(int movieID, MovieRequest movieRequest) {
+    public boolean updateMovie(Long movieID, MovieRequest movieRequest) {
+        try{
+            Movie movie = movieRepository.findById(movieID)
+                    .orElseThrow(() -> new RuntimeException("Movie not found"));
+            boolean updated = false;
 
+            for (Field field : Movie.class.getDeclaredFields()) {
+                field.setAccessible(true);
+                Object oldValue = field.get(movie);
+                Object newValue = field.get(movieRequest);
+
+                if (!Objects.equals(oldValue, newValue)) {
+                    field.set(movie, newValue);
+                    updated = true;
+                }
+            }
+            if(updated){
+                movieRepository.save(movie);
+                List<MovieResponse> cachedMovies = (List<MovieResponse>) redisTemplate.opsForValue().get(MOVIE_CACHE_KEY);
+                if (cachedMovies != null) {
+                    cachedMovies = cachedMovies.stream()
+                            .map(m -> m.getMovieID() == movieID.intValue() ? movieMapper.toDTO(movie) : m)                            .collect(Collectors.toList());
+                    redisTemplate.opsForValue().set(MOVIE_CACHE_KEY, cachedMovies, Duration.ofHours(1));
+                }
+                String movieCacheKey = "movie:" + movieID;
+                redisTemplate.opsForValue().set(movieCacheKey, movie, Duration.ofHours(1));
+            }
+
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
     @Override
-    public void deleteMovie(int movieID) {
-
+    public boolean deleteMovie(Long movieID) {
+        try{
+            movieRepository.deleteById(movieID);
+            redisTemplate.delete(MOVIE_CACHE_KEY);
+            return true;
+        }
+        catch (Exception e){
+            return false;
+        }
     }
 
     @Override
@@ -66,8 +120,7 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     public List<MovieResponse> getMovies(int offset, int limit) {
         // Kiểm tra trong Redis trước
-//        List<MovieResponse> cachedMovies = (List<MovieResponse>) redisTemplate.opsForValue().get(MOVIE_CACHE_KEY);
-        List<MovieResponse> cachedMovies = null;
+        List<MovieResponse> cachedMovies = (List<MovieResponse>) redisTemplate.opsForValue().get(MOVIE_CACHE_KEY);
         if (cachedMovies == null) {
             // Nếu chưa có cache, lấy dữ liệu từ database và lưu vào Redis
             List<MovieResponse> movies = movieRepository.findAll().stream()

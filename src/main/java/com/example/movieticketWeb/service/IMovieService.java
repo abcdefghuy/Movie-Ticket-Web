@@ -8,10 +8,10 @@ import java.util.List;
 
 public interface IMovieService {
     List<MovieResponse> getAllMovies();
-    MovieResponse getMovieById(int movieID);
+    MovieResponse getMovieById(Long movieID);
     boolean addMovie(MovieRequest movieRequest);
-    void updateMovie(int movieID, MovieRequest movieRequest);
-    void deleteMovie(int movieID);
+    boolean updateMovie(Long movieID, MovieRequest movieRequest);
+    boolean deleteMovie(Long movieID);
     List<MovieResponse> searchMovie(String movieName);
 
     List<MovieResponse> getMovies(int offset, int soluong);

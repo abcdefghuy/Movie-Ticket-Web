@@ -140,11 +140,9 @@
 		<div class="modal-dialog modal-dialog-centered">
 			<div class="modal-content">
 				<div class="modal__content">
-					<form th:action="@{/admin/movies}"
-						class="modal__form">
+					<form id="deletedForm" class="modal__form">
 						<h4 class="modal__title">Delete Movie</h4>
-						<p class="modal__text">Are you sure to permanently delete this
-							Movie?</p>
+						<p class="modal__text">Are you sure to permanently delete this Movie?</p>
 						<input type="hidden" name="id" id="deleteMovieId">
 						<div class="modal__btns">
 							<button class="modal__btn modal__btn--apply" type="submit">
@@ -163,7 +161,6 @@
 	<!-- end delete modal -->
 	 <script>
 		 document.addEventListener("DOMContentLoaded", function () {
-
 			 let currentPage = 1;
 			 let recordsPerPage = 5;
 			 let keyword = "";
@@ -185,7 +182,7 @@
 			 function renderMovies(movies) {
 				 const tableBody = document.getElementById("moviesTableBody");
 				 tableBody.innerHTML = "";
-
+				console.log(movies)
 				 movies.forEach(movie => {
 					 const row = `
                 <tr>
@@ -193,7 +190,7 @@
 					<td><div class="catalog__text">${movie.movieName}</div></td>
 					<td><div class="catalog__text">${movie.category}</div></td>
                     <td>
-                    	<img src="http://localhost:8080/uploads/movies/natra.jpg" width="50"
+                    	<img src="https://drive.google.com/uc?export=view&id=14mmRQpCM2arKr8cmlQJAWUIErwQZKVrz" width="50"
                          onerror="this.src='http://localhost:8080/static/assets/images/default-image.png'"  alt=""/>
                		</td>
                     <td><div class="catalog__text">${movie.movieDuration}</div></td>
@@ -203,9 +200,9 @@
                     </td>
                     <td>
                     	<div class="catalog__btns">
-                        <a th:href="@{/admin/editMovie(id=${movie.movieID})}" class="catalog__btn catalog__btn--edit">
-    						<i class="ti ti-edit"></i>
-						</a>
+                        <a href="/admin/movies/${movie.movieID}/edit" class="catalog__btn catalog__btn--edit">
+                			<i class="ti ti-edit"></i>
+            			</a>
                         <button type="button" class="catalog__btn catalog__btn--delete"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modal-delete"
@@ -266,12 +263,46 @@
 	 </script>
 	<script>
     // JavaScript to assign the cinema ID to the hidden input field in the delete form
-    document.querySelectorAll('.catalog__btn--delete').forEach(button => {
-        button.addEventListener('click', function () {
-            const movieId = this.getAttribute('data-movie-id');
-            document.getElementById('deleteMovieId').value = movieId;
-        });
-    });
+	document.addEventListener("click", function(event) {
+		if (event.target.closest(".catalog__btn--delete")) {
+			const button = event.target.closest(".catalog__btn--delete");
+			document.getElementById("deleteMovieId").value = button.getAttribute("data-movie-id");
+		}
+	});
+	document.getElementById("deletedForm").addEventListener("submit", async function (event) {
+		event.preventDefault(); // Ngăn chặn reload trang
+
+		const movieId = document.getElementById("deleteMovieId").value;
+
+		try {
+			const response = await fetch(`/admin/movies/${movieId}`, {
+				method: "DELETE",
+				credentials: "include"
+			});
+
+			if (!response.ok) {
+				throw new Error(`Lỗi HTTP: ${response.status}`);
+			}
+
+			// Hiển thị thông báo thành công với SweetAlert2
+			Swal.fire({
+				icon: "success",
+				title: "Deleted!",
+				text: "The movie has been deleted successfully.",
+				confirmButtonText: "OK"
+			}).then(() => {
+				window.location.reload();
+			});
+
+		} catch (error) {
+			Swal.fire({
+				icon: "error",
+				title: "Error!",
+				text: "Failed to delete the movie. Please try again later.",
+				confirmButtonText: "OK"
+			});
+		}
+	});
 
     function updatePageSize() {
         const soluong = document.getElementById('soluong').value;
