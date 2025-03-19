@@ -6,11 +6,11 @@
 </head>
 <body>
 <!-- header -->
-<header class="header" layout:fragment="header">
+<header class="header" th:fragment="header">
     <div class="header__content">
         <!-- header logo -->
-        <a th:href="@{/adminHome}" class="header__logo">
-            <img th:src="@{static/assets2/img/logo.png}" alt="" width="200" height="200">
+        <a th:href="@{/admin/adminHome}" class="header__logo">
+            <img th:src="@{/static/assets2/img/logo.png}" alt="" width="200" height="200">
         </a>
         <!-- end header logo -->
 

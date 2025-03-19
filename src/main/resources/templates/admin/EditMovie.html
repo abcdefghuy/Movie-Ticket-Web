@@ -6,9 +6,9 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
-<body>
+<body layout:fragment="content">
 	<!-- main content -->
-	<div class="container-fluid" layout:fragment="content">
+	<div class="container-fluid" >
 		<div class="row">
 			<!-- main title -->
 			<div class="col-12">
@@ -18,76 +18,65 @@
 			</div>
 
 			<div class="col-12">
-				<a th:href="@{/admin/movies}"
+				<a th:href="@{/admin/Movie.html}"
 					class="sign__btn sign__btn--small"><span>Back to Movie</span></a>
 			</div>
 			<!-- end main title -->
 
 			<!-- form -->
 			<div class="col-12">
-				<form action="${pageContext.request.contextPath}/admin/editMovie"
-					method="post" enctype="multipart/form-data"
-					class="sign__form sign__form--add">
-					<input type="hidden" name="movieID" value="${Movie.movieID}">
+				<form id="editMovieForm"  enctype="multipart/form-data" class="sign__form sign__form--add">
 					<div class="col-12 col-xl-12">
-						<label class="sign__label" for="movie_name">Movie Name</label>
+						<label class="sign__label">Movie Name</label>
 						<div class="sign__group">
-							<input type="text" class="sign__input" name="movie_name"
-								value="${Movie.movieName}" value="${movie_name}"
-								placeholder="Movie Name" required>
+							<input type="text" class="sign__input" name="movie_name" id="movie_name" placeholder="Movie Name" required>
 						</div>
 						<div>
 							<div class="sign__group">
-								<label class="sign__label" for="category">Category</label>
+								<label class="sign__label" >Category</label>
 								<select class="sign__selectjs" name="category" id="sign__genre" multiple required>
-									<option value="Action" th:selected="${#strings.contains(Movie.category, 'Action')}">Action</option>
-									<option value="Animation" th:selected="${#strings.contains(Movie.category, 'Animation')}">Animation</option>
-									<option value="Comedy" th:selected="${#strings.contains(Movie.category, 'Comedy')}">Comedy</option>
-									<option value="Crime" th:selected="${#strings.contains(Movie.category, 'Crime')}">Crime</option>
-									<option value="Drama" th:selected="${#strings.contains(Movie.category, 'Drama')}">Drama</option>
-									<option value="Fantasy" th:selected="${#strings.contains(Movie.category, 'Fantasy')}">Fantasy</option>
-									<option value="Historical" th:selected="${#strings.contains(Movie.category, 'Historical')}">Historical</option>
-									<option value="Horror" th:selected="${#strings.contains(Movie.category, 'Horror')}">Horror</option>
-									<option value="Romance" th:selected="${#strings.contains(Movie.category, 'Romance')}">Romance</option>
-									<option value="Science-fiction" th:selected="${#strings.contains(Movie.category, 'Science-fiction')}">Science-fiction</option>
-									<option value="Thriller" th:selected="${#strings.contains(Movie.category, 'Thriller')}">Thriller</option>
-									<option value="Western" th:selected="${#strings.contains(Movie.category, 'Western')}">Western</option>
-									<option value="Other" th:selected="${#strings.contains(Movie.category, 'Other')}">Other</option>
+									<option value="Action">Action</option>
+									<option value="Animation">Animation</option>
+									<option value="Comedy">Comedy</option>
+									<option value="Crime">Crime</option>
+									<option value="Drama">Drama</option>
+									<option value="Fantasy">Fantasy</option>
+									<option value="Historical">Historical</option>
+									<option value="Horror">Horror</option>
+									<option value="Romance">Romance</option>
+									<option value="Science-fiction">Science-fiction</option>
+									<option value="Thriller">Thriller</option>
+									<option value="Western">Western</option>
+									<option value="Other">Other</option>
 								</select>
 							</div>
 
 						</div>
 
 
-						<label class="sign__label" for="movie_name">Movie Duration</label>
+						<label class="sign__label">Movie Duration</label>
 						<div class="sign__group">
-							<input type="text" class="sign__input" name="movie_duration"
-								value="${Movie.movieDuration}" placeholder="Example: 1h 30m"
+							<input type="text" class="sign__input" name="movie_duration" id="movie_duration" placeholder="Example: 1h 30m"
 								required>
 
 						</div>
-						<label class="sign__label" for="address">Description</label>
+						<label class="sign__label">Description</label>
 						<div class="sign__group">
 							<textarea id="Description" name="description"
 								class="sign__textarea" placeholder="Description"
-								style="width: 100%; height: 200px;">${Movie.description}</textarea>
+								style="width: 100%; height: 200px;"></textarea>
 						</div>
 
 						<div class="row align-items-center"
 							style="display: flex; align-items: center;">
 							<!-- Hộp thoại yêu cầu nhập ngày -->
 							<div class="col-4">
-								<label for="publish-date" class="form-label"
-									style="font-weight: bold; color: white;">Enter Release
-									Date:</label>
+								<label class="form-label" style="font-weight: bold; color: white;">Enter Release Date:</label>
 							</div>
 							<!-- Ô chọn ngày -->
 							<div class="col-8">
 								<div class="sign__group">
-									<span th:text="${#dates.format(Movie.releaseDay, 'yyyy-MM-dd')}"></span>
-									<input type="date" id="date" name="release_day"
-										class="sign__input" placeholder="Select date"
-										value="${#dates.format(Movie.releaseDay, 'yyyy-MM-dd')}">
+									<input type="date" id="date" name="release_day" class="sign__input" placeholder="Select date">
 								</div>
 							</div>
 						</div>
@@ -95,33 +84,29 @@
 						<label class="sign__label" for="status">Status</label>
 						<div class="sign__group">
 							<select class="sign__select" name="status" id="status" required>
-
-								<option value="true" th:selected="${Movie.status}">Active</option>
-								<option value="false" th:selected="${!Movie.status}">Inactive</option>
+								<option value="true">Active</option>
+								<option value="false">Inactive</option>
 							</select>
 						</div>
 						<div class="col-6">
-							<label class="sign__label" for="status">Image</label>
+							<label class="sign__label" >Image</label>
 							<div class="sign__gallery">
 								<label id="gallery1" for="sign__gallery-upload">Upload
 									cover (240x340)</label> <input data-name="#gallery1"
 									id="sign__gallery-upload" name="images"
 									class="sign__gallery-upload" type="file"
 									accept=".png, .jpg, .jpeg" style="display: none;"
-									onchange="chooseFile(this)" value="${Movies.image}"> <input
-									type="hidden" name="oldImage" value="${Movie.image}">
+									onchange="chooseFile(this)"> <input
+									type="hidden" name="oldImage">
 							</div>
 						</div>
 						<div id="image-preview-container" style="margin-left: 200px;">
 							<img id="preview-image"
-								 th:src="${#strings.startsWith(Movie.image, 'https') ? Movie.image : '/image?fname=' + Movie.image}"
 								 style="width: 400px; height: 400px;" />
 						</div>
-						<label class="sign__label" for="address">Movie Trailer Link:</label>
+						<label class="sign__label">Movie Trailer Link:</label>
 						<div class="sign__group">
-						 <input type="text" class="sign__input" name="movie_trailer"
-								value="${Movie.movieTrailer}" placeholder="Trailer Link"
-								required>			
+						 <input type="text" class="sign__input" name="movie_trailer" id="movie_trailer" placeholder="Trailer Link" required>
 						</div>
 					</div>
 					<button type="submit" class="sign__btn sign__btn--small">
@@ -133,7 +118,25 @@
 			<!-- end form -->
 		</div>
 	</div>
+	<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 	<!-- end main content -->
+	<script>
+		document.getElementById('sign__gallery-upload').addEventListener(
+				'change', function(event) {
+					const preview = document.getElementById('preview-image');
+					const file = event.target.files[0];
+					if (file) {
+						const reader = new FileReader();
+						reader.onload = function(e) {
+							preview.src = e.target.result;
+							preview.style.display = 'block'; // Hiển thị ảnh xem trước
+						};
+						reader.readAsDataURL(file);
+					} else {
+						preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
+					}
+				});
+	</script>
 	<script>
 		function chooseFile(input) {
 			const preview = document.getElementById('preview-image');
@@ -150,47 +153,142 @@
 				preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
 			}
 		}
-	</script>
+		document.getElementById("editMovieForm").addEventListener("submit", async function (event) {
+			event.preventDefault();
+			const pathParts = window.location.pathname.split("/");
+			const movieId = pathParts[3];
+			// Lấy danh sách thể loại từ thẻ select
+			const selectElement = document.getElementById("sign__genre");
+			const selectedCategories = Array.from(selectElement.selectedOptions).map(option => option.value);
+			const categoryString = selectedCategories.join(", ");
+			// Tạo object movieData để gửi lên API
+			const movieData = {
+				movieName: document.getElementById("movie_name").value,
+				category: categoryString,  // Chuyển mảng category đúng định dạng
+				movieDuration: document.getElementById("movie_duration").value,
+				description: document.getElementById("Description").value,
+				releaseDay: document.getElementById("date").value,
+				status: document.getElementById("status").value,
+				movieTrailer: document.getElementById("movie_trailer").value,
+				image: document.querySelector("input[name='oldImage']").value
+			};
 
-	<script>
-		document.getElementById('sign__gallery-upload').addEventListener(
-				'change', function(event) {
-					const preview = document.getElementById('preview-image');
-					const file = event.target.files[0];
+			// Lấy ảnh từ input file
+			const imageFile = document.getElementById("sign__gallery-upload").files[0];
+			console.log(movieData)
+			// Tạo FormData để gửi lên API
+			const formData = new FormData();
+			formData.append("movie", new Blob([JSON.stringify(movieData)], { type: "application/json" }));
 
-					if (file) {
-						const reader = new FileReader();
-						reader.onload = function(e) {
-							preview.src = e.target.result;
-							preview.style.display = 'block'; // Hiển thị ảnh xem trước
-						};
-						reader.readAsDataURL(file);
-					} else {
-						preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
-					}
+			if (imageFile) {
+				formData.append("imageFile", imageFile);
+			}
+
+			try {
+				const response = await fetch(`/admin/movies/${movieId}`, {
+					method: "PUT",
+					body: formData
 				});
-		document.querySelector('.sign__form').addEventListener('submit', function (e) {
-			// Lấy giá trị từ thẻ select category
-			const selectElement = document.getElementById('sign__genre');
-			const selectedOptions = Array.from(selectElement.selectedOptions).map(option => option.value);
-			const concatenatedCategories = selectedOptions.join(", "); // Nối các thể loại đã chọn bằng dấu phẩy
 
-			// Tạo input ẩn để lưu chuỗi thể loại đã nối
-			const hiddenInput = document.createElement('input');
-			hiddenInput.type = 'hidden';
-			hiddenInput.name = 'category'; // Tên này phải khớp với tên trường trong Controller
-			hiddenInput.value = concatenatedCategories;
+				if (!response.ok) {
+					Swal.fire({
+						icon: "error",
+						title: "Has error",
+						text: response.message,
+						customClass: {
+							confirmButton: "btn btn-danger", // ✅ Dùng customClass
+						},
+						buttonsStyling: false
+					});
+				}
+				// Hiển thị thông báo thành công
+				Swal.fire({
+					icon: "success",
+					title: "Edit movie successfully!",
+					customClass: {
+						cancelButton: "btn btn-primary",
+					},
+					timer: 3000
+				}).then(() => {
+					window.location.href = "/admin/Movie.html"; // Điều hướng về danh sách phim
+				});
 
-			// Thêm input ẩn vào form
-			this.appendChild(hiddenInput);
+			} catch (error) {
+				console.error("📌 Fetch Error:", error);
+				Swal.fire({
+					icon: "error",
+					title: "Edit movie failed!",
+					text: "Please try again.",
+					customClass: {
+						confirmButton: "btn btn-danger",
+					},
+					buttonsStyling: false
+				});
+			}
+		});
 
-			// Vô hiệu hóa thẻ select để không gửi thông tin của nó
-			selectElement.disabled = true;
-			});
+		$(async function () {
+			const pathParts = window.location.pathname.split("/");
+			const movieId = pathParts[3]; // Vì URL là /admin/movies/{id}/edit -> phần tử thứ 3 là ID
+
+			if (!movieId) {
+				console.warn("❗ Không tìm thấy movieId trong URL");
+				return;
+			}
+
+			try {
+				const res = await fetch(`/admin/movies/${movieId}`, { method:"GET" ,credentials: "include" });
+
+				if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
+				const movie = await res.json();
+				console.log(movie)
+				// Hiển thị dữ liệu trong input fields
+				document.querySelector("input[name='movie_name']").value = movie.movieName;
+				document.querySelector("input[name='movie_duration']").value = movie.movieDuration;
+				document.querySelector("textarea[name='description']").value = movie.description;
+
+
+				if (movie.category) {
+					let categories = new Set(movie.category.split(",").map(cat => cat.trim())); // Dùng Set để tối ưu tìm kiếm
+
+					// Chọn tất cả option có giá trị thuộc danh sách thể loại
+					document.querySelectorAll("#sign__genre option").forEach(option => {
+						if (categories.has(option.value)) {
+							option.setAttribute("selected", "selected"); // Thêm thuộc tính selected
+						} else {
+							option.removeAttribute("selected"); // Xóa selected nếu không khớp
+						}
+					});
+				}
+
+				// Cập nhật trạng thái (status)
+				document.querySelector("select[name='status']").value = movie.status ? "true" : "false";
+
+				// Cập nhật ảnh
+				document.querySelector("input[name='oldImage']").value = movie.image;
+				document.getElementById("preview-image").src = movie.image.startsWith("https") ? movie.image : `/image?fname=${movie.image}`;
+
+				// Cập nhật ngày phát hành
+				document.querySelector("input[name='release_day']").value = formatDate(movie.releaseDay);
+
+				// Cập nhật trailer
+				document.querySelector("input[name='movie_trailer']").value = movie.movieTrailer;
+			} catch (err) {
+				console.error("📌 Lỗi khi fetch dữ liệu:", err);
+			}
+		});
+		function formatDate(timestamp) {
+			if (!timestamp) return ""; // Nếu không có giá trị, trả về chuỗi rỗng
+
+			const date = new Date(timestamp); // Chuyển từ milliseconds thành đối tượng Date
+			if (isNaN(date)) return ""; // Kiểm tra nếu không hợp lệ
+
+			// Định dạng YYYY-MM-DD để gán vào input[type="date"]
+			return date.toISOString().split("T")[0];
+		}
 
 
 	</script>
-	
-
 </body>
 </html>

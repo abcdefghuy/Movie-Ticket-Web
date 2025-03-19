@@ -39,7 +39,7 @@ public class AuthenticationService {
     public Person signup(RegisterUserRequest input) {
         try {
             // Tạo đối tượng người dùng từ dữ liệu đầu vào
-            Person person = new Person(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()), input.getPhone(),"USER", input.getGender(), (LocalDate) input.getDob(), input.getRegion());
+            Person person = new Person(input.getUsername(), input.getEmail(), passwordEncoder.encode(input.getPassword()), input.getPhone(),"ROLE_USER", input.getGender(), (LocalDate) input.getDob(), input.getRegion());
 
             // Tạo mã xác nhận và thiết lập thời gian hết hạn
             person.setVerificationCode(generateVerificationCode());
@@ -187,4 +187,8 @@ public class AuthenticationService {
         int code = random.nextInt(900000) + 100000;
         return String.valueOf(code);
     }
+    public Person loadUserByEmail(String email){
+        return userRepository.findByEmail(email).orElseThrow(() -> new UserNotFoundException("User not found"));
+    }
+
 }
