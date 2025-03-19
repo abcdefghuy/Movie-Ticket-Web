@@ -6,7 +6,7 @@
 <meta charset="UTF-8">
 <title>Insert title here</title>
 </head>
-<body>
+<body layout:fragment="content">
 	<!-- main content -->
 	<div class="container-fluid">
 		<div class="row">
@@ -15,8 +15,7 @@
 				<div class="main__title">
 					<h2>Admin Dashboard</h2>
 
-					<button class="sidebar__user-btn" type="button"
-							th:onclick="|window.location.href='@{/logout}'|">
+					<button class="sidebar__user-btn" type="button" id="btnLogout">
 						<i class="ti ti-logout"></i>
 					</button>
 				</div>
@@ -25,5 +24,29 @@
 		</div>
 	</div>
 	<!-- end main content -->
+<script>
+	document.getElementById("btnLogout").addEventListener("click", async function () {
+		try {
+			const response = await fetch("/logout", {
+				method: "POST",
+				headers: { "Content-Type": "application/json" },
+				credentials: "include"
+			});
+
+			if (!response.ok) throw new Error(`HTTP error! Status: ${response.status}`);
+
+			const text = await response.text(); // Đọc phản hồi dưới dạng text trước
+
+			try {
+				const data = JSON.parse(text); // Chỉ parse JSON nếu phản hồi hợp lệ
+			} catch (jsonError) {
+			}
+
+			window.location.href = "/home";
+		} catch (error) {
+			alert("Đăng xuất thất bại. Vui lòng thử lại!");
+		}
+	});
+</script>
 </body>
 </html>
