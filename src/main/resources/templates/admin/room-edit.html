@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+</head>
+<body layout:fragment="content">
+    <!-- main content -->
+    <main class="container-fluid" >
+        <div class="container-fluid">
+            <div class="row">
+                <!-- main title -->
+                <div class="col-12">
+                    <div class="main__title">
+                        <h2>Edit Room</h2>
+                    </div>
+                </div>
+                <!-- end main title -->
+
+                <!-- form -->
+                <form id="editRoomForm" class="sign__form sign__form--add">
+
+                    <div class="col-12">
+                        <label class="sign__label" for="cinema_num_rooms">Cinema Name</label>
+                        <div class="sign__group">
+                            <input type="text" class="sign__input" name="cinema_name"  placeholder="Cinema Name" id="cinema_num_rooms" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="room_name">Room Name</label>
+                        <div class="sign__group">
+                            <input type="text" class="sign__input" name="room_name"  placeholder="Room Name" id="room_name" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="seating_capacity">Number of Seats</label>
+                        <div class="sign__group">
+                            <input type="number" class="sign__input" name="seating_capacity" placeholder="Seating Capacity" id="seating_capacity" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="room_type">Screen Type</label>
+                        <div class="sign__group">
+                            <select class="sign__selectjs" name="room_type" id="room_type" required>
+                                <option value="2D">2D</option>
+                                <option value="3D">3D</option>
+                                <option value="IMAX">IMAX</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="status">Status</label>
+                        <div class="sign__group">
+                            <select class="sign__select" name="status" id="status" required>
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12 d-flex justify-content-start align-items-center" style="gap: 15px;">
+                        <a th:href="@{/admin/room/room-list?cinemaId=${room.cinema.cinemaID}}" class="sign__btn sign__btn--small sign__btn--outline">
+                            <span>Back to List</span>
+                        </a>
+                    <button type="submit" class="sign__btn sign__btn--small"><span>Apply Changes</span></button>
+                    </div>
+                </form>
+                <!-- end form -->
+            </div>
+        </div>
+    </main>
+    <script>
+        // Lấy URL hiện tại
+        const urlParams = new URLSearchParams(window.location.search);
+        // Lấy giá trị roomId và cinemaId
+        const roomId = urlParams.get("roomId");
+        const cinemaId = urlParams.get("cinemaId");
+
+    </script>
+    <!-- end main content -->
+</body>

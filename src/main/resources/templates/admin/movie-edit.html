@@ -18,7 +18,7 @@
 			</div>
 
 			<div class="col-12">
-				<a th:href="@{/admin/Movie.html}"
+				<a th:href="@{/templates/admin/movie-list.html}"
 					class="sign__btn sign__btn--small"><span>Back to Movie</span></a>
 			</div>
 			<!-- end main title -->
@@ -30,6 +30,7 @@
 						<label class="sign__label">Movie Name</label>
 						<div class="sign__group">
 							<input type="text" class="sign__input" name="movie_name" id="movie_name" placeholder="Movie Name" required>
+							<span class="text-danger" id="error-name"></span>
 						</div>
 						<div>
 							<div class="sign__group">
@@ -50,21 +51,18 @@
 									<option value="Other">Other</option>
 								</select>
 							</div>
-
+							<span class="text-danger" id="error-category"></span>
 						</div>
-
-
 						<label class="sign__label">Movie Duration</label>
 						<div class="sign__group">
-							<input type="text" class="sign__input" name="movie_duration" id="movie_duration" placeholder="Example: 1h 30m"
-								required>
-
+							<input type="text" class="sign__input" name="movie_duration" id="movie_duration" placeholder="Example: 1h 30m" required>
+							<span class="text-danger" id="error-duration"></span>
 						</div>
 						<label class="sign__label">Description</label>
 						<div class="sign__group">
 							<textarea id="Description" name="description"
 								class="sign__textarea" placeholder="Description"
-								style="width: 100%; height: 200px;"></textarea>
+								style="width: 100%; height: 200px;" required></textarea>
 						</div>
 
 						<div class="row align-items-center"
@@ -76,7 +74,7 @@
 							<!-- Ô chọn ngày -->
 							<div class="col-8">
 								<div class="sign__group">
-									<input type="date" id="date" name="release_day" class="sign__input" placeholder="Select date">
+									<input type="date" id="date" name="release_day" class="sign__input" placeholder="Select date" required>
 								</div>
 							</div>
 						</div>
@@ -87,6 +85,7 @@
 								<option value="true">Active</option>
 								<option value="false">Inactive</option>
 							</select>
+							<span class="text-danger" id="error-status"></span>
 						</div>
 						<div class="col-6">
 							<label class="sign__label" >Image</label>
@@ -96,7 +95,7 @@
 									id="sign__gallery-upload" name="images"
 									class="sign__gallery-upload" type="file"
 									accept=".png, .jpg, .jpeg" style="display: none;"
-									onchange="chooseFile(this)"> <input
+									onchange="chooseFile(this)" required> <input
 									type="hidden" name="oldImage">
 							</div>
 						</div>
@@ -107,6 +106,7 @@
 						<label class="sign__label">Movie Trailer Link:</label>
 						<div class="sign__group">
 						 <input type="text" class="sign__input" name="movie_trailer" id="movie_trailer" placeholder="Trailer Link" required>
+							<span class="text-danger" id="error-trailer"></span>
 						</div>
 					</div>
 					<button type="submit" class="sign__btn sign__btn--small">
@@ -189,29 +189,32 @@
 					method: "PUT",
 					body: formData
 				});
-
-				if (!response.ok) {
+				if(!response.ok){
 					Swal.fire({
 						icon: "error",
-						title: "Has error",
-						text: response.message,
+						title: "Edit movie failed!",
+						text: "Please try again.",
 						customClass: {
-							confirmButton: "btn btn-danger", // ✅ Dùng customClass
+							confirmButton: "btn btn-danger",
 						},
 						buttonsStyling: false
 					});
 				}
+				else{
+					Swal.fire({
+						icon: "success",
+						title: "Edit movie successfully!",
+						customClass: {
+							cancelButton: "btn btn-primary",
+						},
+						timer: 3000
+					}).then(() => {
+						window.location.href = "/admin/Movie.html"; // Điều hướng về danh sách phim
+					});
+				}
+
 				// Hiển thị thông báo thành công
-				Swal.fire({
-					icon: "success",
-					title: "Edit movie successfully!",
-					customClass: {
-						cancelButton: "btn btn-primary",
-					},
-					timer: 3000
-				}).then(() => {
-					window.location.href = "/admin/Movie.html"; // Điều hướng về danh sách phim
-				});
+
 
 			} catch (error) {
 				console.error("📌 Fetch Error:", error);
@@ -230,9 +233,7 @@
 		$(async function () {
 			const pathParts = window.location.pathname.split("/");
 			const movieId = pathParts[3]; // Vì URL là /admin/movies/{id}/edit -> phần tử thứ 3 là ID
-
 			if (!movieId) {
-				console.warn("❗ Không tìm thấy movieId trong URL");
 				return;
 			}
 
@@ -242,16 +243,12 @@
 				if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
 				const movie = await res.json();
-				console.log(movie)
 				// Hiển thị dữ liệu trong input fields
 				document.querySelector("input[name='movie_name']").value = movie.movieName;
 				document.querySelector("input[name='movie_duration']").value = movie.movieDuration;
 				document.querySelector("textarea[name='description']").value = movie.description;
-
-
 				if (movie.category) {
 					let categories = new Set(movie.category.split(",").map(cat => cat.trim())); // Dùng Set để tối ưu tìm kiếm
-
 					// Chọn tất cả option có giá trị thuộc danh sách thể loại
 					document.querySelectorAll("#sign__genre option").forEach(option => {
 						if (categories.has(option.value)) {
@@ -280,14 +277,15 @@
 		});
 		function formatDate(timestamp) {
 			if (!timestamp) return ""; // Nếu không có giá trị, trả về chuỗi rỗng
-
 			const date = new Date(timestamp); // Chuyển từ milliseconds thành đối tượng Date
 			if (isNaN(date)) return ""; // Kiểm tra nếu không hợp lệ
 
 			// Định dạng YYYY-MM-DD để gán vào input[type="date"]
 			return date.toISOString().split("T")[0];
 		}
-
+		function resetErrors() {
+			document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+		}
 
 	</script>
 </body>

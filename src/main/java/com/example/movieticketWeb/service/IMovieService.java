@@ -2,6 +2,8 @@ package com.example.movieticketWeb.service;
 
 import com.example.movieticketWeb.dto.request.MovieRequest;
 import com.example.movieticketWeb.dto.response.MovieResponse;
+import com.example.movieticketWeb.entity.Movie;
+import org.springframework.data.domain.Page;
 
 import java.util.Date;
 import java.util.List;
@@ -17,6 +19,12 @@ public interface IMovieService {
     List<MovieResponse> getMovies(int offset, int soluong);
 
     int getNoOfRecords();
+
+    Page<MovieResponse> searchMovies(String keyword, int i, int recordsPerPage);
+
+    int getNoOfSearchResults(String keyword);
+    int getNoOfSearchResults(String keyword, List<String> categories);
+    Page<MovieResponse> searchMovies(String keyword, List<String> categories, int i, int recordsPerPage);
 //    List<MovieResponse> getMovieByCategory(String category);
 //    List<MovieResponse> getMovieByStatus(boolean status);
 //    List<MovieResponse> getMovieByRating(float rating);

@@ -6,19 +6,18 @@
     <title>Insert title here</title>
 </head>
 <body th:fragment="sidebar">
-<div class="sidebar" >
+<div class="sidebar">
     <!-- sidebar logo -->
     <a th:href="@{/admin/adminHome}"
        class="sidebar__logo"> <img
-            th:src="@{/static/assets2/img/logo.png}" alt=""
-            width="300" height="300">
+            th:src="@{/static/assets2/img/logo.png}" alt="" width="300" height="300">
     </a>
     <!-- end sidebar logo -->
 
     <!-- sidebar user -->
     <div class="sidebar__user">
         <div class="sidebar__user-img">
-            <img  th:src="@{/static/assets2/img/user.svg}"
+            <img th:src="@{/static/assets2/img/user.svg}"
                  alt="">
         </div>
 
@@ -33,11 +32,13 @@
     <div class="sidebar__nav-wrap">
         <ul class="sidebar__nav">
 
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/admin/cinemas}"
-                    class="sidebar__nav-link"><i class="ti ti-door"></i> <span>Cinema</span></a></li>
             <li class="sidebar__nav-item">
-                <a th:href="@{/admin/Movie.html}" class="sidebar__nav-link">
+                <a th:href="@{/admin/cinema/cinema-list}" class="sidebar__nav-link"><i class="ti ti-door"></i>
+                    <span>Cinema</span>
+                </a>
+            </li>
+            <li class="sidebar__nav-item">
+                <a th:href="@{/admin/movie-list.html}" class="sidebar__nav-link">
                     <i class="ti ti-movie"></i> <span>Movie</span>
                 </a>
             </li>
@@ -45,32 +46,41 @@
                     th:href="@{/adminnewsOrDiscounts}"
                     class="sidebar__nav-link"><i class="ti ti-news"></i> <span>News
 							And Discount</span></a></li>
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/adminMessage}"
-                    class="sidebar__nav-link"><i class="ti ti-message-circle"></i>
-                <span>Chats</span></a></li>
+            <li class="sidebar__nav-item">
+                <a th:href="@{/adminMessage}" class="sidebar__nav-link"><i class="ti ti-message-circle"></i>
+                    <span>Chats</span>
+                </a>
+            </li>
+
+            <li class="sidebar__nav-item">
+                <a th:href="@{/admin/user/user-list.html}" class="sidebar__nav-link"><i class="ti ti-users"></i>
+                    <span>Users</span>
+                </a>
+            </li>
 
 
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/admin/users}"
-                    class="sidebar__nav-link"><i class="ti ti-users"></i> <span>Users</span></a></li>
+            <li class="sidebar__nav-item">
+                <a th:href="@{/admin/coupons}" class="sidebar__nav-link"><i class="ti ti-ticket"></i>
+                    <span>Coupon</span>
+                </a>
+            </li>
 
+            <li class="sidebar__nav-item">
+                <a th:href="@{/admin/popcorns}" class="sidebar__nav-link"><i class="ti ti-baby-bottle"></i>
+                    <span>Popcorn</span>
+                </a>
+            </li>
+            <li class="sidebar__nav-item">
+                <a th:href="@{/admin/revenues-statics}" class="sidebar__nav-link"><i class="ti ti-presentation"></i>
+                    <span>Revenue</span>
+                </a>
+            </li>
 
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/admin/coupons}"
-                    class="sidebar__nav-link"><i class="ti ti-ticket"></i> <span>Coupon</span></a></li>
-
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/admin/popcorns}"
-                    class="sidebar__nav-link"><i class="ti ti-baby-bottle"></i> <span>Popcorn</span></a></li>
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/admin/revenues-statics}"
-                    class="sidebar__nav-link"><i class="ti ti-presentation"></i> <span>Revenue</span></a></li>
-
-            <li class="sidebar__nav-item"><a
-                    th:href="@{/logout}"
-                    class="sidebar__nav-link"><i class="ti ti-arrow-left"></i> <span>Back
-							to ValCT</span></a></li>
+            <li class="sidebar__nav-item">
+                <a th:href="@{/logout}" class="sidebar__nav-link"><i class="ti ti-arrow-left"></i>
+                    <span>Back to home</span>
+                </a>
+            </li>
         </ul>
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script>
@@ -88,7 +98,7 @@
             });
             $(async function () {
                 try {
-                    const res = await fetch('/admin/adminInfo', { credentials: 'include' });
+                    const res = await fetch('/admin/adminInfo', {credentials: 'include'});
                     if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
                     const data = await res.json();

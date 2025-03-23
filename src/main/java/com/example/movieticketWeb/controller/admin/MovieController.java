@@ -1,7 +1,6 @@
 package com.example.movieticketWeb.controller.admin;
 
 import com.example.movieticketWeb.entity.Person;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -17,14 +16,14 @@ public class MovieController {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return new ModelAndView("web/signin");
         }
-        return new ModelAndView("admin/Movie");
+        return new ModelAndView("admin/movie-list");
     }
     @GetMapping("/movies/add")
     public ModelAndView addMovie(@AuthenticationPrincipal Person person) {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return new ModelAndView("web/signin");
         }
-        return new ModelAndView("admin/AddMovie");
+        return new ModelAndView("admin/movie-add");
     }
     @GetMapping("/movies/{id}/edit")
     public ModelAndView editMovie(@AuthenticationPrincipal Person person,
@@ -32,7 +31,7 @@ public class MovieController {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return new ModelAndView("web/signin");
         }
-        ModelAndView modelAndView = new ModelAndView("admin/EditMovie");
+        ModelAndView modelAndView = new ModelAndView("admin/movie-edit");
         modelAndView.addObject("movieID", movieID);
         return modelAndView;
     }

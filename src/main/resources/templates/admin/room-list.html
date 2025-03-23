@@ -6,36 +6,36 @@
     <meta charset="UTF-8">
     <title>Insert title here</title>
 </head>
-<body>
+<body layout:fragment="content">
     <!-- main content -->
-    <main class="container-fluid" layout:fragment="content">
+    <main class="container-fluid" >
         <div class="container-fluid">
             <div class="row">
                 <!-- main title -->
                 <div class="col-12">
                     <div class="main__title">
-                        <h2>Rooms in ${cinemaName}</h2>
+                        <h2>Rooms in <span id="cName"></span></h2>
 
-                        <span class="main__title-stat">Total Rooms: ${rooms.size()}</span>
+                        <span class="main__title-stat">Total Movies: <span id="totalMovies">0</span></span>
                         
                         <div class="main__title-stat">
 					    	<div class="catalog__text">
-					        <a th:href="@{/admin/cinemas}">Back to Cinema List</a>
+					        <a th:href="@{/admin/cinema/cinema-list}">Back to Cinema List</a>
 					   		 </div>
 						</div>
                         <div class="main__title-wrap">
                             <button type="button" data-bs-toggle="modal" class="main__title-link main__title-link--wrap" data-bs-target="#modal-add-room">Add Room</button>
 
                             <!-- search -->
-							<form th:action="@{/admin/searchRoom}" method="get" class="main__title-form">
+							<form id="searchForm" class="main__title-form">
 								
-								<input type="hidden" name="cinemaId" value="${cinemaId}">
+								<input type="hidden" name="cinemaId">
 								
 							    <select name="screenType" class="sign__select" required>
-							        <option value="All"  th:selected="${screenType == 'All'}">All Screen Types</option>
-							        <option value="2D" th:selected="${screenType == '2D'}">2D</option>
-							        <option value="3D" th:selected="${screenType == '3D'}">3D</option>
-							        <option value="IMAX" th:selected="${screenType == 'IMAX'}">IMAX</option>
+							        <option value="All"  >All Screen Types</option>
+							        <option value="2D">2D</option>
+							        <option value="3D">3D</option>
+							        <option value="IMAX">IMAX</option>
 							    </select>
 							    <button type="submit">
 							        <i class="ti ti-search"></i>
@@ -63,34 +63,9 @@
                                     <th>ACTIONS</th>
                                 </tr>
                             </thead>
-		
-        <tbody>
-        <tr th:each="room : ${rooms}">
-            <td><div class="catalog__text" th:text="${room.roomID}"></div></td>
-            <td>
-                <div class="catalog__text">
-                    <a th:href="@{/admin/moviescreenings(id=${room.roomID}, cinemaId=${cinemaId})}" th:text="${room.roomName}"></a>
-                </div>
-            </td>
-            <td><div class="catalog__text" th:text="${cinemaName}"></div></td>
-            <td><div class="catalog__text" th:text="${room.screenType}"></div></td>
-            <td><div class="catalog__text" th:text="${room.chairNumber}"></div></td>
-            <td>
-                <div class="catalog__text" th:classappend="${room.status} ? 'catalog__text--green' : 'catalog__text--red'" th:text="${room.status} ? 'Active' : 'Inactive'"></div>
-            </td>
-            <td>
-                <div class="catalog__btns">
-                    <a th:href="@{/admin/editRoom(roomId=${room.roomID}, cinemaId=${cinemaId})}" class="catalog__btn catalog__btn--edit">
-                        <i class="ti ti-edit"></i>
-                    </a>
-                    <button type="button" class="catalog__btn catalog__btn--delete delete-room-btn" data-bs-toggle="modal" data-bs-target="#modal-delete"
-                            th:attr="data-room-id=${room.roomID}, data-cinema-id=${cinemaId}">
-                        <i class="ti ti-trash"></i>
-                    </button>
-                </div>
-            </td>
-        </tr>
-</tbody>
+                            <tbody id="roomsTableBody">
+
+                            </tbody>
 
                         </table>
                     </div>
@@ -108,16 +83,14 @@
         <div class="modal-dialog modal-dialog-centered">
             <div class="modal-content">
                 <div class="modal__content">
-                    <form th:action="@{/admin/addRoom}" method="POST" class="modal__form">
+                    <form id="addRoomForm" class="modal__form">
                         <h4 class="modal__title">Add Room</h4>
-                        
-                        <input type="hidden" name="cinemaId" value="${cinemaId}">
-
+                        <input type="hidden" name="cinemaId">
                         <div class="row">
                             <div class="col-12">
                                 <div class="sign__group">
                                     <label class="sign__label" for="cinema_name">Cinema Name</label>
-                                    <input id="cinema_name" type="text" name="cinema_name" class="sign__input" value="${cinemaName}" readonly>
+                                    <input id="cinema_name" type="text" name="cinema_name" class="sign__input" required>
                                 </div>
                             </div>
 
@@ -131,10 +104,9 @@
 							<div class="col-12">
 							    <div class="sign__group">
 							        <label class="sign__label" for="capacity">Capacity</label>
-							        <input id="capacity" type="number" name="capacity" class="sign__input" placeholder="Capacity" value="70" readonly>
+							        <input id="capacity" type="number" name="capacity" class="sign__input" placeholder="Capacity" value="70" required>
 							    </div>
 							</div>
-
 
                             <div class="col-12">
                                 <div class="sign__group">
@@ -147,17 +119,15 @@
                                     </select>
                                 </div>
                             </div>
-                            
                             <div class="col-12">
-                        <label class="sign__label" for="status">Status</label>
-                        <div class="sign__group">
-                        	
-                            <select class="sign__select" name="status" id="status" required>
-                                <option value="true">Active</option>
-                                <option value="false">Inactive</option>
-                            </select>
-                        </div>
-                    	</div>
+                                <label class="sign__label" for="status">Status</label>
+                                <div class="sign__group">
+                                    <select class="sign__select" name="status" id="status" required>
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                </div>
+                    	    </div>
 
                             <div class="col-12 col-lg-6 offset-lg-3">
                                 <button type="submit" class="sign__btn sign__btn--modal">Add Room</button>
@@ -174,7 +144,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal__content">
-                <form th:action="@{/admin/deleteRoom}" method="POST" id="deleteRoomForm" class="modal__form">
+                <form id="deleteRoomForm" class="modal__form">
                     <h4 class="modal__title">Delete Room</h4>
                     <p class="modal__text">Are you sure you want to permanently delete this room?</p>
                     <input type="hidden" name="id" id="deleteRoomId">
@@ -189,17 +159,55 @@
     </div>
 </div>
 <!-- end delete modal -->
-
-
 <script>
-document.querySelectorAll('.catalog__btn--delete').forEach(button => {
-    button.addEventListener('click', function () {
-        const roomId = this.getAttribute('data-room-id');
-        const cinemaId = this.getAttribute('data-cinema-id');
-        document.getElementById('deleteRoomId').value = roomId; // Gắn roomId vào hidden input
-        document.getElementById('deleteCinemaId').value = cinemaId; // Gắn cinemaId vào hidden input
+    document.addEventListener("click", function(event) {
+        if (event.target.closest(".catalog__btn--delete")) {
+            const button = event.target.closest(".catalog__btn--delete");
+            document.getElementById("deleteRoomId").value = button.getAttribute("data-room-id");
+        }
     });
-});
+    document.addEventListener("DOMContentLoaded", function () {
+        function renderRooms(rooms, cinemaId, cinemaName) {
+            const tableBody = document.getElementById("roomsTableBody");
+            tableBody.innerHTML = ""; // Xóa dữ liệu cũ
+
+            rooms.forEach(room => {
+                const row = `
+        <tr>
+            <td><div class="catalog__text">${room.roomID}</div></td>
+            <td>
+                <div class="catalog__text">
+                    <a href="/admin/moviescreenings?id=${room.roomID}&cinemaId=${cinemaId}">${room.roomName}</a>
+                </div>
+            </td>
+            <td><div class="catalog__text">${cinemaName}</div></td>
+            <td><div class="catalog__text">${room.screenType}</div></td>
+            <td><div class="catalog__text">${room.chairNumber}</div></td>
+            <td>
+                <div class="catalog__text ${room.status ? 'catalog__text--green' : 'catalog__text--red'}">
+                    ${room.status ? 'Active' : 'Inactive'}
+                </div>
+            </td>
+            <td>
+                <div class="catalog__btns">
+                    <a href="/admin/room/editRoom?roomId=${room.roomID}&cinemaId=${cinemaId}" class="catalog__btn catalog__btn--edit">
+                        <i class="ti ti-edit"></i>
+                    </a>
+                    <button type="button" class="catalog__btn catalog__btn--delete"
+                            data-bs-toggle="modal"
+                            data-bs-target="#modal-delete"
+                            data-room-id="${room.roomID}">
+                        <i class="ti ti-trash"></i>
+                    </button>
+                </div>
+            </td>
+        </tr>`;
+                tableBody.innerHTML += row;
+            });
+        }
+
+    });
+
 
 </script>
 

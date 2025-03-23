@@ -47,7 +47,7 @@ public class SignupRestController {
         }
     }
 
-    static ResponseEntity<?> getResponseEntity(BindingResult bindingResult) {
+    public static ResponseEntity<?> getResponseEntity(BindingResult bindingResult) {
         if (bindingResult.hasErrors()) {
             // Trả về lỗi dưới dạng JSON
             Map<String, String> errors = new HashMap<>();

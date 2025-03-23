@@ -17,6 +17,7 @@ import org.springframework.security.core.authority.SimpleGrantedAuthority;
 @AllArgsConstructor
 @Entity
 @Table(name = "Person")
+@Builder
 public class Person implements UserDetails {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -41,7 +42,7 @@ public class Person implements UserDetails {
     private Integer gender; // Sử dụng Integer thay vì int để cho phép null
 
     @Column(name = "birthDate", nullable = true) // Cho phép null
-    private LocalDate birthDate;
+    private Date birthDate;
 
     @Column(name = "region", columnDefinition = "nvarchar(50)", nullable = true) // Cho phép null
     private String region;
@@ -61,7 +62,7 @@ public class Person implements UserDetails {
     private LocalDateTime verificationCodeExpiresAt;
     private boolean enabled;
 
-    public Person(String username, String email, String password, String phone, String role, Integer gender, LocalDate birthDate, String region) {
+    public Person(String username, String email, String password, String phone, String role, Integer gender, Date birthDate, String region) {
         this.username = username;
         this.email = email;
         this.password = password;

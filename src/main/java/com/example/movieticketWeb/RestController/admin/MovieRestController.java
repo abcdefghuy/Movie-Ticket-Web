@@ -2,17 +2,20 @@ package com.example.movieticketWeb.RestController.admin;
 
 import com.example.movieticketWeb.dto.request.MovieRequest;
 import com.example.movieticketWeb.dto.response.MovieResponse;
+import com.example.movieticketWeb.entity.Movie;
 import com.example.movieticketWeb.entity.Person;
 import com.example.movieticketWeb.entity.Res;
 import com.example.movieticketWeb.service.IImageService;
 import com.example.movieticketWeb.service.IMovieService;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -49,7 +52,6 @@ public class MovieRestController {
 
         // Lấy danh sách phim
         List<MovieResponse> movies = movieService.getMovies(offset, soluong);
-        System.out.println(movies);
         // Lấy tổng số records
         int noOfRecords = movieService.getNoOfRecords();
         int noOfPages = (int) Math.ceil((double) noOfRecords / soluong);
@@ -70,7 +72,7 @@ public class MovieRestController {
         return ResponseEntity.ok(movieService.getMovieById(id));
     }
     @PostMapping( consumes = MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addMovie(@AuthenticationPrincipal Person person,
+    public ResponseEntity<?> addMovie(BindingResult bindingResult,@AuthenticationPrincipal Person person,
             @RequestPart("movie") @Valid MovieRequest movieRequest,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
@@ -94,7 +96,7 @@ public class MovieRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestPart("movie") @Valid MovieRequest movieDTO, @RequestParam(value = "imageFile",required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
+    public ResponseEntity<?> updateMovie(BindingResult bindingResult,@PathVariable Long id, @RequestPart("movie") @Valid MovieRequest movieDTO, @RequestParam(value = "imageFile",required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
 
         if(imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = handleImageUpload(imageFile);
@@ -119,8 +121,30 @@ public class MovieRestController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<MovieResponse>> searchMovies(@RequestParam String keyword) {
-        return ResponseEntity.ok(movieService.searchMovie(keyword));
+    public ResponseEntity<Map<String, Object>> searchMovies(
+            @RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
+            @RequestParam(name = "category", required = false) List<String> categories,
+            @RequestParam(name = "page", defaultValue = "1") int page,
+            @RequestParam(name = "soluong", defaultValue = "5") int recordsPerPage) {
+
+        boolean searchAll = categories == null || categories.contains("All");
+        Page<MovieResponse> movies;
+
+        if (searchAll) {
+            movies = movieService.searchMovies(keyword, page, recordsPerPage);
+        } else {
+            movies = movieService.searchMovies(keyword, categories, page, recordsPerPage);
+        }
+        Map<String, Object> response = new HashMap<>();
+        response.put("movies", movies.getContent());
+        response.put("noOfPages", movies.getTotalPages());
+        response.put("currentPage", page);
+        response.put("recordsPerPage", recordsPerPage);
+        response.put("keyword", keyword);
+        response.put("category", categories != null ? String.join(",", categories) : "All");
+        response.put("noOfRecords",movies.getTotalElements());
+
+        return ResponseEntity.ok(response);
     }
     private String processYouTubeUrl(String url) {
         String videoId = null;
