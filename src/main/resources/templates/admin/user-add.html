@@ -7,13 +7,8 @@
 	<title>Insert title here</title>
 </head>
 <!-- Mirrored from hotflix.volkovdesign.com/admin/users.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 07:09:40 GMT -->
-<body>
-<div th:if="${not empty error}">
-    <div class="alert alert-danger">
-        ${error}
-    </div>
-</div>
-<main class="container-fluid" layout:fragment="content">
+<body layout:fragment="content">
+<main class="container-fluid" >
 	<div class="container-fluid">
 		<div class="main__title">
 			<div class="main__title-wrap">
@@ -24,78 +19,155 @@
 		<!-- end main title -->
 
 		<!-- user modal -->
-		<form th:action="@{/admin/users/save}"
-			method="post" class="modal__form" style="margin-top: 20px;">
+		<form id="addUserForm" class="modal__form" style="margin-top: 20px;">
 			<h4 class="modal__title">Add User</h4>
-
 			<div class="row">
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="email2">Email</label> <input
-							id="email2" type="email" name="email" class="sign__input"
-							placeholder="email@email.com" required>
+						<label class="sign__label" for="email">Email</label>
+						<input id="email" type="email" name="email" class="sign__input" placeholder="email@email.com">
+						<span class="text-danger" id="error-email"></span>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="fname">Name</label> <input
-							id="fname" type="text" name="fname" class="sign__input"
-							placeholder="Your name" required>
+						<label class="sign__label" for="fname">Name</label>
+						<input id="fname" type="text" name="fname" class="sign__input" placeholder="Your name">
+						<span class="text-danger" id="error-username"></span>
 					</div>
 				</div>
 
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="password">Password</label> <input
-							id="password" type="password" name="password" class="sign__input"
-							required>
+						<label class="sign__label" for="password">Password</label>
+						<input id="password" type="password" name="password" class="sign__input" required>
+						<span class="text-danger" id="error-password"></span>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="phone">Phone</label> <input
-							id="phone" type="tel" name="phone" class="sign__input"
-							placeholder="Your phone"  required pattern="^[0-9]{10}$" title="So dien thoai phai co 10 chu so">
+						<label class="sign__label" for="phone">Phone</label>
+						<input id="phone" type="tel" name="phone" class="sign__input" placeholder="Your phone"  >
+						<span class="text-danger" id="error-phone"></span>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="birthDate">BirthDate</label> <input
-							id="birthDate" type="date" name="birthDate" class="sign__input"
-							required>
+						<label class="sign__label" for="birthDate">BirthDate</label>
+						<input id="birthDate" type="date" name="birthDate" class="sign__input">
+						<span class="text-danger" id="error-birthDate"></span>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="gender">Gender</label> <select
-							class="sign__select" id="gender" name="gender">
-							<option value="1">Male</option>
-							<option value="0">Female</option>
+						<label class="sign__label" for="gender">Gender</label>
+						<select class="sign__select" id="gender" name="gender" >
+							<option value="MALE">Male</option>
+							<option value="FEMALE">Female</option>
 						</select>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0; text-align: left;">
 					<div class="sign__group">
-						<label class="sign__label" for="rights">Rights</label> <select
-							class="sign__select" id="rights" name="rights">
+						<label class="sign__label" for="regionInput">Region</label>
+						<input type="text" placeholder="Your Province" name="region" list="exampleList" id="regionInput" class="sign__input">
+						<datalist id="exampleList"></datalist>
+						<span class="text-danger" id="error-region"></span>
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0; text-align: left;">
+					<div class="sign__group">
+						<label class="sign__label" for="rights">Rights</label>
+						<select class="sign__select" id="rights" name="rights">
 							<option value="User">User</option>
 						</select>
 					</div>
 				</div>
-
 			</div>
 
-			<div class="col-12"
-				style="display: flex; justify-content: center; gap: 100px;">
+			<div class="col-12" style="display: flex; justify-content: center; gap: 100px;">
 				<button type="submit" class="sign__btn sign__btn--modal"
 					style="width: 150px;">Add</button>
-				<a th:href="@{/admin/users}"
-					class="sign__btn sign__btn--modal"
+				<a th:href="@{/admin/user/user-list.html}" class="sign__btn sign__btn--modal"
 					style="width: 150px; height: 50px; font-size: 16px; text-align: center; display: flex; align-items: center; justify-content: center;">Back</a>
 			</div>
 		</form>
 		<!-- end user modal -->
 	</div>
 </main>
+<script>
+	$(document).ready(function () {
+		$.ajax({
+			url: "http://localhost:8080/regions",
+			type: "GET",
+			dataType: "json", // Đảm bảo dữ liệu trả về là JSON
+			success: function (data) {
+				if (!Array.isArray(data)) {
+					return;
+				}
+				let options = data.map(city => `<option value="${city}">`).join("");
+				$("#exampleList").html(options); // Đổ dữ liệu vào datalist
+			},
+			error: function (xhr, status, error) {
+				console.error("Failed to load regions:", error);
+			}
+		});
+	});
+	document.getElementById("addUserForm").addEventListener("submit", async function (event) {
+		event.preventDefault();
+		const genderValue = document.getElementById("gender").value === "MALE" ? 1 : 0;
+		const userData = {
+			username: document.getElementById("fname").value,
+			email: document.getElementById("email").value,
+			phone: document.getElementById("phone").value,
+			birthDate: document.getElementById("birthDate").value,
+			role: "ROLE_" + document.getElementById("rights").value.toUpperCase(),
+			region: document.getElementById("regionInput").value,
+			gender: genderValue
+		};
+		try {
+			const response = await fetch(`/admin/users`, {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+					"credentials": "include"
+				},
+				body: JSON.stringify(userData)
+			});
+			const responseData = await response.text();
+			document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+			if (!response.ok) {
+				resetErrors(); // Xóa lỗi cũ
+				if (responseData && typeof responseData === "object") {
+					Object.keys(responseData).forEach(field => {
+						const errorElement = document.getElementById(`error-${field}`);
+						if (errorElement) {
+							errorElement.textContent = responseData[field];
+						}
+					});
+				} }
+			else {
+				Swal.fire({
+					icon: "success",
+					title: "Add user successfully!",
+					timer: 3000
+				}).then(() => {
+					window.location.href = "/admin/user/user-list.html";
+				});
+			}
+		} catch (error) {
+			console.error("📌 Fetch Error:", error);
+			Swal.fire({
+				icon: "error",
+				title: "Add user failed!",
+				text: "Please try again.",
+				customClass: {
+					confirmButton: "btn btn-danger",
+				},
+				buttonsStyling: false
+			});
+		}
+	});
+</script>
 </body>
 </html>

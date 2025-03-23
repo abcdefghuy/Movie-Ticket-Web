@@ -7,13 +7,8 @@
 	<title>Insert title here</title>
 </head>
 <!-- Mirrored from hotflix.volkovdesign.com/admin/users.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 07:09:40 GMT -->
-<body>
-<div th:if="${not empty error}">
-    <div class="alert alert-danger">
-        ${error}
-    </div>
-</div>
-<main class="container-fluid" layout:fragment="content">
+<body layout:fragment="content">
+<main class="container-fluid" >
 	<div class="container-fluid">
 	<div class="main__title">
 
@@ -23,66 +18,62 @@
 			</div>
 		</div>
 		<!-- user modal -->
-		<form th:action="@{/admin/users/update(userId=${user.perID })}" method="post" class="modal__form" style="margin-top: 20px;">
-			
+		<form id="editUserForm" class="modal__form" style="margin-top: 20px;">
+			<input type="hidden" name="id" id="userId">
 			<h4 class="modal__title">Edit User</h4>
 
 			<div class="row">
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="email2">Email</label> <input
-							id="email2" type="email" name="email" class="sign__input"
-							placeholder="email@email.com" value="${user.email}" required>
+						<label class="sign__label" for="email">Email</label>
+						<input id="email" type="email" name="email" class="sign__input" placeholder="email@email.com" >
+						<span class="text-danger" id="error-email"></span>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="fname">Name</label> <input
-							id="fname" type="text" name="fname" class="sign__input"
-							placeholder="Your name" value="${user.fullName}" required>
+						<label class="sign__label" for="fname">Name</label>
+						<input id="fname" type="text" name="fname" class="sign__input" placeholder="Your name">
+						<span class="text-danger" id="error-name"></span>
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0 auto;">
+					<div class="sign__group">
+						<label class="sign__label" for="phone">Phone</label>
+						<input id="phone" type="tel" name="phone" class="sign__input" placeholder="Your phone" >
+						<span class="text-danger" id="error-phone"></span>
 					</div>
 				</div>
 
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="password">Password</label> <input
-							id="password" type="password" name="password" class="sign__input"
-							value="${user.password}" required>
+						<label class="sign__label" for="birthDate">BirthDate</label>
+						<input id="birthDate" type="date" name="birthDate" class="sign__input"  >
+						<span class="text-danger" id="error-birthDate"></span>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0 auto;">
 					<div class="sign__group">
-						<label class="sign__label" for="phone">Phone</label> <input
-							id="phone" type="tel" name="phone" class="sign__input"
-							placeholder="Your phone" value="${user.phone}" required pattern="^[0-9]{10}$" title="So dien thoai phai co 10 chu so">
-					</div>
-				</div>
-				<!-- Định dạng ngày sử dụng JSTL -->
-				<span th:text="${#dates.format(user.birthDate, 'yyyy-MM-dd')}"></span>
-
-				<div class="col-12" style="width: 50%; margin: 0 auto;">
-					<div class="sign__group">
-						<label class="sign__label" for="birthDate">BirthDate</label> <input
-							id="birthDate" type="date" name="birthDate" class="sign__input"
-							value="${#dates.format(user.birthDate, 'yyyy-MM-dd')}" required >
-					</div>
-				</div>
-				<div class="col-12" style="width: 50%; margin: 0 auto;">
-					<div class="sign__group">
-						<label class="sign__label" for="gender">Gender</label> <select
-							class="sign__select" id="gender" name="gender"
-							value="${user.gender}">
-							<option value="1" th:selected="${user.gender == 1}">Male</option>
-							<option value="0" th:selected="${user.gender == 0}">Female</option>
+						<label class="sign__label" for="gender">Gender</label>
+						<select class="sign__select" id="gender" name="gender">
+							<option value="MALE" >Male</option>
+							<option value="FEMALE" >Female</option>
 						</select>
 					</div>
 				</div>
 				<div class="col-12" style="width: 50%; margin: 0; text-align: left;">
 					<div class="sign__group">
-						<label class="sign__label" for="rights">Rights</label> <select
-							class="sign__select" id="rights" name="rights"
-							value="${user.role}">
-							<option value="User">User</option>
+						<label class="sign__label" for="regionInput">Region</label>
+						<input type="text" placeholder="Your Province" name="region" list="exampleList" id="regionInput" class="sign__input">
+						<datalist id="exampleList"></datalist>
+						<span class="text-danger" id="error-region"></span>
+					</div>
+				</div>
+				<div class="col-12" style="width: 50%; margin: 0; text-align: left;">
+					<div class="sign__group">
+						<label class="sign__label" for="rights">Rights</label>
+						<select class="sign__select" id="rights" name="rights">
+							<option value="USER">USER</option>
 						</select>
 					</div>
 				</div>
@@ -90,13 +81,121 @@
 			<div class="col-12"
 				style="display: flex; justify-content: center; gap: 100px;">
 				<button type="submit" class="sign__btn sign__btn--modal" style="width: 150px;">Update</button>
-				<a th:href="@{/admin/users}"
-					class="sign__btn sign__btn--modal"
-					style="width: 150px; height: 50px; font-size: 16px; text-align: center; display: flex; align-items: center; justify-content: center;">Back</a>
+				<a th:href="@{/admin/user/user-list.html}" class="sign__btn sign__btn--modal" style="width: 150px; height: 50px; font-size: 16px; text-align: center; display: flex; align-items: center; justify-content: center;">Back</a>
 			</div>
 	</form>
 	<!-- end user modal -->
 	</div>
 </main>
+<script>
+	function resetErrors() {
+		document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+	}
+	$(document).ready(function () {
+		$.ajax({
+			url: "http://localhost:8080/regions",
+			type: "GET",
+			dataType: "json", // Đảm bảo dữ liệu trả về là JSON
+			success: function (data) {
+				if (!Array.isArray(data)) {
+					return;
+				}
+				let options = data.map(city => `<option value="${city}">`).join("");
+				$("#exampleList").html(options); // Đổ dữ liệu vào datalist
+			},
+			error: function (xhr, status, error) {
+				console.error("Failed to load regions:", error);
+			}
+		});
+	});
+	document.getElementById("editUserForm").addEventListener("submit", async function (event) {
+		event.preventDefault();
+		const id = document.getElementById("userId").value;
+		const genderValue = document.getElementById("gender").value === "MALE" ? 1 : 0;
+		const userData = {
+			username: document.getElementById("fname").value,
+			email: document.getElementById("email").value,
+			phone: document.getElementById("phone").value,
+			birthDate: document.getElementById("birthDate").value,
+			role: "ROLE_" + document.getElementById("rights").value.toUpperCase(),
+			region: document.getElementById("regionInput").value,
+			gender: genderValue
+		};
+
+		try {
+			const response = await fetch(`/admin/users/${id}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+					"credentials": "include"
+				},
+				body: JSON.stringify(userData)
+			});
+			const responseData = await response.json(); // Parse JSON nếu có
+			if (!response.ok) {
+				resetErrors(); // Xóa lỗi cũ
+				if (responseData && typeof responseData === "object") {
+					document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+					document.getElementById("error-name").textContent = responseData.username || "";
+					document.getElementById("error-email").textContent = responseData.email || "";
+					document.getElementById("error-phone").textContent = responseData.phone || "";
+					document.getElementById("error-region").textContent = responseData.region || "";
+					document.getElementById("error-birthDate").textContent = responseData.birthDate || "";
+				} }
+			else {
+				Swal.fire({
+					icon: "success",
+					title: "Edit user successfully!",
+					timer: 3000
+				}).then(() => {
+					window.location.href = "/admin/user/user-list.html";
+				});
+			}
+		} catch (error) {
+			Swal.fire({
+				icon: "error",
+				title: "Edit user failed!",
+				text: "Please try again.",
+				customClass: {
+					confirmButton: "btn btn-danger",
+				},
+				buttonsStyling: false
+			});
+		}
+	});
+
+	$(async function () {
+		const pathParts = window.location.pathname.split("/");
+		const id = pathParts[3]; // Vì URL là /admin/users/{id}/edit -> phần tử thứ 3 là ID
+
+		try {
+			const res = await fetch(`/admin/users/${id}`, { method:"GET" ,credentials: "include" });
+
+			if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
+			const data = await res.json();
+			console.log(data);
+			// Hiển thị dữ liệu trong input fields
+			document.querySelector("input[name='email']").value = data.email;
+			document.querySelector("input[name='fname']").value = data.userName;
+			document.querySelector("input[name='phone']").value = data.phone;
+			document.querySelector("select[name='gender']").value = data.gender;
+			document.querySelector("select[name='rights']").value = data.role ;
+			document.querySelector("input[name='birthDate']").value = formatDate2(data.birthday);
+			document.querySelector("input[name='region']").value = data.regions;
+			document.getElementById("userId").value = data.id;
+
+		} catch (err) {
+			console.error("📌 Lỗi khi fetch dữ liệu:", err);
+		}
+	});
+	function formatDate2(timestamp) {
+		if (!timestamp) return ""; // Nếu không có giá trị, trả về chuỗi rỗng
+		const date = new Date(timestamp); // Chuyển từ milliseconds thành đối tượng Date
+		if (isNaN(date)) return ""; // Kiểm tra nếu không hợp lệ
+		// Định dạng YYYY-MM-DD để gán vào input[type="date"]
+		return date.toISOString().split("T")[0];
+	}
+</script>
 </body>
 </html>

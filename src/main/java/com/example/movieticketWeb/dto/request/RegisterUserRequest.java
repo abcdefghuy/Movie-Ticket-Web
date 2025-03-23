@@ -4,6 +4,7 @@ import jakarta.validation.constraints.*;
 import lombok.*;
 
 import java.time.LocalDate;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -35,6 +36,6 @@ public class RegisterUserRequest {
 
     @NotNull(message = "Date of birth is required")
     @Past(message = "Date of birth must be in the past")
-    private LocalDate dob;
+    private Date dob;
 
 }
