@@ -87,19 +87,10 @@
 				<div class="main__title">
 					<h2>News And Discount</h2>
 
-					<!-- <span class="main__title-stat">14,452 Total</span> -->
-
 					<div class="main__title-wrap">
 						<a
-							th:href="@{/adminnewsOrDiscountadd}"
-							class="main__title-link main__title-link--wrap">Add item</a>
+							th:href="@{/adminnewsOrDiscountadd}" class="main__title-link main__title-link--wrap">Add item</a>
 						<!-- search -->
-<!-- 												<form action="#" class="main__title-form"> -->
-<!-- 													<input type="text" placeholder="Find...Not Code Yet"> -->
-<!-- 													<button type="button"> -->
-<!-- 														<i class="ti ti-search"></i> -->
-<!-- 													</button> -->
-<!-- 												</form> -->
 						<form th:action="@{/adminnewsOrDiscounts}" class="main__title-form" method="get">
 							<input type="text" name="search" placeholder="Search by title"
 								value="${param.search}">
@@ -247,8 +238,7 @@
 						<input type="hidden" id="delete-id" name="delete-id">
 
 						<h4 class="modal__title">Item delete</h4>
-						<p class="modal__text">Are you sure to permanently delete this
-							item?</p>
+						<p class="modal__text">Are you sure to permanently delete this item?</p>
 
 						<div class="modal__btns">
 							<button id="confirm-delete" class="modal__btn modal__btn--apply"

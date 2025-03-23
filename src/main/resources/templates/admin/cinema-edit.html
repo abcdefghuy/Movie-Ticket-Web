@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+</head>
+<body layout:fragment="content">
+    <!-- main content -->
+    <main class="container-fluid" >
+        <div class="container-fluid">
+            <div class="row">
+                <!-- main title -->
+                <div class="col-12">
+                    <div class="main__title">
+                        <h2>Edit Cinema</h2>
+                    </div>
+                </div>
+                <!-- end main title -->
+
+                <!-- form -->
+                <div class="col-12">
+                    <form id="editCinemaForm" class="sign__form sign__form--add">
+                        <div class="row">
+                            <div class="col-12">
+                                <label class="sign__label" for="cinema_name">Cinema Name</label>
+                                <div class="sign__group">
+                                    <input type="hidden" name="id" id="id">
+                                    <input id="cinema_name" type="text" class="sign__input" name="cinema_name" placeholder="Cinema Name" required>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                            	<label class="sign__label" for="cinema_address">Address</label>
+                                <div class="sign__group">
+                                    <input id="cinema_address" type="text" class="sign__input" name="address"  placeholder="Address" required>
+                                </div>
+                            </div>
+                            <div class="col-12">
+                            	<label class="sign__label" for="cinema_location">Location</label>
+                                <div class="sign__group">
+                                    <select id="cinema_location" class="sign__select" name="location" required>
+                                        <option value="">Select Location</option>
+                                        <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+                                        <option value="Hà Nội">Hà Nội</option>
+                                        <option value="Đà Nẵng">Đà Nẵng</option>
+                                        <option value="Hải Phòng">Hải Phòng</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                            	<label class="sign__label" for="cinema_num_rooms">Number of Room</label>
+                                <div class="sign__group">
+                                    <input id="cinema_num_rooms" type="number" class="sign__input" name="num_rooms"  placeholder="Number of Rooms" required>
+                                </div>
+                            </div>
+
+                            <div class="col-12">
+                            	<label class="sign__label" for="cinema_status">Status</label>
+                                <div class="sign__group">
+                                    <select class="sign__select" name="status" id="cinema_status" required>
+                                        <option value="true">Active</option>
+                                        <option value="false">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+
+							<div class="col-12 d-flex justify-content-start align-items-center" style="gap: 15px;">
+                                <a th:href="@{/admin/cinema/cinema-list}" class="sign__btn sign__btn--small sign__btn--outline"><span>Back to List</span></a>
+							    <button type="submit" class="sign__btn sign__btn--small"><span>Apply Changes</span></button>
+							</div>
+
+                        </div>
+                    </form>
+                </div>
+                <!-- end form -->
+            </div>
+        </div>
+    </main>
+    <!-- end main content -->
+    <script>
+        const fields = {
+            cinema_name: 'cinemaName',
+            cinema_address: 'address',
+            cinema_location: 'location',
+            cinema_num_rooms: 'roomCount',
+            cinema_status: 'status'
+        };
+        function populateForm(data) {
+            Object.entries(fields).forEach(([inputId, key]) => {
+                const element = document.getElementById(inputId);
+                if (element) element.value = data[key] || ''; // Tránh lỗi undefined
+            });
+        }
+        function extractFormData() {
+            return Object.fromEntries(
+                Object.entries(fields).map(([inputId, key]) => [
+                    key,
+                    document.getElementById(inputId)?.value.trim() || ''
+                ])
+            );
+        }
+        document.getElementById('editCinemaForm').addEventListener('submit', function(event) {
+            event.preventDefault();
+            const id = document.getElementById('id').value
+            const json = JSON.stringify(extractFormData());
+            fetch(`/admin/cinemas/${id}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: json
+            }).then(response => {
+                if (response.ok) {
+                    Swal.fire({
+                        icon: "success",
+                        title: "Edit user successfully!",
+                        timer: 3000
+                    }).then(() => {
+                        window.location.href = '/admin/cinema/cinema-list';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "Edit user failed!",
+                        text: "Please try again.",
+                        customClass: {
+                            confirmButton: "btn btn-danger",
+                        },
+                        buttonsStyling: false
+                    });
+                }
+            });
+        });
+        document.addEventListener("DOMContentLoaded", async function () {
+            const urlParams = new URLSearchParams(window.location.search);
+            const cinemaID = urlParams.get("id");
+            document.getElementById("id").value=cinemaID;
+            if (!cinemaID) {
+                console.error("📌 Lỗi: Không tìm thấy ID của rạp!");
+                return;
+            }
+            try {
+                const res = await fetch(`/admin/cinemas/${cinemaID}`, { method: "GET", credentials: "include" });
+
+                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+
+                const data = await res.json();
+                populateForm(data); // 🚀 Gọi hàm populateForm để đổ dữ liệu vào form
+            } catch (err) {
+                console.error("📌 Lỗi khi fetch dữ liệu:", err);
+            }
+        });
+    </script>
+</body>

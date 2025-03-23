@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html layout:decorate="~{layout/admin-layout.html}"
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
+<body layout:fragment="content">
+    <!-- main content -->
+    <main class="container-fluid" >
+        <div class="container-fluid">
+            <div class="row">
+                <!-- main title -->
+                <div class="col-12">
+                    <div class="main__title">
+						<h2>
+						  <a th:href="@{/admin/cinema/cinema-list}" style="text-decoration: none; color: inherit;">Cinemas</a>
+						</h2>
+                        <span class="main__title-stat">Total Cinemas: <span id="totalCinema">0</span></span>
+                        <div class="main__title-wrap">
+                            <button class="main__title-link main__title-link--wrap" data-bs-toggle="modal" data-bs-target="#modal-add-cinema">Add Cinema</button>
+                            
+							<!-- search -->
+							<form id="searchForm" class="main__title-form">
+                                <select name="location" class="sign__select" required id="keywordInput">
+                                    <option value="All" >All Locations</option>
+                                    <option value="Hồ Chí Minh" >Hồ Chí Minh</option>
+                                    <option value="Hà Nội" >Hà Nội</option>
+                                    <option value="Đà Nẵng" >Đà Nẵng</option>
+                                    <option value="Hải Phòng">Hải Phòng</option>
+                                </select>
+							    <button type="submit">
+							        <i class="ti ti-search"></i>
+							    </button>
+							</form>
+							<!-- end search -->
+                        </div>
+                    </div>
+                </div>
+                <!-- end main title -->
+
+                <!-- items -->
+                <div class="col-12">
+                    <div class="catalog catalog--1">
+                        <table class="catalog__table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>CINEMA NAME</th>
+                                    <th>ADDRESS</th>
+                                    <th>Location</th>
+                                    <th>NUMBER OF ROOMS</th>
+                                    <th>STATUS</th>
+                                    <th>ACTIONS</th>
+                                </tr>
+                            </thead>
+                            <tbody id="cinema-table-body"></tbody>
+                        </table>
+                    </div>
+                    <!-- pagination -->
+                    <div class="col-12">
+                        <div class="main__paginator">
+                            <!-- amount -->
+                            <span class="main__paginator-pages">Page <span id="currentPage">1</span> of <span id="noOfPages">1</span></span>
+                            <!-- end amount -->
+                            <div class="col-1">
+                                <div class="sign__group">
+                                    <label class="sign__label">Items Per Page</label>
+                                    <form >
+                                        <!-- Select số lượng bản ghi -->
+                                        <select class="sign__select" name="soluong" id="soluong" >
+                                            <option value="5" >5 items</option>
+                                            <option value="10" >10 items</option>
+                                            <option value="20" >20 items</option>
+                                        </select>
+                                        <input type="hidden" name="page" >
+                                    </form>
+                                </div>
+                            </div>
+                            <ul class="main__paginator-list">
+                                <!-- Nút Previous -->
+                                <li class="paginator__item paginator__item--prev disabled" id="prevPage">
+                                    <a href="javascript:void(0)">
+                                        <i class="ti ti-chevron-left"></i>
+                                    </a>
+                                </li>
+
+                                <!-- Hiển thị trang đầu nếu cần -->
+                                <li class="paginator__item" id="firstPage" style="display: none;">
+                                    <a href="javascript:void(0)">1</a>
+                                </li>
+                                <li class="paginator__item" id="dotsBefore" style="display: none;">...</li>
+
+                                <!-- Các trang số động -->
+                                <div id="paginationNumbers" style="display: flex"></div>
+
+                                <!-- Hiển thị trang cuối nếu cần -->
+                                <li class="paginator__item" id="dotsAfter" style="display: none;">...</li>
+                                <li class="paginator__item" id="lastPage" style="display: none;"></li>
+
+                                <!-- Nút Next -->
+                                <li class="paginator__item paginator__item--next disabled" id="nextPage">
+                                    <a href="javascript:void(0)">
+                                        <i class="ti ti-chevron-right"></i>
+                                    </a>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                    <!-- end pagination -->
+                </div>
+                <!-- end items -->
+            </div>
+        </div>
+    </main>
+    <!-- end main content -->
+    <!-- add cinema modal -->
+<div class="modal fade" id="modal-add-cinema" tabindex="-1" aria-labelledby="modal-add-cinema" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <form id="addCinemaForm" class="sign__form sign__form--add">
+                <h4 class="modal__title">Add Cinema</h4>
+                <div class="row">
+                    <div class="col-12">
+                        <label class="sign__label" for="cinema_name">Cinema Name</label>
+                        <div class="sign__group">
+                            <input id="cinema_name" type="text" class="sign__input" name="cinema_name" placeholder="Cinema Name" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="address">Address</label>
+                        <div class="sign__group">
+                            <input id="address" type="text" class="sign__input" name="address" placeholder="Address" required>
+                        </div>
+                    </div>
+
+					<div class="col-12">
+					    <label class="sign__label" for="location">Location</label>
+					    <div class="sign__group">
+					        <select id="location" class="sign__select" name="location" required>
+					            <option value="All">Select Location</option>
+					            <option value="Hồ Chí Minh">Hồ Chí Minh</option>
+					            <option value="Hà Nội">Hà Nội</option>
+					            <option value="Đà Nẵng">Đà Nẵng</option>
+					            <option value="Hải Phòng">Hải Phòng</option>
+					        </select>
+					    </div>
+					</div>
+
+
+                    <div class="col-12">
+                        <label class="sign__label" for="num_rooms">Number of Rooms</label>
+                        <div class="sign__group">
+                            <input type="number" class="sign__input" name="num_rooms" placeholder="Number of Rooms" id="num_rooms" required>
+                        </div>
+                    </div>
+
+                    <div class="col-12">
+                        <label class="sign__label" for="status">Status</label>
+                        <div class="sign__group">
+                            <select class="sign__select" name="status" id="status" required>
+                                <option value="true">Active</option>
+                                <option value="false">Inactive</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <button type="submit" class="sign__btn sign__btn--small"><span>Save</span></button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- end add cinema modal -->
+   <!-- delete modal -->
+<div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="modal-delete" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal__content">
+                <form id="deleteCinemaForm" class="modal__form">
+                    <h4 class="modal__title">Delete Cinema</h4>
+                    <p class="modal__text">Are you sure you want to permanently delete this cinema?</p>
+                    <input type="hidden" name="id" id="deleteCinemaId">
+                    <div class="modal__btns">
+                        <button class="modal__btn modal__btn--apply" type="submit"><span>Delete</span></button>
+                        <button class="modal__btn modal__btn--dismiss" type="button" data-bs-dismiss="modal" aria-label="Close"><span>Dismiss</span></button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end delete modal -->
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let currentPage = 1;
+        let recordsPerPage = 5;
+        function fetchCinema( ) {
+            const apiUrl = `/admin/cinemas?page=${currentPage}&soluong=${recordsPerPage}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderCinemas(data.cinemas);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("totalCinema").innerText = data.noOfRecords;
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        function updatePagination(noOfPages, currentPage) {
+            document.getElementById("noOfPages").innerText = noOfPages;
+            document.getElementById("currentPage").innerText = currentPage;
+            const paginationContainer = document.getElementById("paginationNumbers");
+            paginationContainer.innerHTML = "";
+            let totalPages = noOfPages;
+
+            if (totalPages <= 1) return;
+
+            const createPageItem = (page) => {
+                let pageItem = document.createElement("li");
+                pageItem.classList.add("paginator__item");
+                if (page === currentPage) {
+                    pageItem.classList.add("paginator__item--active");
+                }
+                pageItem.innerHTML = `<a href="#">${page}</a>`;
+                pageItem.addEventListener("click", function () {
+                    if (currentPage !== page) {
+                        searchMovies(page);
+                    }
+                });
+                paginationContainer.appendChild(pageItem);
+            };
+            const prevPage = document.getElementById("prevPage");
+            const nextPage = document.getElementById("nextPage");
+
+            // Xử lý Previous
+            prevPage.classList.toggle("disabled", currentPage === 1);
+            prevPage.onclick = currentPage > 1 ? () => searchMovies(currentPage - 1) : null;
+
+            // Xử lý trang đầu và dấu "..."
+            const firstPage = document.getElementById("firstPage");
+            const dotsBefore = document.getElementById("dotsBefore");
+            firstPage.style.display = currentPage > 2 ? "block" : "none";
+            dotsBefore.style.display = currentPage > 3 ? "block" : "none";
+
+            if (currentPage > 2) {
+                firstPage.innerHTML = `<a href="#">1</a>`;
+                firstPage.onclick = () => searchMovies(1);
+            }
+
+            // Hiển thị các trang xung quanh trang hiện tại
+            let startPage = Math.max(1, currentPage - 1);
+            let endPage = Math.min(totalPages, currentPage + 1);
+            for (let page = startPage; page <= endPage; page++) {
+                createPageItem(page);
+            }
+
+            // Xử lý trang cuối và dấu "..."
+            const lastPage = document.getElementById("lastPage");
+            const dotsAfter = document.getElementById("dotsAfter");
+            lastPage.style.display = currentPage < totalPages - 1 ? "block" : "none";
+            dotsAfter.style.display = currentPage < totalPages - 2 ? "block" : "none";
+
+            if (currentPage < totalPages - 1) {
+                lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
+                lastPage.onclick = () => searchMovies(totalPages);
+            }
+
+            // Xử lý Next
+            nextPage.classList.toggle("disabled", currentPage === totalPages);
+            nextPage.onclick = currentPage < totalPages ? () => searchMovies(currentPage + 1) : null;
+        }
+        function searchCinemas(currentPage) {
+            const keyword = document.getElementById("keywordInput").value;
+            const recordsPerPage = document.getElementById("soluong").value;
+            console.log(keyword);
+            console.log(recordsPerPage);
+            const apiUrl = `/admin/cinemas/search?page=${currentPage}&soluong=${recordsPerPage}&keyword=${keyword}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderCinemas(data.cinemas);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("totalCinema").innerText = data.noOfRecords;
+                    let quantity = String(data.recordsPerPage); // Ép kiểu về string
+                    document.querySelectorAll("#soluong option").forEach(option => {
+                        if (option.value === quantity) {
+                            option.setAttribute("selected", "selected"); // Chọn đúng option
+                        } else {
+                            option.removeAttribute("selected"); // Xóa selected nếu không khớp
+                        }
+                    });
+                    document.querySelectorAll("#keywordInput option").forEach(option => {
+                        if (option.value === data.keyword) {
+                            option.setAttribute("selected", "selected"); // Chọn đúng option
+                        } else {
+                            option.removeAttribute("selected"); // Xóa selected nếu không khớp
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        document.getElementById("searchForm").addEventListener("change", function (event) {
+            event.preventDefault();
+            searchCinemas(currentPage);
+        });
+        document.getElementById("soluong").addEventListener("change", function (event) {
+            event.preventDefault();
+            searchCinemas(currentPage);
+        });
+        fetchCinema();
+    });
+
+    // JavaScript to assign the cinema ID to the hidden input field in the delete form
+    document.querySelectorAll('.catalog__btn--delete').forEach(button => {
+        button.addEventListener('click', function () {
+            document.getElementById('deleteCinemaId').value = this.getAttribute('data-cinema-id');
+        });
+    });
+    function renderCinemas(cinemas) {
+        const cinemaTableBody = document.getElementById("cinema-table-body");
+        cinemaTableBody.innerHTML = ""; // Xóa dữ liệu cũ
+
+        cinemas.forEach(cinema => {
+            const statusClass = cinema.status ? "catalog__text--green" : "catalog__text--red";
+            const statusText = cinema.status ? "Active" : "Inactive";
+
+            const row = `
+            <tr>
+                <td><div class="catalog__text">${cinema.cinemaId}</div></td>
+                <td>
+                    <div class="catalog__text">
+                        <a href="/admin/rooms?id=${cinema.cinemaID}">${cinema.cinemaName}</a>
+                    </div>
+                </td>
+                <td><div class="catalog__text">${cinema.address}</div></td>
+                <td><div class="catalog__text">${cinema.location}</div></td>
+                <td><div class="catalog__text">${cinema.roomCount}</div></td>
+                <td><div class="catalog__text ${cinema.status ? 'catalog__text--green' : 'catalog__text--red'}">${cinema.status ? 'Active' : 'Inactive'}</div></td>
+                <td>
+                    <div class="catalog__btns">
+                        <a href="/admin/cinema/editCinema?id=${cinema.cinemaId}" class="catalog__btn catalog__btn--edit">
+                            <i class="ti ti-edit"></i>
+                        </a>
+                        <button type="button" class="catalog__btn catalog__btn--delete"
+                                data-bs-toggle="modal"
+                                data-bs-target="#modal-delete"
+                                data-cinema-id="${cinema.cinemaID}">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </div>
+                </td>
+            </tr>
+        `;
+            cinemaTableBody.innerHTML += row;
+        });
+    }
+
+    document.getElementById("addCinemaForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const cinemaData = {
+            cinemaName: document.getElementById("cinema_name").value,
+            address: document.getElementById("address").value,
+            location: document.getElementById("location").value,
+            roomCount: document.getElementById("num_rooms").value,
+            status: document.getElementById("status").value === "true"
+        };
+        try {
+            const response = await fetch(`/admin/cinemas`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "credentials": "include"
+                },
+                body: JSON.stringify(cinemaData)
+            });
+            document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+            if (!response.ok) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Add Cinema failed!",
+                    text: "Please try again.",
+                    customClass: {
+                        confirmButton: "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: "success",
+                    title: "Add cinema successfully!",
+                    timer: 3000
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Add user failed!",
+                text: "Please try again.",
+                customClass: {
+                    confirmButton: "btn btn-danger",
+                },
+                buttonsStyling: false
+            });
+        }
+    });
+    document.getElementById("deleteCinemaForm").addEventListener("submit", async function (event) {
+        event.preventDefault(); // Ngăn chặn reload trang
+
+        const movieId = document.getElementById("deleteMovieId").value;
+
+        try {
+            const response = await fetch(`/admin/cinemas/${movieId}`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                throw new Error(`Lỗi HTTP: ${response.status}`);
+            }
+
+            // Hiển thị thông báo thành công với SweetAlert2
+            Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: "The cinema has been deleted successfully.",
+                confirmButtonText: "OK"
+            }).then(() => {
+                window.location.reload();
+            });
+
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: "Failed to delete the cinema. Please try again later.",
+                confirmButtonText: "OK"
+            });
+        }
+    });
+</script>
+
+
+</body>

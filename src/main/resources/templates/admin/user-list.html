@@ -5,10 +5,20 @@
 <head>
 	<meta charset="UTF-8">
 	<title>Insert title here</title>
+	.paginator__item.disabled {
+	pointer-events: none;
+	opacity: 0.5;
+	cursor: default;
+	}
+
+	.paginator__item--prev.disabled,
+	.paginator__item--next.disabled {
+	color: #666;
+	}
 </head>
-<body>
+<body layout:fragment="content">
 <!-- main content -->
-<main class="container-fluid" layout:fragment="content">
+<main class="container-fluid" >
 	<div class="container-fluid">
 		<div class="row">
 			<!-- main title -->
@@ -16,18 +26,13 @@
 				<div class="main__title">
 					<h2>Users</h2>
 
-					<span class="main__title-stat">${userTotal } Total</span>
+					<span class="main__title-stat">Total User: <span id="totalUsers">0</span></span>
 
 					<div class="main__title-wrap">
-						<button type="button" data-bs-toggle="modal"
-								class="main__title-link main__title-link--wrap"
-								onclick="window.location.href= '[[${#httpServletRequest.contextPath}]]/admin/users/add'">Add
-							user</button>
+						<a class="main__title-link main__title-link--wrap" th:href="@{/admin/user/user-add.html}">Add user</a>
 						<!-- search -->
-						<form th:action=" @{/admin/users}"
-							  method="get" class="main__title-form">
-							<input type="text" name="searchQuery" value="${searchQuery}"
-								   placeholder="Find user..">
+						<form id="userSearchForm" class="main__title-form">
+							<input type="text" name="searchQuery" placeholder="Find user.." id="keywordInput">
 							<button type="submit">
 								<i class="ti ti-search"></i>
 							</button>
@@ -41,7 +46,7 @@
 			<!-- users -->
 			<div class="col-12">
 				<div class="catalog catalog--1">
-					<table class="catalog__table">
+					<table class="catalog__table" >
 						<thead>
 						<tr>
 							<th>ID</th>
@@ -52,40 +57,8 @@
 							<th>ACTIONS</th>
 						</tr>
 						</thead>
+						<tbody id="userTableBody">
 
-						<tbody>
-						<tr th:each="user : ${users}">
-							<td><div class="catalog__text" th:text="${user.perID}"></div></td>
-							<td>
-								<div class="catalog__user">
-									<div class="catalog__avatar">
-										<img th:src="@{/assets2/img/user.svg}" alt="">
-									</div>
-									<div class="catalog__meta">
-										<h3 th:text="${user.fullName}"></h3>
-										<span th:text="${user.email}"></span>
-									</div>
-								</div>
-							</td>
-							<td><div class="catalog__text" th:text="${user.phone}"></div></td>
-							<td><div class="catalog__text" th:text="${#dates.format(user.birthDate, 'dd-MM-yyyy')}"></div></td>
-							<td>
-								<div class="catalog__text" th:text="${user.gender == 1 ? 'Male' : 'Female'}"></div>
-							</td>
-							<td>
-								<div class="catalog__btns">
-									<a th:href="@{/admin/users/edit(userId=${user.perID})}"
-									   class="catalog__btn catalog__btn--edit">
-										<i class="ti ti-edit"></i>
-									</a>
-									<button type="button" data-bs-toggle="modal"
-											class="catalog__btn catalog__btn--delete"
-											data-bs-target="#modal-delete" th:attr="data-id=${user.perID}">
-										<i class="ti ti-trash"></i>
-									</button>
-								</div>
-							</td>
-						</tr>
 						</tbody>
 					</table>
 				</div>
@@ -94,78 +67,51 @@
 			<!-- paginator -->
 			<div class="col-12">
 				<div class="main__paginator">
-					<!-- amount -->
-					<div th:if="${totalPages > 0}">
-						<span class="main__paginator-pages">${currentPage} of
-								${totalPages}</span>
-					</div>
-					<div th:if="${totalPages == 0}">
-						<span class="main__paginator-pages">0 of ${totalPages}</span>
-					</div>
-					<!-- end amount -->
-					<!-- Page size selector -->
-					<div class="col-1.02">
-						<label class="sign__label" for="pageSize">Page Size: </label>
-						<select class="sign__select" id="pageSize" name="pageSize" onchange="updatePageSize(this)">
-								<option value="5" th:selected="${pageSize == 5}">5 items</option>
-								<option value="10" th:selected="${pageSize == 10}">10 items</option>
-								<option value="15" th:selected="${pageSize == 15}">15 items</option>
-								<option value="20" th:selected="${pageSize == 20}">20 items</option>
-						</select>
+					<span class="main__paginator-pages">Page <span id="currentPage">1</span> of <span id="noOfPages">1</span></span>
+					<div class="col-1">
+						<div class="sign__group">
+							<label class="sign__label">Items Per Page</label>
+							<form >
+								<!-- Select số lượng bản ghi -->
+								<select class="sign__select" name="soluong" id="soluong" >
+									<option value="5" >5 items</option>
+									<option value="10" >10 items</option>
+									<option value="20" >20 items</option>
+									<option value="50" >50 items</option>
+								</select>
+								<input type="hidden" name="page" >
+							</form>
+						</div>
 					</div>
 					<ul class="main__paginator-list">
-						<li><a href="#"> <i class="ti ti-chevron-left"></i> <span>Prev</span>
-						</a></li>
-						<li><a href="#"> <span>Next</span> <i
-								class="ti ti-chevron-right"></i>
-						</a></li>
-					</ul>
-					<ul class="paginator">
-						<!-- Prev button -->
-						<li class="paginator__item paginator__item--prev" th:classappend="${currentPage == 1} ? 'disabled'">
-							<a th:if="${currentPage > 1}"
-							   th:href="@{/admin/users(pageNumber=${currentPage - 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
-								<i class="ti ti-chevron-left"></i>
-							</a>
-							<a th:unless="${currentPage > 1}" href="#">
+						<!-- Nút Previous -->
+						<li class="paginator__item paginator__item--prev disabled" id="prevPage">
+							<a href="javascript:void(0)">
 								<i class="ti ti-chevron-left"></i>
 							</a>
 						</li>
 
-						<!-- Display first page and ellipsis if needed -->
-						<li th:if="${currentPage > 3}" class="paginator__item">
-							<a th:href="@{/admin/users(pageNumber=1, pageSize=${pageSize}, searchQuery=${searchQuery})}">1</a>
+						<!-- Hiển thị trang đầu nếu cần -->
+						<li class="paginator__item" id="firstPage" style="display: none;">
+							<a href="javascript:void(0)">1</a>
 						</li>
-						<li th:if="${currentPage > 3}" class="paginator__item" style="color: white;">...</li>
+						<li class="paginator__item" id="dotsBefore" style="display: none;">...</li>
 
-						<!-- Page numbers around current page -->
-						<th:block th:with="startPage=${currentPage > 1 ? currentPage : 1}, endPage=${currentPage + 1 < totalPages ? currentPage + 1 : totalPages}">
-							<li th:each="pageNum : ${#numbers.sequence(startPage, endPage)}"
-								class="paginator__item" th:classappend="${pageNum == currentPage} ? 'paginator__item--active'">
-								<a th:href="@{/admin/users(pageNumber=${pageNum}, pageSize=${pageSize}, searchQuery=${searchQuery})}"
-								   th:text="${pageNum}"></a>
-							</li>
-						</th:block>
+						<!-- Các trang số động -->
+						<div id="paginationNumbers" style="display: flex"></div>
 
-						<!-- Display last page and ellipsis if needed -->
-						<li th:if="${currentPage < totalPages - 2}" class="paginator__item" style="color: white;">...</li>
-						<li th:if="${currentPage < totalPages - 2}" class="paginator__item">
-							<a th:href="@{/admin/users(pageNumber=${totalPages}, pageSize=${pageSize}, searchQuery=${searchQuery})}"
-							   th:text="${totalPages}"></a>
-						</li>
-						<!-- Next button -->
-						<li class="paginator__item paginator__item--next" th:classappend="${currentPage == totalPages} ? 'disabled'">
-							<a th:if="${currentPage < totalPages}"
-							   th:href="@{/admin/users(pageNumber=${currentPage + 1}, pageSize=${pageSize}, searchQuery=${searchQuery})}">
-								<i class="ti ti-chevron-right"></i>
-							</a>
-							<a th:unless="${currentPage < totalPages}" href="#">
+						<!-- Hiển thị trang cuối nếu cần -->
+						<li class="paginator__item" id="dotsAfter" style="display: none;">...</li>
+						<li class="paginator__item" id="lastPage" style="display: none;"></li>
+
+						<!-- Nút Next -->
+						<li class="paginator__item paginator__item--next disabled" id="nextPage">
+							<a href="javascript:void(0)">
 								<i class="ti ti-chevron-right"></i>
 							</a>
 						</li>
 					</ul>
 				</div>
-				<!-- end paginator -->
 			</div>
 		</div>
 	</div>
@@ -179,20 +125,16 @@
 	<div class="modal-dialog modal-dialog-centered">
 		<div class="modal-content">
 			<div class="modal__content">
-				<form th:action="@{/admin/users/delete}"
-					  method="POST" class="modal__form_delete">
+				<form id="deleteUserForm" class="modal__form_delete">
 					<h4 class="modal__title">User delete</h4>
-
-					<p class="modal__text">Are you sure to permanently delete this
-						user?</p>
+					<p class="modal__text">Are you sure to permanently delete this user?</p>
 					<!-- Hidden input for user ID -->
 					<input type="hidden" id="deleteUserId" name="userId" value="">
 					<div class="modal__btns">
 						<button class="modal__btn modal__btn--apply" type="submit">
 							<span>Delete</span>
 						</button>
-						<button class="modal__btn modal__btn--dismiss" type="button"
-								data-bs-dismiss="modal" aria-label="Close">
+						<button class="modal__btn modal__btn--dismiss" type="button" data-bs-dismiss="modal" aria-label="Close">
 							<span>Dismiss</span>
 						</button>
 					</div>
@@ -202,42 +144,207 @@
 	</div>
 </div>
 <!-- end delete modal -->
-
-
-
 <!-- Mirrored from hotflix.volkovdesign.com/admin/users.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 07:09:40 GMT -->
 <script>
-	//JavaScript to handle page size change
-	function updatePageSize(select) {
-		var pageSize = select.value;
-		var urlParams = new URLSearchParams(window.location.search);
-		var pageNumber =  1; // Default to 1
-		urlParams.set('pageSize', pageSize); // Update the page size query param
-		urlParams.set('pageNumber', pageNumber);
-
-		// Use window.location.href to reload the page with the updated query params
-		window.location.href = window.location.pathname + '?'
-				+ urlParams.toString();
-	}
-
-
-	// Lắng nghe sự kiện khi mở Modal
 	document.addEventListener("DOMContentLoaded", function () {
-		const deleteButtons = document.querySelectorAll(".catalog__btn--delete"); // Nút mở modal xóa
-		const modalForm = document.querySelector(".modal__form_delete"); // Form trong modal
-		console.log("Action attribute: ", modalForm.getAttribute("action"));
-		console.log("modalForm : " + modalForm);
-		deleteButtons.forEach(button => {
-			button.addEventListener("click", function () {
-				const userId = this.getAttribute("data-id"); // Lấy userId từ attribute
-				console.log("userID : " + userId);
-				const baseFormAction = modalForm.getAttribute("action"); // URL ban đầu của form
-				console.log("baseFormAction : " + baseFormAction);
-				const link = baseFormAction+'?userId='+userId;
-				console.log("link : " + link);
-				modalForm.setAttribute("action", link);
+		let currentPage = 1;
+		let recordsPerPage = 5;
+
+		function updatePagination(noOfPages, currentPage) {
+			document.getElementById("noOfPages").innerText = noOfPages;
+			document.getElementById("currentPage").innerText = currentPage;
+			const paginationContainer = document.getElementById("paginationNumbers");
+			paginationContainer.innerHTML = "";
+			let totalPages = noOfPages;
+
+			if (totalPages <= 1) return;
+
+			const createPageItem = (page) => {
+				let pageItem = document.createElement("li");
+				pageItem.classList.add("paginator__item");
+				if (page === currentPage) {
+					pageItem.classList.add("paginator__item--active");
+				}
+				pageItem.innerHTML = `<a href="#">${page}</a>`;
+				pageItem.addEventListener("click", function () {
+					if (currentPage !== page) {
+						searchMovies(page);
+					}
+				});
+				paginationContainer.appendChild(pageItem);
+			};
+			const prevPage = document.getElementById("prevPage");
+			const nextPage = document.getElementById("nextPage");
+
+			// Xử lý Previous
+			prevPage.classList.toggle("disabled", currentPage === 1);
+			prevPage.onclick = currentPage > 1 ? () => searchMovies(currentPage - 1) : null;
+
+			// Xử lý trang đầu và dấu "..."
+			const firstPage = document.getElementById("firstPage");
+			const dotsBefore = document.getElementById("dotsBefore");
+			firstPage.style.display = currentPage > 2 ? "block" : "none";
+			dotsBefore.style.display = currentPage > 3 ? "block" : "none";
+
+			if (currentPage > 2) {
+				firstPage.innerHTML = `<a href="#">1</a>`;
+				firstPage.onclick = () => searchMovies(1);
+			}
+
+			// Hiển thị các trang xung quanh trang hiện tại
+			let startPage = Math.max(1, currentPage - 1);
+			let endPage = Math.min(totalPages, currentPage + 1);
+			for (let page = startPage; page <= endPage; page++) {
+				createPageItem(page);
+			}
+			// Xử lý trang cuối và dấu "..."
+			const lastPage = document.getElementById("lastPage");
+			const dotsAfter = document.getElementById("dotsAfter");
+			lastPage.style.display = currentPage < totalPages - 1 ? "block" : "none";
+			dotsAfter.style.display = currentPage < totalPages - 2 ? "block" : "none";
+
+			if (currentPage < totalPages - 1) {
+				lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
+				lastPage.onclick = () => searchMovies(totalPages);
+			}
+			// Xử lý Next
+			nextPage.classList.toggle("disabled", currentPage === totalPages);
+			nextPage.onclick = currentPage < totalPages ? () => searchMovies(currentPage + 1) : null;
+		}
+
+		function fetchMovies( ) {
+			const apiUrl = `/admin/users?page=${currentPage}&soluong=${recordsPerPage}`;
+			fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data)
+						renderUser(data.users);
+						updatePagination(data.noOfPages, data.currentPage);
+						document.getElementById("totalUsers").innerText = data.noOfRecords;
+					})
+					.catch(error => console.error("Error fetching movies:", error));
+		}
+
+
+		function renderUser(users) {
+			const userTableBody = document.getElementById("userTableBody");
+			userTableBody.innerHTML = "";
+			users.forEach(user => {
+				const row = `
+				<tr>
+					<td><div class="catalog__text">${user.id}</div></td>
+					<td>
+						<div class="catalog__user">
+							<div class="catalog__avatar">
+								<img width="48" height="48" src="https://img.icons8.com/material-outlined/48/user--v1.png" alt="user--v1"/>
+							</div>
+							<div class="catalog__meta">
+								<h3>${user.userName}</h3>
+								<span>${user.email}</span>
+							</div>
+						</div>
+					</td>
+					<td><div class="catalog__text">${user.phone}</div></td>
+					<td><div class="catalog__text">${formatDate1(user.birthday)}</div></td>
+					<td><div class="catalog__text">${user.gender}</div></td>
+					<td>
+						<div class="catalog__btns">
+							<a href="/admin/user/${user.id}/edit" class="catalog__btn catalog__btn--edit">
+								<i class="ti ti-edit"></i>
+							</a>
+							<button type="button" class="catalog__btn catalog__btn--delete"
+									 data-bs-toggle="modal"
+									data-bs-target="#modal-delete"
+									data-user-id="${user.id}">
+								<i class="ti ti-trash"></i>
+							</button>
+						</div>
+					</td>
+				</tr>
+			`;
+				userTableBody.innerHTML += row;
 			});
+		}
+		function formatDate1(timestamp) {
+			if (!timestamp) return 'N/A';
+			const date = new Date(timestamp);
+			return date.toLocaleDateString('vi-VN'); // Format theo kiểu VN (DD/MM/YYYY)
+		}
+		document.getElementById("userSearchForm").addEventListener("change", function (event) {
+			event.preventDefault();
+			searchMovies(currentPage);
 		});
+		document.getElementById("soluong").addEventListener("change", function (event) {
+			event.preventDefault();
+			searchMovies(currentPage);
+		});
+
+		function searchMovies(currentPage) {
+			const keyword = document.getElementById("keywordInput").value;
+			const recordsPerPage = document.getElementById("soluong").value;
+			const apiUrl = `/admin/users/search?page=${currentPage}&soluong=${recordsPerPage}&keyword=${keyword}`;
+			fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						console.log(data)
+						renderUser(data.users);
+						updatePagination(data.noOfPages, data.currentPage);
+						document.getElementById("totalMovies").innerText = data.noOfRecords;
+						document.getElementById("keywordInput").text= data.keyword;
+						let quantity = String(data.recordsPerPage); // Ép kiểu về string
+						console.log(quantity)
+						document.querySelectorAll("#soluong option").forEach(option => {
+							if (option.value === quantity) {
+								option.setAttribute("selected", "selected"); // Chọn đúng option
+							} else {
+								option.removeAttribute("selected"); // Xóa selected nếu không khớp
+							}
+						});
+					})
+					.catch(error => console.error("Error fetching movies:", error));
+		}
+
+		document.addEventListener("click", function(event) {
+			if (event.target.closest(".catalog__btn--delete")) {
+				const button = event.target.closest(".catalog__btn--delete");
+				document.getElementById("deleteUserId").value = button.getAttribute("data-user-id");
+			}
+		});
+		fetchMovies(currentPage, recordsPerPage);
+	});
+	document.getElementById("deleteUserForm").addEventListener("submit", async function (event) {
+		event.preventDefault(); // Ngăn chặn reload trang
+
+		const movieId = document.getElementById("deleteUserId").value;
+
+		try {
+			const response = await fetch(`/admin/users/${movieId}`, {
+				method: "DELETE",
+				credentials: "include"
+			});
+
+			if (!response.ok) {
+				throw new Error(`Lỗi HTTP: ${response.status}`);
+			}
+
+			// Hiển thị thông báo thành công với SweetAlert2
+			Swal.fire({
+				icon: "success",
+				title: "Deleted!",
+				text: "The user has been deleted successfully.",
+				confirmButtonText: "OK"
+			}).then(() => {
+				window.location.reload();
+			});
+
+		} catch (error) {
+			Swal.fire({
+				icon: "error",
+				title: "Error!",
+				text: "Failed to delete the user. Please try again later.",
+				confirmButtonText: "OK"
+			});
+		}
 	});
 </script>
 </body>

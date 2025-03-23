@@ -10,6 +10,7 @@ import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
@@ -17,9 +18,11 @@ import org.springframework.stereotype.Service;
 
 import java.lang.reflect.Field;
 import java.time.Duration;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
 @Service
@@ -43,7 +46,6 @@ public class MovieServiceImpl implements IMovieService {
             movie = movieRepository.findById(movieID)
                     .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + movieID));
 
-            // 🟢 Lưu lại vào cache để lần sau lấy nhanh hơn
             redisTemplate.opsForValue().set(cacheKey, movie, Duration.ofHours(1));
         }
 
@@ -146,4 +148,113 @@ public class MovieServiceImpl implements IMovieService {
     public int getNoOfRecords() {
         return movieRepository.countMovies();
     }
+
+    @Override
+    public Page<MovieResponse> searchMovies(String keyword, int page, int recordsPerPage) {
+        List<MovieResponse> cachedMovies = getMoviesFromCache();
+
+        if (!cachedMovies.isEmpty()) {
+            // Nếu có dữ liệu trong Redis, lọc theo từ khóa và phân trang
+            List<MovieResponse> filteredMovies = filterMoviesByKeyword(cachedMovies, keyword);
+            return paginateMovie(filteredMovies, page, recordsPerPage);
+        }
+
+        // Nếu không có trong Redis, lấy từ Database
+        Page<Movie> moviePage = movieRepository.searchMoviesByKeyword(
+                keyword,
+                PageRequest.of(page - 1, recordsPerPage) // Trừ page - 1 ở đây
+        );
+
+        // Chuyển đổi từ Entity -> DTO
+        List<MovieResponse> movieResponses = moviePage.getContent()
+                .stream()
+                .map(movieMapper::toDTO)
+                .toList();
+
+        return new PageImpl<>(movieResponses, PageRequest.of(page - 1, recordsPerPage), moviePage.getTotalElements());
+    }
+
+    private List<MovieResponse> filterMoviesByKeyword(List<MovieResponse> cachedMovies, String keyword) {
+        return cachedMovies.stream()
+                .filter(movie -> movie.getMovieName().toLowerCase().contains(keyword.toLowerCase()))
+                .toList();
+    }
+
+    // Tìm kiếm phim theo từ khóa + danh mục
+    @Override
+    public Page<MovieResponse> searchMovies(String keyword, List<String> categories, int page, int recordsPerPage) {
+        List<MovieResponse> cachedMovies = getMoviesFromCache();
+
+        if (!cachedMovies.isEmpty()) {
+            // Nếu có dữ liệu trong cache, lọc theo từ khóa + danh mục và phân trang
+            List<MovieResponse> filteredMovies = filterMovies(cachedMovies, keyword, categories);
+            return paginateMovie(filteredMovies, page, recordsPerPage);
+        }
+
+        // Nếu cache không có, lấy dữ liệu từ database
+        Page<Movie> moviePage = movieRepository.searchMoviesByKeywordAndCategories(
+                keyword, categories, PageRequest.of(page - 1, recordsPerPage));
+
+        // Chuyển đổi từ Entity -> DTO và lưu cache
+        List<MovieResponse> movieResponses = moviePage.getContent().stream().map(movieMapper::toDTO).toList();
+
+        return new PageImpl<>(movieResponses, PageRequest.of(page - 1, recordsPerPage), moviePage.getTotalElements());
+    }
+
+    private List<MovieResponse> filterMovies(List<MovieResponse> cachedMovies, String keyword, List<String> categories) {
+        return cachedMovies.stream()
+                .filter(movie -> movie.getMovieName().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(movie -> categories == null || categories.isEmpty() ||
+                        Arrays.stream(movie.getCategory().split(",\\s*")) // Tách thể loại bằng dấu phẩy
+                                .anyMatch(categories::contains))
+                .toList();
+    }
+
+    // Đếm số lượng kết quả theo từ khóa
+    @Override
+    public int getNoOfSearchResults(String keyword) {
+        List<MovieResponse> cachedMovies = getMoviesFromCache();
+
+        if (cachedMovies.isEmpty()) {
+            return movieRepository.countMoviesByKeyword(keyword);
+        }
+
+        return (int) cachedMovies.stream()
+                .filter(movie -> movie.getMovieName().toLowerCase().contains(keyword.toLowerCase()))
+                .count();
+    }
+
+    // Đếm số lượng kết quả theo từ khóa + danh mục
+    @Override
+    public int getNoOfSearchResults(String keyword, List<String> categories) {
+        List<MovieResponse> cachedMovies = getMoviesFromCache();
+
+        if (cachedMovies.isEmpty()) {
+            return movieRepository.countMoviesByKeywordAndCategories(keyword, categories);
+        }
+
+        return (int) cachedMovies.stream()
+                .filter(movie -> movie.getMovieName().toLowerCase().contains(keyword.toLowerCase()))
+                .filter(movie -> categories.contains(movie.getCategory()))
+                .count();
+    }
+
+    // Lấy danh sách phim từ Redis, nếu không có thì trả về danh sách rỗng
+    private List<MovieResponse> getMoviesFromCache() {
+        List<MovieResponse> cachedMovies = (List<MovieResponse>) redisTemplate.opsForValue().get(MOVIE_CACHE_KEY);
+        return cachedMovies != null ? cachedMovies : List.of();
+    }
+    private Page<MovieResponse> paginateMovie(List<MovieResponse> movies, int page, int recordsPerPage) {
+        page = Math.max(page, 1);
+        int start = (page - 1) * recordsPerPage;
+        int end = Math.min(start + recordsPerPage, movies.size());
+
+        // Kiểm tra nếu start vượt quá số lượng phần tử -> Trả về danh sách rỗng
+        List<MovieResponse> pageContent = (start < movies.size()) ? movies.subList(start, end) : List.of();
+
+        // Trả về PageImpl chứa dữ liệu phân trang
+        return new PageImpl<>(pageContent, PageRequest.of(page - 1, recordsPerPage), movies.size());
+    }
+
+
 }

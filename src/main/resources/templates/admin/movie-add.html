@@ -27,6 +27,7 @@
 						<label class="sign__label" for="movie_name">Movie Name</label>
 						<div class="sign__group">
 							<input type="text" class="sign__input" id="movie_name" name="movie_name" placeholder="Movie Name" required>
+							<span class="text-danger" id="error-movieName"></span>
 						</div>
 
 						<div class="col-12">
@@ -53,11 +54,13 @@
 						<label class="sign__label" for="movie_duration">Movie Duration</label>
 						<div class="sign__group">
 							<input type="text" class="sign__input" id="movie_duration" name="movie_duration" placeholder="Example: 1h 30m" required>
+							<span class="text-danger" id="error-movieDuration"></span>
 						</div>
 
 						<label class="sign__label" for="description">Description</label>
 						<div class="sign__group">
 							<textarea id="description" class="sign__textarea" placeholder="Description" required></textarea>
+							<span class="text-danger" id="error-description"></span>
 						</div>
 
 						<div class="row align-items-center"
@@ -69,9 +72,10 @@
 							<!-- Ô chọn ngày -->
 							<div class="col-8">
 								<div class="sign__group">
-									<input type="date" id="release_day" name="release_day" class="sign__input" placeholder="Select date">
+									<input type="date" id="release_day" name="release_day" class="sign__input" placeholder="Select date" required>
 								</div>
 							</div>
+							<span class="text-danger" id="error-releaseDay"></span>
 						</div>
 
 						<label class="sign__label" for="status">Status</label>
@@ -80,6 +84,7 @@
 								<option value="true">Active</option>
 								<option value="false">Inactive</option>
 							</select>
+							<span class="text-danger" id="error-status"></span>
 						</div>
 						<div class="col-12">
 							<div class="col-6">
@@ -90,7 +95,7 @@
 																	   id="sign__gallery-upload" name="images"
 																	   class="sign__gallery-upload" type="file"
 																	   accept=".png, .jpg, .jpeg" style="display: none;"
-																	   onchange="chooseFile(this)">
+																	   onchange="chooseFile(this)" required>
 								</div>
 							</div>
 							<div class="col-6">
@@ -102,7 +107,8 @@
 						</div>
 						<label class="sign__label" for="movie_trailer">Movie Trailer Link</label>
 						<div class="sign__group">
-							<input type="text" class="sign__input" id="movie_trailer" placeholder="Trailer Link" required>
+							<input type="text" class="sign__input" id="movie_trailer" placeholder="Trailer Link" required >
+							<span class="text-danger" id="error-movieTrailer"></span>
 						</div>
 
 						<div class="col-12 d-flex justify-content-start align-items-center" style="gap: 15px;">
@@ -165,33 +171,31 @@
 					method: "POST",
 					body: formData
 				});
-
-				if (!response.ok) {
+				if(!response.ok){
 					Swal.fire({
 						icon: "error",
-						title: "Error!",
-						text: response.message,
+						title: "Add movie failed!",
+						text: "Please try again",
 						customClass: {
-							confirmButton: "btn btn-danger", // ✅ Dùng customClass
+							confirmButton: "btn btn-danger",
 						},
 						buttonsStyling: false
 					});
 				}
 
-				const result = await response.json();
-				console.log("📌 Response:", result);
-
-				// Hiển thị thông báo thành công
-				Swal.fire({
-					icon: "success",
-					title: "Add movie successfully!",
-					customClass: {
-						cancelButton: "btn btn-primary",
-					},
-					timer: 3000
-				}).then(() => {
-					window.location.href = "/admin/Movie.html"; // Điều hướng về danh sách phim
-				});
+				else{
+					// Hiển thị thông báo thành công
+					Swal.fire({
+						icon: "success",
+						title: "Add movie successfully!",
+						customClass: {
+							cancelButton: "btn btn-primary",
+						},
+						timer: 3000
+					}).then(() => {
+						window.location.href = "/admin/Movie.html"; // Điều hướng về danh sách phim
+					});
+				}
 
 			} catch (error) {
 				console.error("📌 Fetch Error:", error);
