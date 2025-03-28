@@ -1,177 +1,242 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout/admin-layout.html}"
-	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  xmlns:th="http://www.thymeleaf.org" lang="en">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
 </head>
-<body>
+<body layout:fragment="content">
 <!-- main content -->
-<div class="container-fluid" layout:fragment="content">
-	<div class="row">
-		<!-- main title -->
-		<div class="col-12">
-			<div class="main__title">
-				<h2>Edit Your News Or Discount Here!</h2>
-			</div>
-		</div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- main title -->
+        <div class="col-12">
+            <div class="main__title">
+                <h2>Edit Your News Or Discount Here!</h2>
+            </div>
+        </div>
 
-		<div class="col-12">
-			<a th:href="@{/adminnewsOrDiscounts}"
-			   class="sign__btn sign__btn--small"
-			   style="text-align: center; display: inline-block;"><span>Back to News Or Discount</span></a>
-		</div>
-		<!-- end main title -->
+        <div class="col-12">
+            <a th:href="@{/admin/news/news-list}"
+               class="sign__btn sign__btn--small"
+               style="text-align: center; display: inline-block;"><span>Back to News Or Discount</span></a>
+        </div>
+        <!-- end main title -->
 
-		<!-- form -->
-		<div class="col-12">
-			<!-- 				<form action="#" class="sign__form sign__form--add"> -->
-			<form
-					th:action="@{/adminnewsOrDiscountupdate}"
-					method="post" enctype="multipart/form-data"
-					class="sign__form sign__form--add">
-				<input type="hidden" name="newsID" value="${newsOrDiscount.newsID}">
-				<div class="row">
-					<div class="col-12 col-xl-12">
-						<div class="row">
-							<div class="col-12">
-								<div class="sign__group">
-									<!--
-                                                                                <input type="text" class="sign__input" placeholder="Title"> -->
-									<label class="sign__label">Title</label>
-									<input type="text" name="title" class="sign__input"
-										   placeholder="Title" value="${newsOrDiscount.title}" required>
-								</div>
-							</div>
+        <!-- form -->
+        <div class="col-12">
+            <form id="editNewsForm" enctype="multipart/form-data"
+                  class="sign__form sign__form--add">
+                <input type="hidden" name="newsID" id="newsID">
+                <div class="row">
+                    <div class="col-12 col-xl-12">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="title">Title</label>
+                                    <input type="text" id="title" name="title" class="sign__input" placeholder="Title" required>
+                                </div>
+                            </div>
 
-							<div class="col-12">
-								<div class="sign__group">
-									<label class="sign__label">Description</label>
-									<input type="text" name="description" class="sign__input"
-										   placeholder="Short Description"
-										   value="${newsOrDiscount.description}" required>
-								</div>
-							</div>
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="description">Description</label>
+                                    <input type="text" name="description" class="sign__input" id="description" placeholder="Short Description" required>
+                                </div>
+                            </div>
 
-							<div class="col-12">
-								<div class="sign__group">
-									<label class="sign__label">Author</label>
-									<input type="text" name="author" class="sign__input"
-										   placeholder="Author" value="${newsOrDiscount.author}" required>
-								</div>
-							</div>
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="author">Author</label>
+                                    <input type="text" name="author" class="sign__input" id="author" placeholder="Author" required>
+                                </div>
+                            </div>
 
-							<div class="col-12">
-								<div class="sign__group">
-									<label class="sign__label">Detail</label>
-									<textarea name="detail" class="sign__textarea"
-											  placeholder="Detail" style="width: 100%; height: 200px;" required>${newsOrDiscount.detail}</textarea>
-								</div>
-							</div>
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="detail">Detail</label>
+                                    <textarea name="detail" class="sign__textarea" id="detail" placeholder="Detail" style="width: 100%; height: 200px;" required></textarea>
+                                </div>
+                            </div>
 
-							<div class="row align-items-center"
-								 style="display: flex; align-items: center;">
-								<!-- Hộp thoại yêu cầu nhập ngày -->
-								<div class="col-md-4">
-									<label for="publish-date" class="form-label"
-										   style="font-weight: bold; color: white;">Please enter
-										the publish date:</label>
-								</div>
-								<!-- Ô chọn ngày -->
-								<div class="col-md-6">
-									<div class="sign__group">
-										<span th:text="${#dates.format(newsOrDiscount.date, 'yyyy-MM-dd')}"></span>
-
-										<input type="date" id="publish-date" class="sign__input"
-											   name="date"
-											   placeholder="Select date"
-											   th:value="${#dates.format(newsOrDiscount.date, 'yyyy-MM-dd')}"
-											   required>
-
-									</div>
-								</div>
-							</div>
-
-						</div>
-					</div>
-
-					<div class="col-6">
-						<div class="sign__group">
-							<div class="sign__gallery">
-								<label id="gallery1" for="sign__gallery-upload">Upload
-									cover (240x340)</label> <input data-name="#gallery1"
-																   id="sign__gallery-upload" name="images"
-																   class="sign__gallery-upload" type="file"
-																   accept=".png, .jpg, .jpeg" style="display: none;"
-																   onchange="chooseFile(this)" value="${newsOrDiscount.images}">
-								<input type="hidden" name="oldImage"
-									   value="${newsOrDiscount.images}">
-							</div>
-							<div class="col-12">
-								<button type="submit" class="sign__btn sign__btn--small">
-									<span>Update</span>
-								</button>
-							</div>
-						</div>
-					</div>
-
-					<div class="col-md-6">
-						<div id="image-preview-container" style="margin-left: 20px;">
-							<img id="preview-image"
-								 th:src="${#strings.startsWith(newsOrDiscount.images, 'https')
-                     ? newsOrDiscount.images
-                     : '/image?fname=' + newsOrDiscount.images}"
-								 style="width: 400px; height: 400px;" />
-						</div>
-					</div>
-
-
-				</div>
-			</form>
-		</div>
-		<!-- end form -->
-	</div>
+                            <div class="row align-items-center"
+                                 style="display: flex; align-items: center;">
+                                <!-- Hộp thoại yêu cầu nhập ngày -->
+                                <div class="col-md-4">
+                                    <label for="publish-date" class="form-label" style="font-weight: bold; color: white;">Please enter the publish date:</label>
+                                </div>
+                                <!-- Ô chọn ngày -->
+                                <div class="col-6">
+                                    <div class="sign__group">
+                                        <input type="date" id="publish-date" name="publish-date" class="sign__input" placeholder="Select date" required>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <label class="sign__label">Image</label>
+                            <div class="sign__gallery">
+                                <label id="gallery1" for="sign__gallery-upload">Upload cover (240x340)</label>
+                                <input data-name="#gallery1" id="sign__gallery-upload" name="images"
+                                       class="sign__gallery-upload" type="file"
+                                       accept=".png, .jpg, .jpeg" style="display: none;"
+                                       onchange="chooseFile(this)">
+                                <input type="hidden" name="oldImage">
+                            </div>
+                        </div>
+                        <div id="image-preview-container" style="margin-left: 200px;">
+                            <img id="preview-image" style="width: 400px; height: 400px;" alt=""/>
+                        </div>
+                        <div class="col-12">
+                            <button type="submit" class="sign__btn sign__btn--small">
+                                <span>Update</span>
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+<!-- end form -->
+</div>
 </div>
 <!-- end main content -->
 
 <script>
-	function chooseFile(input) {
-		const preview = document.getElementById('preview-image');
-		const file = input.files[0];
+    function chooseFile(input) {
+        const preview = document.getElementById('preview-image');
+        const file = input.files[0];
 
-		if (file) {
-			const reader = new FileReader();
-			reader.onload = function(e) {
-				preview.src = e.target.result;
-				preview.style.display = 'block'; // Hiển thị ảnh xem trước
-			};
-			reader.readAsDataURL(file);
-		} else {
-			preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
-		}
-	}
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block'; // Hiển thị ảnh xem trước
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
+        }
+    }
+    document.getElementById('sign__gallery-upload').addEventListener(
+        'change', function (event) {
+            const preview = document.getElementById('preview-image');
+            const file = event.target.files[0];
+
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block'; // Hiển thị ảnh xem trước
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
+            }
+        });
+    document.getElementById("editNewsForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const newsId = document.getElementById("newsID").value;
+        // Tạo object movieData để gửi lên API
+        const newsData = {
+            title:document.getElementById("title").value,
+            description:document.getElementById("description").value,
+            author:document.getElementById("author").value,
+            detail:document.getElementById("detail").value,
+            date:document.getElementById("publish-date").value,
+            images:document.querySelector("input[name='oldImage']").value
+        };
+
+        // Lấy ảnh từ input file
+        const imageFile = document.getElementById("sign__gallery-upload").files[0];
+        // Tạo FormData để gửi lên API
+        const formData = new FormData();
+        formData.append("movie", new Blob([JSON.stringify(newsData)], { type: "application/json" }));
+        if (imageFile) {
+            formData.append("imageFile", imageFile);
+        }
+        try {
+            const response = await fetch(`/admin/news/${newsId}`, {
+                method: "PUT",
+                body: formData
+            });
+            if(!response.ok){
+                Swal.fire({
+                    icon: "error",
+                    title: "Edit News failed!",
+                    text: "Please try again.",
+                    customClass: {
+                        confirmButton: "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                });
+            }
+            else{
+                Swal.fire({
+                    icon: "success",
+                    title: "Edit News successfully!",
+                    customClass: {
+                        cancelButton: "btn btn-primary",
+                    },
+                    timer: 3000
+                }).then(() => {
+                    window.location.href = "/admin/news/news-list"; // Điều hướng về danh sách phim
+                });
+            }
+
+            // Hiển thị thông báo thành công
+
+
+        } catch (error) {
+            console.error("📌 Fetch Error:", error);
+            Swal.fire({
+                icon: "error",
+                title: "Edit News failed!",
+                text: "Please try again.",
+                customClass: {
+                    confirmButton: "btn btn-danger",
+                },
+                buttonsStyling: false
+            });
+        }
+    });
+
+    $(async function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const newsId = urlParams.get("newsID");
+        if (!newsId) {
+            return;
+        }
+        try {
+            const res = await fetch(`/admin/news/${newsId}`, { method:"GET" ,credentials: "include" });
+
+            if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+            const news = await res.json();
+            // Hiển thị dữ liệu trong input fields
+            document.querySelector("input[name='newsID']").value = news.newsID;
+            document.getElementById("title").value = news.title;
+            document.getElementById("description").value = news.description;
+            document.getElementById("author").value = news.author;
+            // Cập nhật ảnh
+            document.querySelector("input[name='oldImage']").value = news.images;
+            document.getElementById("preview-image").src = news.images.startsWith("https") ? news.images : `/image?fname=${news.images}`;
+            // Cập nhật ngày phát hành
+            document.querySelector("input[name='publish-date']").value = formatDate(news.date);
+        } catch (err) {
+            console.error("📌 Lỗi khi fetch dữ liệu:", err);
+        }
+    });
+    function formatDate(timestamp) {
+        if (!timestamp) return ""; // Nếu không có giá trị, trả về chuỗi rỗng
+        const date = new Date(timestamp); // Chuyển từ milliseconds thành đối tượng Date
+        if (isNaN(date)) return ""; // Kiểm tra nếu không hợp lệ
+
+        // Định dạng YYYY-MM-DD để gán vào input[type="date"]
+        return date.toISOString().split("T")[0];
+    }
 </script>
-
-<script>
-	document.getElementById('sign__gallery-upload').addEventListener(
-			'change', function(event) {
-				const preview = document.getElementById('preview-image');
-				const file = event.target.files[0];
-
-				if (file) {
-					const reader = new FileReader();
-					reader.onload = function(e) {
-						preview.src = e.target.result;
-						preview.style.display = 'block'; // Hiển thị ảnh xem trước
-					};
-					reader.readAsDataURL(file);
-				} else {
-					preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
-				}
-			});
-</script>
-
 <!-- JS -->
 </body>
 </html>

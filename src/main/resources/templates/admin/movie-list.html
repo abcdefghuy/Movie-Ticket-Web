@@ -289,7 +289,7 @@
                                 data-movie-id="${movie.movieID}">
                             <i class="ti ti-trash"></i>
                         </button>
-                        <a th:href="@{/adminReview(movieID=${movie.movieID})}" class="catalog__btn catalog__btn--view">
+                        <a href="/admin/review?movieId=${movie.movieID}" class="catalog__btn catalog__btn--view">
     						<i class="ti ti-eye"></i>
 						</a>
                     </div>

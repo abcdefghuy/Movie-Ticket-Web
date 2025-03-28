@@ -88,12 +88,7 @@
             cinema_num_rooms: 'roomCount',
             cinema_status: 'status'
         };
-        function populateForm(data) {
-            Object.entries(fields).forEach(([inputId, key]) => {
-                const element = document.getElementById(inputId);
-                if (element) element.value = data[key] || ''; // Tránh lỗi undefined
-            });
-        }
+
         function extractFormData() {
             return Object.fromEntries(
                 Object.entries(fields).map(([inputId, key]) => [
@@ -144,11 +139,15 @@
             }
             try {
                 const res = await fetch(`/admin/cinemas/${cinemaID}`, { method: "GET", credentials: "include" });
-
                 if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
-
                 const data = await res.json();
-                populateForm(data); // 🚀 Gọi hàm populateForm để đổ dữ liệu vào form
+                document.getElementById("cinema_name").value = data.cinemaName;
+                document.getElementById("cinema_address").value = data.address;
+                document.getElementById("cinema_location").value = data.location;
+                document.getElementById("cinema_num_rooms").value = data.roomCount;
+                document.getElementById("cinema_status").value = data.status.toString();
+                console.log("Type of data.status:", typeof data.status);  // Kiểm tra kiểu dữ liệu
+                console.log("Value of data.status:", data.status);
             } catch (err) {
                 console.error("📌 Lỗi khi fetch dữ liệu:", err);
             }

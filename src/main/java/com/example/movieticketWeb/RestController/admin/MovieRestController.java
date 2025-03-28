@@ -72,7 +72,7 @@ public class MovieRestController {
         return ResponseEntity.ok(movieService.getMovieById(id));
     }
     @PostMapping( consumes = MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addMovie(BindingResult bindingResult,@AuthenticationPrincipal Person person,
+    public ResponseEntity<?> addMovie(@AuthenticationPrincipal Person person,
             @RequestPart("movie") @Valid MovieRequest movieRequest,
             @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
@@ -96,7 +96,7 @@ public class MovieRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMovie(BindingResult bindingResult,@PathVariable Long id, @RequestPart("movie") @Valid MovieRequest movieDTO, @RequestParam(value = "imageFile",required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
+    public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestPart("movie") @Valid MovieRequest movieDTO, @RequestParam(value = "imageFile",required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
 
         if(imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = handleImageUpload(imageFile);
@@ -144,6 +144,14 @@ public class MovieRestController {
         response.put("category", categories != null ? String.join(",", categories) : "All");
         response.put("noOfRecords",movies.getTotalElements());
 
+        return ResponseEntity.ok(response);
+    }
+
+    @GetMapping("/coming-soon")
+    public ResponseEntity<Map<String, Object>> getComingSoonMovies() {
+        List<MovieResponse> movies = movieService.getComingSoonMovies();
+        Map<String, Object> response = new HashMap<>();
+        response.put("movies", movies);
         return ResponseEntity.ok(response);
     }
     private String processYouTubeUrl(String url) {

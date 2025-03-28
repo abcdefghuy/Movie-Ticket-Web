@@ -1,9 +1,7 @@
 package com.example.movieticketWeb.repository;
 
-import com.example.movieticketWeb.dto.response.MovieResponse;
 import com.example.movieticketWeb.entity.Movie;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -38,4 +36,8 @@ public interface IMovieRepository extends JpaRepository<Movie, Long> {
     @Query("SELECT COUNT(m) FROM Movie m WHERE LOWER(m.movieName) LIKE LOWER(CONCAT('%', :keyword, '%')) " +
             "AND m.category IN :categories")
     int countMoviesByKeywordAndCategories(String keyword, List<String> categories);
+    @Query("SELECT m FROM Movie m WHERE m.status = true AND m.releaseDay > CURRENT_DATE ORDER BY m.releaseDay ASC")
+    List<Movie> findComingSoonMovies();
+    @Query("SELECT m FROM Movie m WHERE m.status = true AND m.releaseDay <= CURRENT_DATE ORDER BY m.releaseDay DESC")
+    List<Movie> findMoviesShowing();
 }

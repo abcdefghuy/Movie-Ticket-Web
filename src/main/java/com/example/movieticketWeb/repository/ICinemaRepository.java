@@ -10,4 +10,5 @@ import org.springframework.data.jpa.repository.Query;
 public interface ICinemaRepository extends JpaRepository<Cinema, Long> {
     @Query("SELECT m FROM Cinema m WHERE LOWER(m.location) = LOWER(:keyword)")
     Page<Cinema> searchUserByKeyword(String keyword, PageRequest of);
+
 }

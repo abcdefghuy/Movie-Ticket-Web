@@ -43,7 +43,7 @@ public class PersonServiceImpl implements IPersonService {
     public Optional<Person> findByEmail(String email) {
         return userRepository.findByEmail(email);
     }
-    public PersonInfoResponse getAdminInfo(Person person) {
+    public PersonInfoResponse getInfo(Person person) {
         return personMapper.toDTO(person);
     }
 
@@ -53,7 +53,6 @@ public class PersonServiceImpl implements IPersonService {
         if (!cachedUsers.isEmpty()) {
             return paginateUser(cachedUsers, page, soluong);
         }
-
 // Nếu cache không có, lấy từ database và lưu vào cache
         List<PersonInfoResponse> users = userRepository.findAll().stream()
                 .map(personMapper::toDTO)
@@ -115,14 +114,11 @@ public class PersonServiceImpl implements IPersonService {
             person.setGender(user.getGender());
             person.setRole(user.getRole());
             userRepository.save(person);
-            List<PersonInfoResponse> cachedMovies = (List<PersonInfoResponse>) redisTemplate.opsForValue().get(USER_CACHE_KEY);
-            if (cachedMovies != null) {
-                cachedMovies = cachedMovies.stream()
-                        .map(m -> m.getId() == id.intValue() ? personMapper.toDTO(person) : m).collect(Collectors.toList());
-                redisTemplate.opsForValue().set(USER_CACHE_KEY, cachedMovies, Duration.ofHours(1));
-            }
+            // Xóa cache danh sách users (để lần gọi sau lấy từ DB)
+            redisTemplate.delete(USER_CACHE_KEY);
             String userCacheKey = "user:" + id;
-            redisTemplate.opsForValue().set(userCacheKey, person, Duration.ofHours(1));
+            PersonInfoResponse personResponse = personMapper.toDTO(person);
+            redisTemplate.opsForValue().set(userCacheKey, personResponse, Duration.ofHours(1));
             return true;
         }
         catch (Exception e){
@@ -132,7 +128,6 @@ public class PersonServiceImpl implements IPersonService {
 
     @Override
     public PersonInfoResponse getUserById(Long id) {
-        redisTemplate.getConnectionFactory().getConnection().flushDb();
         String cacheKey = "user:" + id;
         PersonInfoResponse person =  (PersonInfoResponse) redisTemplate.opsForValue().get(cacheKey);
 

@@ -20,7 +20,6 @@ public class MovieRequest {
     private String category;
 
     @NotBlank(message = "Description cannot be empty")
-    @Size(max = 10, message = "Description cannot exceed 10 characters")
     private String description;
 
     private String image;
@@ -29,7 +28,6 @@ public class MovieRequest {
     private String movieDuration;
 
     @NotNull(message = "Release day cannot be empty")
-    @PastOrPresent(message = "Release day must be in the past or today")
     private Date releaseDay;
 
     @Min(value = 0, message = "Rating cannot be negative")

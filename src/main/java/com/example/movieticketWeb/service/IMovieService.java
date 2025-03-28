@@ -25,6 +25,10 @@ public interface IMovieService {
     int getNoOfSearchResults(String keyword);
     int getNoOfSearchResults(String keyword, List<String> categories);
     Page<MovieResponse> searchMovies(String keyword, List<String> categories, int i, int recordsPerPage);
+
+    List<MovieResponse> getComingSoonMovies();
+
+    List<MovieResponse> getMoviesShowing();
 //    List<MovieResponse> getMovieByCategory(String category);
 //    List<MovieResponse> getMovieByStatus(boolean status);
 //    List<MovieResponse> getMovieByRating(float rating);
