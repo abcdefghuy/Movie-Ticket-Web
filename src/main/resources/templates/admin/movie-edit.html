@@ -18,7 +18,7 @@
 			</div>
 
 			<div class="col-12">
-				<a th:href="@{/templates/admin/movie-list.html}"
+				<a th:href="@{/admin/Movie.html}"
 					class="sign__btn sign__btn--small"><span>Back to Movie</span></a>
 			</div>
 			<!-- end main title -->
@@ -91,12 +91,12 @@
 							<label class="sign__label" >Image</label>
 							<div class="sign__gallery">
 								<label id="gallery1" for="sign__gallery-upload">Upload
-									cover (240x340)</label> <input data-name="#gallery1"
-									id="sign__gallery-upload" name="images"
+									cover (240x340)</label>
+								<input data-name="#gallery1" id="sign__gallery-upload" name="images"
 									class="sign__gallery-upload" type="file"
 									accept=".png, .jpg, .jpeg" style="display: none;"
-									onchange="chooseFile(this)" required> <input
-									type="hidden" name="oldImage">
+									onchange="chooseFile(this)" >
+								<input type="hidden" name="oldImage">
 							</div>
 						</div>
 						<div id="image-preview-container" style="margin-left: 200px;">
@@ -243,6 +243,7 @@
 				if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
 
 				const movie = await res.json();
+				console.log(movie)
 				// Hiển thị dữ liệu trong input fields
 				document.querySelector("input[name='movie_name']").value = movie.movieName;
 				document.querySelector("input[name='movie_duration']").value = movie.movieDuration;

@@ -6,13 +6,10 @@
 <meta charset="UTF-8">
 <title>Movie List</title>
 <!-- Owl Carousel CSS -->
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.carousel.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/OwlCarousel2/2.3.4/assets/owl.theme.default.min.css">
 <!-- FontAwesome for Icons -->
-<link rel="stylesheet"
-	href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
 	<style>
 		/* Wrapper for the carousel */
 		.owl-carousel-wrapper {
@@ -157,42 +154,6 @@
 				</div>
 				<div class="owl-carousel-wrapper">
 					<ul id="movies-showing-carousel" class="owl-carousel owl-theme">
-						<th:block th:each="movie : ${moviesShowing}">
-							<div class="movie-grid">
-								<div class="movie-thumb c-thumb">
-									<a href="#0">
-										<th:block th:if="${movie.image != null}">
-											<th:block th:if="${#strings.startsWith(movie.image, 'https')}">
-												<img th:src="${movie.image}" class="card-img-top" th:alt="${movie.movieName}">
-											</th:block>
-											<th:block th:unless="${#strings.startsWith(movie.image, 'https')}">
-												<img th:src="@{/image(fname=${movie.image})}" class="card-img-top" th:alt="${movie.movieName}">
-											</th:block>
-										</th:block>
-									</a>
-								</div>
-								<div class="movie-content bg-one">
-									<h5 class="movie-title">
-										<a th:href="@{/userReview(movieID=${movie.movieID}, perID=${person.perID})}"
-										   th:text="${movie.movieName}"></a>
-									</h5>
-									<ul class="movie-rating-percent">
-										<li>
-											<div class="thumb">
-												<img th:src="@{static/assets/images/movie/tomato.png}" alt="rating">
-											</div>
-											<span class="content">Category: <span th:text="${movie.category}"></span></span>
-										</li>
-										<li>
-											<div class="thumb">
-												<img th:src="@{static/assets/images/movie/cake.png}" alt="duration">
-											</div>
-											<span class="content">Duration: <span th:text="${movie.movieDuration}"></span></span>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</th:block>
 					</ul>
 					<div class="owl-controls clickable">
 						<div class="owl-buttons">
@@ -216,42 +177,6 @@
 				</div>
 				<div class="owl-carousel-wrapper">
 					<ul id="movies-coming-carousel" class="owl-carousel owl-theme">
-						<th:block th:each="movie : ${moviesComingSoon}">
-							<div class="movie-grid">
-								<div class="movie-thumb c-thumb">
-									<a href="#0">
-										<th:block th:if="${movie.image != null}">
-											<th:block th:if="${#strings.startsWith(movie.image, 'https')}">
-												<img th:src="${movie.image}" class="card-img-top" th:alt="${movie.movieName}">
-											</th:block>
-											<th:block th:unless="${#strings.startsWith(movie.image, 'https')}">
-												<img th:src="@{/image(fname=${movie.image})}" class="card-img-top" th:alt="${movie.movieName}">
-											</th:block>
-										</th:block>
-									</a>
-								</div>
-								<div class="movie-content bg-one">
-									<h5 class="movie-title">
-										<a th:href="@{/userReview(movieID=${movie.movieID}, perID=${person.perID})}"
-										   th:text="${movie.movieName}"></a>
-									</h5>
-									<ul class="movie-rating-percent">
-										<li>
-											<div class="thumb">
-												<img th:src="@{static/assets/images/movie/tomato.png}" alt="rating">
-											</div>
-											<span class="content">Category: <span th:text="${movie.category}"></span></span>
-										</li>
-										<li>
-											<div class="thumb">
-												<img th:src="@{static/assets/images/movie/cake.png}" alt="duration">
-											</div>
-											<span class="content">Duration: <span th:text="${movie.movieDuration}"></span></span>
-										</li>
-									</ul>
-								</div>
-							</div>
-						</th:block>
 					</ul>
 					<div class="owl-controls clickable">
 						<div class="owl-buttons">
@@ -285,7 +210,6 @@
 			});
 			$(container).height(maxHeight);
 		}
-
 		$(document).ready(function() {
 			// Movies Showing Carousel
 
@@ -321,11 +245,70 @@
 			$('.movies-coming-next').click(function() {
 				$('#movies-coming-carousel').trigger('next.owl.carousel');
 			});
-
 			// Set equal heights for movie grids
 			setEqualHeight('#movies-showing-carousel .movie-grid');
 			setEqualHeight('#movies-coming-carousel .movie-grid');
 		});
+		document.addEventListener("DOMContentLoaded", function () {
+			fetchMovies();
+		});
+		function fetchMovies() {
+			fetch("/user/movieList")
+					.then(response => response.json())
+					.then(data => {
+						renderMovies(data.moviesShowing,"movies-showing-carousel");
+						renderMovies(data.moviesComingSoon,"movies-coming-carousel");
+					})
+					.catch(error => console.error("Error fetching movies:", error));
+		}
+		function renderMovies(movies,id) {
+			const movieContainer = document.getElementById(id);
+			movieContainer.innerHTML = ""; // Xóa dữ liệu cũ trước khi render
+
+			movies.forEach(movie => {
+				const movieHTML = `
+            <div class="movie-grid">
+                <div class="movie-thumb c-thumb">
+                    <a href="#0">
+                        ${movie.image ? getImageTag(movie.image, movie.movieName) : ''}
+                    </a>
+                </div>
+                <div class="movie-content bg-one">
+                    <h5 class="movie-title">
+                        <a href="/userReview?movieID=${movie.movieID}&perID=${movie.perID}">
+                           ${movie.movieName}
+                        </a>
+                    </h5>
+                    <ul class="movie-rating-percent">
+                        <li>
+                            <div class="thumb">
+                                <img src="static/assets/images/movie/tomato.png" alt="rating">
+                            </div>
+                            <span class="content">Category: ${movie.category}</span>
+                        </li>
+                        <li>
+                            <div class="thumb">
+                                <img src="static/assets/images/movie/cake.png" alt="duration">
+                            </div>
+                            <span class="content">Duration: ${movie.movieDuration}</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        `;
+
+				movieContainer.innerHTML += movieHTML;
+			});
+		}
+
+		function getImageTag(image, movieName) {
+			if (image.startsWith("https")) {
+				return `<img src="${image}" class="card-img-top" alt="${movieName}">`;
+			} else {
+				return `<img src="/image?fname=${image}" class="card-img-top" alt="${movieName}">`;
+			}
+		}
+
 	</script>
 </body>
 </html>

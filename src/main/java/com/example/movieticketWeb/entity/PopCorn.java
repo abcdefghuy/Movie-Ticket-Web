@@ -10,8 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "PopCorn")
-@Getter
-@Setter
+@Builder
 public class PopCorn {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

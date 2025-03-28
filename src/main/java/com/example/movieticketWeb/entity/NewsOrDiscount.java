@@ -9,9 +9,7 @@ import java.util.Date;
 @AllArgsConstructor
 @Entity
 @Table(name = "NewsOrDiscount")
-//@NamedQuery(name = "NewsOrDiscount.findAll", query = "SELECT n FROM NewsOrDiscount n")
-@Getter
-@Setter
+@Builder
 public class NewsOrDiscount {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

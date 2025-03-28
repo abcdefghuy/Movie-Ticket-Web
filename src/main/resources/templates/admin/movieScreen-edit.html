@@ -21,27 +21,18 @@
                 <!-- form -->
                 <div class="col-12">
                     <form id="editMSForm" class="sign__form sign__form--add">
-                        <input type="hidden" name="msID" >
-    					<input type="hidden" name="roomID" >
-    					<input type="hidden" name="cinemaId">
+                        <input type="hidden" name="msId" id="msId">
+    					<input type="hidden" name="roomId" id="roomId">
                         <div class="row">
 						<div class="sign__group">
-						    <label class="sign__label" for="movieID">Movie</label>
-						    <select name="movieID" id="movieID" class="sign__select" required>
-                                <th:block th:each="movie : ${movies}">
-                                    <option th:value="${movie.movieID}"
-                                            th:selected="${movieScreening.movie.movieID == movie.movieID}">
-                                        [[${movie.movieName}]]
-                                    </option>
-                                </th:block>
+						    <label class="sign__label" for="movieId">Movie</label>
+						    <select name="movieID" id="movieId" class="sign__select" required>
 						    </select>
 						</div>
-
-
                             <div class="col-12">
                                 <label class="sign__label" for="roomName">Room</label>
                                 <div class="sign__group">
-                                    <input type="text" id="roomName" class="sign__input" name="roomName" value="${movieScreening.room.roomName}" placeholder="Room Name" readonly>
+                                    <input type="text" id="roomName" class="sign__input" name="roomName" placeholder="Room Name" readonly>
                                 </div>
                             </div>
 
@@ -62,7 +53,7 @@
 							<div class="col-12 col-md-6">
 							    <label class="sign__label" for="endHour">End Hour</label>
 							    <div class="sign__group">
-							        <input type="time" class="sign__input" name="endHour" id="endHour" placeholder="End Hour" required>
+							        <input type="time" class="sign__input" name="endHour" id="endHour" placeholder="End Hour" readonly required>
 							    </div>
 							</div>
 
@@ -76,8 +67,7 @@
                                 </div>
                             </div>
                             <div class="col-12 d-flex justify-content-start align-items-center" style="gap: 15px;">
-                            	<a th:href="@{/admin/moviescreenings(id=${movieScreening.room.roomID},cinemaId=${movieScreening.room.cinema.cinemaID})}"
-                            	 class="sign__btn sign__btn--small sign__btn--outline"><span>Back to List</span></a>
+                            	<a id="msLink" class="sign__btn sign__btn--small sign__btn--outline"><span>Back to List</span></a>
                                 <button type="submit" class="sign__btn sign__btn--small"><span>Apply Changes</span></button>
                             </div>
                         </div>
@@ -89,5 +79,166 @@
     </main>
     <!-- end main content -->
 
-   
+    <script>
+        const urlParams = new URLSearchParams(window.location.search);
+        const roomId = urlParams.get("roomId");
+        const movieScreenId = urlParams.get("msId");
+        let selectedDuration = ""; // Lưu thời lượng phim
+        document.addEventListener("DOMContentLoaded", async function () {
+            if (movieScreenId) {
+                const msLink = document.getElementById("msLink"); // Lấy thẻ <a>
+                if (msLink) {
+                    msLink.href = `/admin/movie-screen?roomId=` + roomId; // Cập nhật href
+                }
+            }
+            document.getElementById("roomId").value=roomId;
+            document.getElementById("msId").value=movieScreenId;
+            try {
+                const res = await fetch(`/admin/movie-screens/${movieScreenId}`, { method: "GET", credentials: "include" });
+                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+                const data = await res.json();
+                // Gán giá trị sau khi load xong movies
+                await loadMovies(data.movieId.toString());
+                document.getElementById("roomName").value = data.roomName;
+                document.getElementById("screeningDate").value = formatDate2(data.screeningDate);
+                document.getElementById("movieScreening_status").value = data.status.toString();
+                document.getElementById("startHour").value = formatDate(data.startTime,'HH:mm');
+                document.getElementById("endHour").value = formatDate(data.endTime,'HH:mm');
+            } catch (err) {
+                console.error("📌 Lỗi khi fetch dữ liệu:", err);
+            }
+            async function loadMovies(selectedMovieId = null) {
+                try {
+                    const response = await fetch("/admin/movies/coming-soon");
+                    if (!response.ok) throw new Error("Lỗi khi fetch movies");
+                    const data = await response.json();
+
+                    renderMovieOptions(data.movies); // Hiển thị danh sách phim
+
+                    // Nếu có selectedMovieId, gán lại giá trị sau khi options đã được render
+                    if (selectedMovieId) {
+                        const movieSelect = document.getElementById("movieId");
+                        if (movieSelect) {
+                            setTimeout(() => {
+                                movieSelect.value = selectedMovieId;
+                                // Cập nhật thời lượng phim tương ứng
+                                selectedDuration = movieSelect.options[movieSelect.selectedIndex]?.dataset.duration || "";
+                                updateEndTime(); // Cập nhật giờ kết thúc
+                            }, 0); // Đợi browser cập nhật DOM trước khi set giá trị
+                        }
+                    }
+                } catch (error) {
+                    console.error("📌 Lỗi khi fetch movies:", error);
+                }
+            }
+        });
+        document.getElementById("editMSForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const screenDate = document.getElementById("screeningDate").value; // "2025-03-25"
+            const startTime = document.getElementById("startHour").value; // "14:55"
+            const endTime = document.getElementById("endHour").value; // "16:30"
+
+            const formattedStartTime = new Date(`${screenDate}T${startTime}:00`).getTime();
+            const formattedEndTime = new Date(`${screenDate}T${endTime}:00`).getTime();
+            const json = {
+                roomId: document.getElementById("roomId").value,
+                movieId: document.getElementById("movieId").value,
+                screenDate: document.getElementById("screeningDate").value,
+                startTime: formattedStartTime,
+                endTime: formattedEndTime,
+                status: document.getElementById("movieScreening_status").value,
+            }
+            try {
+                const res = await fetch(`/admin/movie-screens/${movieScreenId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(json),
+                });
+                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+                Swal.fire({
+                    icon: "success",
+                    title: "Edit movie screen successfully!",
+                    timer: 3000
+                }).then(() => {
+                    window.location.href = `/admin/movie-screen?roomId=${roomId}`;
+                });
+            } catch (err) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Edit movie screen failed!",
+                    text: "Please try again.",
+                    customClass: {
+                        confirmButton: "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                });
+            }
+        });
+        function formatDate2(timestamp) {
+            if (!timestamp) return "";
+            const date = new Date(timestamp);
+            // Chuyển sang múi giờ Việt Nam (GMT+7)
+            const vietnamOffset = 7 * 60 * 60 * 1000;
+            const vietnamDate = new Date(date.getTime() + vietnamOffset);
+            return vietnamDate.toISOString().split("T")[0];
+        }
+        // Hàm định dạng ngày giờ
+        function formatDate(dateString, format) {
+            const date = new Date(dateString);
+            const options = {};
+            if (format === 'HH:mm') {
+                options.hour = '2-digit';
+                options.minute = '2-digit';
+                options.hour12 = false;
+            }
+            return new Intl.DateTimeFormat('en-US', options).format(date);
+        }
+        const movieSelect = document.getElementById("movieId");
+        const startHourInput = document.getElementById("startHour");
+        const endHourInput = document.getElementById("endHour");
+
+        movieSelect.addEventListener("change", function () {
+            selectedDuration = this.options[this.selectedIndex].dataset.duration || "";
+            updateEndTime();
+        });
+        // Khi thay đổi giờ bắt đầu → Cập nhật giờ kết thúc
+        startHourInput.addEventListener("input", updateEndTime);
+        // Hàm tính toán giờ kết thúc
+        function updateEndTime() {
+            const startTime = startHourInput.value;
+            if (!startTime || !selectedDuration) {
+                endHourInput.value = ""; // Xóa nếu chưa có dữ liệu hợp lệ
+                return;
+            }
+            // Trích xuất số phút từ duration ("144 phút" → 144)
+            const durationMinutes = parseInt(selectedDuration.match(/\d+/)[0], 10);
+            if (isNaN(durationMinutes)) {
+                endHourInput.value = "";
+                return;
+            }
+            // Chuyển startTime (HH:mm) thành đối tượng Date
+            const [hours, minutes] = startTime.split(":").map(Number);
+            const startDateTime = new Date();
+            startDateTime.setHours(hours, minutes, 0);
+
+            // Cộng số phút vào startTime
+            startDateTime.setMinutes(startDateTime.getMinutes() + durationMinutes);
+
+            // Cập nhật endHour với định dạng HH:mm
+            endHourInput.value = startDateTime.toTimeString().slice(0, 5);
+        }
+        function renderMovieOptions(movies) {
+            const movieSelect = document.getElementById("movieId");
+            movieSelect.innerHTML = '<option value="">-- Select a Movie --</option>'; // Tuỳ chọn mặc định
+            movies.forEach(movie => {
+                const option = document.createElement("option");
+                option.value = movie.movieID;
+                option.textContent = movie.movieName;
+                option.dataset.duration = movie.movieDuration; // Lưu thời lượng vào datase
+                movieSelect.appendChild(option);
+            });
+        }
+    </script>
 </body>

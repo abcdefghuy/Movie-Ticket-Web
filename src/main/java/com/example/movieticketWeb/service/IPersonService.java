@@ -9,7 +9,7 @@ import java.util.Optional;
 
 public interface IPersonService {
     public Optional<Person> findByEmail(String email);
-    public PersonInfoResponse getAdminInfo(Person person);
+    public PersonInfoResponse getInfo(Person person);
 
     Page<PersonInfoResponse> getUsers(int page, int soluong);
 

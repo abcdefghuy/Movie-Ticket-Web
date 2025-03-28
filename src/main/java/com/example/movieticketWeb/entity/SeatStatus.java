@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.Date;
 
 @Data
 @NoArgsConstructor
@@ -29,6 +30,6 @@ public class SeatStatus {
     private boolean status;
 
     @Column(name = "bookingTime")
-    private LocalDateTime bookingTime;
+    private Date bookingTime;
 
 }

@@ -16,7 +16,7 @@
                     <div class="main__title">
                         <h2>Rooms in <span id="cName"></span></h2>
 
-                        <span class="main__title-stat">Total Movies: <span id="totalMovies">0</span></span>
+                        <span class="main__title-stat">Total Rooms: <span id="totalRooms">0</span></span>
                         
                         <div class="main__title-stat">
 					    	<div class="catalog__text">
@@ -24,22 +24,17 @@
 					   		 </div>
 						</div>
                         <div class="main__title-wrap">
-                            <button type="button" data-bs-toggle="modal" class="main__title-link main__title-link--wrap" data-bs-target="#modal-add-room">Add Room</button>
+                            <button id="buttonAdd" type="button" data-bs-toggle="modal" class="main__title-link main__title-link--wrap" data-bs-target="#modal-add-room" data-room-name="">Add Room</button>
 
                             <!-- search -->
 							<form id="searchForm" class="main__title-form">
-								
-								<input type="hidden" name="cinemaId">
-								
-							    <select name="screenType" class="sign__select" required>
+								<input type="hidden" name="cinemaId" id="cinemaId">
+							    <select id="screenType" name="screenType" class="sign__select" required>
 							        <option value="All"  >All Screen Types</option>
 							        <option value="2D">2D</option>
 							        <option value="3D">3D</option>
 							        <option value="IMAX">IMAX</option>
 							    </select>
-							    <button type="submit">
-							        <i class="ti ti-search"></i>
-							    </button>
 							</form>
 							<!-- end search -->
 
@@ -90,7 +85,7 @@
                             <div class="col-12">
                                 <div class="sign__group">
                                     <label class="sign__label" for="cinema_name">Cinema Name</label>
-                                    <input id="cinema_name" type="text" name="cinema_name" class="sign__input" required>
+                                    <input id="cinema_name" type="text" name="cinema_name" class="sign__input" readonly>
                                 </div>
                             </div>
 
@@ -160,27 +155,32 @@
 </div>
 <!-- end delete modal -->
 <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const cinemaId = urlParams.get("cinemaId");
     document.addEventListener("click", function(event) {
         if (event.target.closest(".catalog__btn--delete")) {
             const button = event.target.closest(".catalog__btn--delete");
             document.getElementById("deleteRoomId").value = button.getAttribute("data-room-id");
         }
+        if(event.target.closest(".main__title-link--wrap")){
+            const button = event.target.closest(".main__title-link--wrap");
+            document.getElementById("cinema_name").value = button.getAttribute("data-room-name");
+        }
     });
     document.addEventListener("DOMContentLoaded", function () {
-        function renderRooms(rooms, cinemaId, cinemaName) {
+        function renderRooms(rooms) {
             const tableBody = document.getElementById("roomsTableBody");
             tableBody.innerHTML = ""; // Xóa dữ liệu cũ
-
             rooms.forEach(room => {
                 const row = `
         <tr>
             <td><div class="catalog__text">${room.roomID}</div></td>
             <td>
                 <div class="catalog__text">
-                    <a href="/admin/moviescreenings?id=${room.roomID}&cinemaId=${cinemaId}">${room.roomName}</a>
+                    <a href="/admin/movie-screen?roomId=${room.roomID}">${room.roomName}</a>
                 </div>
             </td>
-            <td><div class="catalog__text">${cinemaName}</div></td>
+            <td><div class="catalog__text">${room.cinemaName}</div></td>
             <td><div class="catalog__text">${room.screenType}</div></td>
             <td><div class="catalog__text">${room.chairNumber}</div></td>
             <td>
@@ -190,7 +190,7 @@
             </td>
             <td>
                 <div class="catalog__btns">
-                    <a href="/admin/room/editRoom?roomId=${room.roomID}&cinemaId=${cinemaId}" class="catalog__btn catalog__btn--edit">
+                    <a href="/admin/room/editRoom?roomId=${room.roomID}&cinemaId=${room.cinemaId}" class="catalog__btn catalog__btn--edit">
                         <i class="ti ti-edit"></i>
                     </a>
                     <button type="button" class="catalog__btn catalog__btn--delete"
@@ -205,7 +205,117 @@
                 tableBody.innerHTML += row;
             });
         }
+        function loadRoom(){
+            const apiUrl = `/admin/rooms?cinemaId=${cinemaId}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderRooms(data.rooms);
+                    document.getElementById("totalRooms").innerText = data.noOfRecords;
+                    document.getElementById("cinemaId").value = cinemaId;
+                    const buttonAdd = document.getElementById("buttonAdd");
+                    buttonAdd.setAttribute("data-room-name", data.cinemaName);
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        document.getElementById("searchForm").addEventListener("change", function (event) {
+            event.preventDefault();
+            const cinemaId = document.getElementById("cinemaId").value;
+            const screenType = document.getElementById("screenType").value;
+            const apiUrl = `/admin/rooms/search?cinemaId=${cinemaId}&screenType=${screenType}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderRooms(data.rooms);
+                    document.getElementById("totalRooms").innerText = data.noOfRecords;
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        });
+        loadRoom();
+    });
 
+    document.getElementById("addRoomForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const roomData = {
+            roomName: document.getElementById("room_name").value,
+            cinemaId: cinemaId,
+            screenType: document.getElementById("room_type").value,
+            chairNumber: document.getElementById("capacity").value,
+            status: document.getElementById("status").value
+        };
+        try {
+            const response = await fetch(`/admin/rooms`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "credentials": "include"
+                },
+                body: JSON.stringify(roomData)
+            });
+            document.querySelectorAll(".text-danger").forEach(el => el.textContent = "");
+            if (!response.ok) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Add room failed!",
+                    text: "Please try again.",
+                    customClass: {
+                        confirmButton: "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                });
+            }
+            else {
+                Swal.fire({
+                    icon: "success",
+                    title: "Add room successfully!",
+                    timer: 3000
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Add room failed!",
+                text: "Please try again.",
+                customClass: {
+                    confirmButton: "btn btn-danger",
+                },
+                buttonsStyling: false
+            });
+
+        }
+    });
+    document.getElementById("deleteRoomForm").addEventListener("submit", async function (event) {
+        event.preventDefault(); // Ngăn chặn reload trang
+        const roomId = document.getElementById("deleteRoomId").value;
+        try {
+            const response = await fetch(`/admin/rooms/${roomId}`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+            if (!response.ok) {
+                throw new Error(`Lỗi HTTP: ${response.status}`);
+            }
+
+            // Hiển thị thông báo thành công với SweetAlert2
+            Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: "The room has been deleted successfully.",
+                confirmButtonText: "OK"
+            }).then(() => {
+                window.location.reload();
+            });
+
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: "Failed to delete the room. Please try again later.",
+                confirmButtonText: "OK"
+            });
+        }
     });
 
 

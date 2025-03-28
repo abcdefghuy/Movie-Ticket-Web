@@ -15,7 +15,7 @@
 				<div class="col-12">
 					<div class="main__title">
 						<h2>Reviews</h2>
-						<span class="main__title-stat">Total Reviews:${noOfRecords}</span>
+						<span class="main__title-stat">Total Reviews:<span id="totalReviews"></span></span>
 					</div>
 				</div>
 				<!-- reviews table -->
@@ -28,8 +28,10 @@
 									<tr>
 										<th>ID</th>
 										<th>Reviewer</th>
+										<th>MovieName</th>
 										<th>Rating</th>
 										<th>Content</th>
+										<th>Action</th>
 									</tr>
 								</thead>
 								<tbody id="reviewTableBody"></tbody>
@@ -92,7 +94,33 @@
 			</div>
 		</div>
 	</main>
-<script>
+	<div class="modal fade" id="modal-delete" tabindex="-1"
+		 aria-labelledby="modal-delete" aria-hidden="true">
+		<div class="modal-dialog modal-dialog-centered">
+			<div class="modal-content">
+				<div class="modal__content">
+					<form id="deleteReviewForm" class="modal__form_delete">
+						<h4 class="modal__title">Review delete</h4>
+						<p class="modal__text">Are you sure to permanently delete this review?</p>
+						<!-- Hidden input for user ID -->
+						<input type="hidden" id="deleteReviewId" name="reviewId" value="">
+						<div class="modal__btns">
+							<button class="modal__btn modal__btn--apply" type="submit">
+								<span>Delete</span>
+							</button>
+							<button class="modal__btn modal__btn--dismiss" type="button" data-bs-dismiss="modal" aria-label="Close">
+								<span>Dismiss</span>
+							</button>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<script>
+		const urlParams = new URLSearchParams(window.location.search);
+		const movieId = urlParams.get("movieId");
 	function renderReviews(reviews) {
 		let tbody = document.getElementById("reviewTableBody");
 		tbody.innerHTML = ""; // Xóa nội dung cũ
@@ -101,13 +129,137 @@
 			let row = `
             <tr>
                 <td><div class="catalog__text">${review.reviewID}</div></td>
-                <td><div class="catalog__text">${review.person.fullName}</div></td>
+                <td><div class="catalog__text">${review.person.ReviewerName}</div></td>
+                <td><div class="catalog__text">${review.MovieName}</div></td>
                 <td><div class="catalog__text catalog__text--rate">${review.evaluate}</div></td>
                 <td><div class="catalog__text">${review.content}</div></td>
+                <button type="button" class="catalog__btn catalog__btn--delete"
+									 data-bs-toggle="modal"
+									data-bs-target="#modal-delete"
+									data-review-id="${review.reviewID}">
+								<i class="ti ti-trash"></i>
+							</button>
             </tr>`;
-			tbody.insertAdjacentHTML("beforeend", row);
+			tbody.innerHTML += row;
 		});
 	}
+	document.addEventListener("click", function(event) {
+		if (event.target.closest(".catalog__btn--delete")) {
+			const button = event.target.closest(".catalog__btn--delete");
+			document.getElementById("deleteReviewId").value = button.getAttribute("data-review-id");
+		}
+	});
+	function updatePagination(noOfPages, currentPage) {
+		document.getElementById("noOfPages").innerText = noOfPages;
+		document.getElementById("currentPage").innerText = currentPage;
+		const paginationContainer = document.getElementById("paginationNumbers");
+		paginationContainer.innerHTML = "";
+		let totalPages = noOfPages;
+
+		if (totalPages <= 1) return;
+
+		const createPageItem = (page) => {
+			let pageItem = document.createElement("li");
+			pageItem.classList.add("paginator__item");
+			if (page === currentPage) {
+				pageItem.classList.add("paginator__item--active");
+			}
+			pageItem.innerHTML = `<a href="#">${page}</a>`;
+			pageItem.addEventListener("click", function () {
+				if (currentPage !== page) {
+					searchMovies(page);
+				}
+			});
+			paginationContainer.appendChild(pageItem);
+		};
+		const prevPage = document.getElementById("prevPage");
+		const nextPage = document.getElementById("nextPage");
+
+		// Xử lý Previous
+		prevPage.classList.toggle("disabled", currentPage === 1);
+		prevPage.onclick = currentPage > 1 ? () => searchMovies(currentPage - 1) : null;
+
+		// Xử lý trang đầu và dấu "..."
+		const firstPage = document.getElementById("firstPage");
+		const dotsBefore = document.getElementById("dotsBefore");
+		firstPage.style.display = currentPage > 2 ? "block" : "none";
+		dotsBefore.style.display = currentPage > 3 ? "block" : "none";
+
+		if (currentPage > 2) {
+			firstPage.innerHTML = `<a href="#">1</a>`;
+			firstPage.onclick = () => searchMovies(1);
+		}
+
+		// Hiển thị các trang xung quanh trang hiện tại
+		let startPage = Math.max(1, currentPage - 1);
+		let endPage = Math.min(totalPages, currentPage + 1);
+		for (let page = startPage; page <= endPage; page++) {
+			createPageItem(page);
+		}
+		// Xử lý trang cuối và dấu "..."
+		const lastPage = document.getElementById("lastPage");
+		const dotsAfter = document.getElementById("dotsAfter");
+		lastPage.style.display = currentPage < totalPages - 1 ? "block" : "none";
+		dotsAfter.style.display = currentPage < totalPages - 2 ? "block" : "none";
+
+		if (currentPage < totalPages - 1) {
+			lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
+			lastPage.onclick = () => searchMovies(totalPages);
+		}
+		// Xử lý Next
+		nextPage.classList.toggle("disabled", currentPage === totalPages);
+		nextPage.onclick = currentPage < totalPages ? () => searchMovies(currentPage + 1) : null;
+	}
+
+	document.addEventListener("DOMContentLoaded", function (){
+		let currentPage = 1;
+		let pageSize = 5;
+		function loadReview(){
+			const apiUrl = `/admin/reviews?movieId=${movieId}&page=${currentPage}&soluong=${pageSize}`;
+			fetch(apiUrl)
+					.then(response => response.json())
+					.then(data => {
+						renderReviews(data.reviews);
+						updatePagination(data.noOfPages, data.currentPage);
+						document.getElementById("totalReviews").innerText = data.noOfRecords;
+					})
+					.catch(error => console.error("Error fetching movies:", error));
+		}
+		loadReview();
+	})
+	document.getElementById("deleteReviewId").addEventListener("submit",async function(event){
+		event.preventDefault();
+		const reviewId = document.getElementById("deleteReviewId").value;
+		try {
+			const response = await fetch(`/admin/reviews/${reviewId}`, {
+				method: "DELETE",
+				credentials: "include"
+			});
+
+			if (!response.ok) {
+				throw new Error(`Lỗi HTTP: ${response.status}`);
+			}
+
+			// Hiển thị thông báo thành công với SweetAlert2
+			Swal.fire({
+				icon: "success",
+				title: "Deleted!",
+				text: "The review has been deleted successfully.",
+				confirmButtonText: "OK"
+			}).then(() => {
+				window.location.reload();
+			});
+
+		} catch (error) {
+			Swal.fire({
+				icon: "error",
+				title: "Error!",
+				text: "Failed to delete the review. Please try again later.",
+				confirmButtonText: "OK"
+			});
+		}
+	})
+
 </script>
 </body>
 </html>

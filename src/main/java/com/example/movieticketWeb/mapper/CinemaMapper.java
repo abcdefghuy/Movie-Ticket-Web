@@ -13,7 +13,7 @@ public class CinemaMapper {
                 .cinemaName(cinema.getCinemaName())
                 .address(cinema.getAddress())
                 .location(cinema.getLocation())
-                .status(String.valueOf(cinema.isStatus()))
+                .status(cinema.isStatus())
                 .roomCount(cinema.getRoomCount())
                 .build();
     }

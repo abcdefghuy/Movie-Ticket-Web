@@ -314,9 +314,7 @@
 	});
 	document.getElementById("deleteUserForm").addEventListener("submit", async function (event) {
 		event.preventDefault(); // Ngăn chặn reload trang
-
 		const movieId = document.getElementById("deleteUserId").value;
-
 		try {
 			const response = await fetch(`/admin/users/${movieId}`, {
 				method: "DELETE",

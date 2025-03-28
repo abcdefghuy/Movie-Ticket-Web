@@ -15,7 +15,7 @@
             <div class="col-12">
                 <div class="main__title">
                     <h2>Coupons</h2>
-                    <span class="main__title-stat">Total<span id="totalCoupon">0</span></span>
+                    <span class="main__title-stat">Total Coupon: <span id="totalCoupon">0</span></span>
                     <div class="main__title-wrap">
                         <button type="button" data-bs-toggle="modal"
                                 class="main__title-link main__title-link--wrap"
@@ -23,7 +23,7 @@
                         </button>
                         <!-- search -->
                         <form id="searchForm" class="main__title-form">
-                            <input type="text" name="searchQuery" id="keyInput" placeholder="Find coupon...">
+                            <input type="text" name="searchQuery" id="keywordInput" placeholder="Find coupon...">
                             <button type="submit">
                                 <i class="ti ti-search"></i>
                             </button>
@@ -128,36 +128,30 @@
                             </div>
                             <div class="col-12">
                                 <div class="sign__group">
-                                    <label class="sign__label" for="couponType1">Type</label> <select
-                                        class="sign__selectjs" name="couponType" id="couponType1"
-                                        required style="color: white; width: 320px;">
-                                    <option value="Student">Student</option>
-                                    <option value="Children">Children</option>
-                                    <option value="Festival">Festival</option>
-                                </select>
+                                    <label class="sign__label" for="couponType1">Type</label>
+                                    <select class="sign__selectjs" name="couponType" id="couponType1" required style="color: white; width: 320px;">
+                                        <option value="Student">Student</option>
+                                        <option value="Children">Children</option>
+                                        <option value="Festival">Festival</option>
+                                    </select>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="sign__group">
-                                    <label class="sign__label" for="couponValue1">Coupon
-                                        Value</label> <input type="number" class="sign__input"
-                                                             name="couponValue" id="couponValue1"
-                                                             placeholder="Coupon Value"
-                                                             required>
+                                    <label class="sign__label" for="couponValue1">Coupon Value</label>
+                                    <input type="number" class="sign__input" name="couponValue" id="couponValue1" placeholder="Coupon Value" required>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="sign__group">
-                                    <label class="sign__label" for="startDate1">Start Date</label> <input
-                                        type="Date" class="sign__input" name="startDate" id="startDate1"
-                                        required>
+                                    <label class="sign__label" for="startDate1">Start Date</label>
+                                    <input type="Date" class="sign__input" name="startDate" id="startDate1" required>
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="sign__group">
-                                    <label class="sign__label" for="endDate1">End Date</label> <input
-                                        type="Date" class="sign__input" name="endDate" id="endDate1"
-                                        required>
+                                    <label class="sign__label" for="endDate1">End Date</label>
+                                    <input type="Date" class="sign__input" name="endDate" id="endDate1" required>
                                 </div>
                             </div>
 
@@ -181,7 +175,6 @@
                 <div class="modal__content">
                     <form class="modal__form" id="edit-coupon-form">
                         <h4 class="modal__title">Edit Coupon</h4>
-
                         <div class="row">
                             <div class="col-12">
                                 <div class="sign__group">
@@ -214,15 +207,13 @@
                             <div class="col-12">
                                 <div class="sign__group">
                                     <label class="sign__label" for="startDate">Start Date</label> <input
-                                        type="Date" class="sign__input" name="startDate" id="startDate"
-                                        required value="${formattedDate}">
+                                        type="Date" class="sign__input" name="startDate" id="startDate" required >
                                 </div>
                             </div>
                             <div class="col-12">
                                 <div class="sign__group">
                                     <label class="sign__label" for="endDate">End Date</label> <input
-                                        type="Date" class="sign__input" name="endDate" id="endDate"
-                                        required>
+                                        type="Date" class="sign__input" name="endDate" id="endDate" required>
                                 </div>
                             </div>
 
@@ -245,7 +236,7 @@
                 <div class="modal__content">
                     <form id="deletedCouponForm" class="modal__form_delete">
                         <h4 class="modal__title">Coupon delete</h4>
-
+                        <input type="hidden" id="deleteCouponId">
                         <p class="modal__text">Are you sure to permanently delete this
                             Coupon delete?</p>
                         <div class="modal__btns">
@@ -267,55 +258,43 @@
 <!-- Mirrored from hotflix.volkovdesign.com/admin/users.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 07:09:40 GMT -->
 <script>
     // Lắng nghe sự kiện khi mở Modal
-    document.addEventListener("DOMContentLoaded", function () {
-        const deleteButtons = document.querySelectorAll(".catalog__btn--delete"); // Nút mở modal xóa
-        const modalForm = document.querySelector(".modal__form_delete"); // Form trong modal
-        deleteButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                const couponID = this.getAttribute("data-id"); // Lấy userId từ attribute
-                const baseFormAction = modalForm.getAttribute("action"); // URL ban đầu của form
-                const link = baseFormAction + '?couponID=' + couponID;
-                console.log("link : " + link);
-                modalForm.setAttribute("action", link);
-            });
-        });
-    });
+
     document.addEventListener('DOMContentLoaded', function () {
         // Lắng nghe sự kiện khi modal được hiển thị
         const editModal = document.getElementById('modal-edit');
         editModal.addEventListener('show.bs.modal', function (event) {
             // Nút kích hoạt modal
             const button = event.relatedTarget;
-            // Lấy thông tin từ data-attribute
-            const couponID = button.getAttribute('data-id');
-            const couponType = button.getAttribute('data-type');
-            const couponName = button.getAttribute('data-name');
-            const couponValue = button.getAttribute('data-value');
-            const startDate = button.getAttribute('data-startDate');
-            const endDate = button.getAttribute('data-endDate');
-
-            // Điền thông tin vào các trường trong modal
-            const modalCouponID = editModal.querySelector('#couponID-edit');
-            const modalCouponType = editModal.querySelector('#couponType');
-            const modalCouponValue = editModal.querySelector('#couponValue');
-            const modalCouponName = editModal.querySelector('#couponName');
-            const modalStartDate = editModal.querySelector('#startDate');
-            const modalEndDate = editModal.querySelector('#endDate');
-
-            modalCouponID.value = couponID
-            modalCouponType.value = couponType;
-            modalCouponValue.value = couponValue;
-            modalCouponName.value = couponName;
-            // Chuyển định dạng ngày trước khi gán
-            modalStartDate.value = formatDate(startDate);
-            modalEndDate.value = formatDate(endDate);
+            const { id, type, name, value, startDate: start, endDate: end } = button.dataset;
+            const modal = editModal;
+            const getField = (selector) => modal.querySelector(selector);
+            console.log(start)
+            console.log(end)
+            getField('#couponID-edit').value = id || '';
+            getField('#couponType').value = type || '';
+            getField('#couponValue').value = value || '';
+            getField('#couponName').value = name || '';
+            getField('#startDate').value = formatDate2(Number(start)) || '';
+            getField('#endDate').value = formatDate2(Number(end))|| '';
         });
     });
-
+    document.addEventListener("click", function(event) {
+        if (event.target.closest(".catalog__btn--delete")) {
+            const button = event.target.closest(".catalog__btn--delete");
+            document.getElementById("deleteCouponId").value = button.getAttribute("data-cp-id");
+        }
+    });
     function formatDate(timestamp) {
         if (!timestamp) return 'N/A';
         const date = new Date(timestamp);
         return date.toLocaleDateString('vi-VN'); // Format theo kiểu VN (DD/MM/YYYY)
+    }
+    function formatDate2(timestamp) {
+        if (!timestamp) return "";
+        const date = new Date(timestamp);
+        const vietnamOffset = 7 * 60 * 60 * 1000;
+        const vietnamDate = new Date(date.getTime() + vietnamOffset);
+        return vietnamDate.toISOString().split("T")[0];
     }
 
     function renderCoupons(coupons) {
@@ -339,13 +318,13 @@
                            data-name="${coupon.couponName}"
                            data-type="${coupon.couponType}"
                            data-value="${coupon.couponValue}"
-                           data-startDate="${coupon.startDate}"
-                           data-endDate="${coupon.endDate}">
+                           data-start-date="${coupon.startDate}"
+                           data-end-date="${coupon.endDate}">
                             <i class="ti ti-edit"></i>
                         </a>
                         <button type="button" class="catalog__btn catalog__btn--delete"
                                 data-bs-toggle="modal" data-bs-target="#modal-delete"
-                                data-id="${coupon.couponID}">
+                                data-cp-id="${coupon.couponID}">
                             <i class="ti ti-trash"></i>
                         </button>
                     </div>
@@ -355,7 +334,235 @@
             couponTableBody.innerHTML += row;
         });
     }
+    document.addEventListener("DOMContentLoaded", function(){
+        let currentPage = 1;
+        let recordsPerPage = 5;
+        function updatePagination(noOfPages, currentPage) {
+            document.getElementById("noOfPages").innerText = noOfPages;
+            document.getElementById("currentPage").innerText = currentPage;
+            const paginationContainer = document.getElementById("paginationNumbers");
+            paginationContainer.innerHTML = "";
+            let totalPages = noOfPages;
 
+            if (totalPages <= 1) return;
+
+            const createPageItem = (page) => {
+                let pageItem = document.createElement("li");
+                pageItem.classList.add("paginator__item");
+                if (page === currentPage) {
+                    pageItem.classList.add("paginator__item--active");
+                }
+                pageItem.innerHTML = `<a href="#">${page}</a>`;
+                pageItem.addEventListener("click", function () {
+                    if (currentPage !== page) {
+                        searchCoupon(page);
+                    }
+                });
+                paginationContainer.appendChild(pageItem);
+            };
+            const prevPage = document.getElementById("prevPage");
+            const nextPage = document.getElementById("nextPage");
+
+            // Xử lý Previous
+            prevPage.classList.toggle("disabled", currentPage === 1);
+            prevPage.onclick = currentPage > 1 ? () => searchCoupon(currentPage - 1) : null;
+
+            // Xử lý trang đầu và dấu "..."
+            const firstPage = document.getElementById("firstPage");
+            const dotsBefore = document.getElementById("dotsBefore");
+            firstPage.style.display = currentPage > 2 ? "block" : "none";
+            dotsBefore.style.display = currentPage > 3 ? "block" : "none";
+
+            if (currentPage > 2) {
+                firstPage.innerHTML = `<a href="#">1</a>`;
+                firstPage.onclick = () => searchCoupon(1);
+            }
+
+            // Hiển thị các trang xung quanh trang hiện tại
+            let startPage = Math.max(1, currentPage - 1);
+            let endPage = Math.min(totalPages, currentPage + 1);
+            for (let page = startPage; page <= endPage; page++) {
+                createPageItem(page);
+            }
+            // Xử lý trang cuối và dấu "..."
+            const lastPage = document.getElementById("lastPage");
+            const dotsAfter = document.getElementById("dotsAfter");
+            lastPage.style.display = currentPage < totalPages - 1 ? "block" : "none";
+            dotsAfter.style.display = currentPage < totalPages - 2 ? "block" : "none";
+
+            if (currentPage < totalPages - 1) {
+                lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
+                lastPage.onclick = () => searchCoupon(totalPages);
+            }
+            // Xử lý Next
+            nextPage.classList.toggle("disabled", currentPage === totalPages);
+            nextPage.onclick = currentPage < totalPages ? () => searchCoupon(currentPage + 1) : null;
+        }
+        function fetchCoupons( ) {
+            const apiUrl = `/admin/coupons?page=${currentPage}&soluong=${recordsPerPage}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderCoupons(data.coupons);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("totalCoupon").innerText = data.noOfRecords;
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        function searchCoupon(currentPage) {
+            const keyword = document.getElementById("keywordInput").value;
+            const recordsPerPage = document.getElementById("soluong").value;
+            const apiUrl = `/admin/coupons/search?page=${currentPage}&soluong=${recordsPerPage}&keyword=${keyword}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    renderCoupons(data.coupons);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("totalCoupon").innerText = data.noOfRecords;
+                    document.getElementById("keywordInput").text = data.keyword;
+                    let quantity = String(data.recordsPerPage); // Ép kiểu về string
+                    console.log(quantity)
+                    document.querySelectorAll("#soluong option").forEach(option => {
+                        if (option.value === quantity) {
+                            option.setAttribute("selected", "selected"); // Chọn đúng option
+                        } else {
+                            option.removeAttribute("selected"); // Xóa selected nếu không khớp
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        document.getElementById("searchForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            searchCoupon(currentPage);
+        });
+        document.getElementById("soluong").addEventListener("change", function (event) {
+            event.preventDefault();
+            searchCoupon(document.getElementById("currentPage").innerText);
+        });
+        fetchCoupons();
+    })
+    document.getElementById("addCouponForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        // Lấy dữ liệu từ form
+        const formData = {
+            couponName: this.couponName.value,
+            couponType: this.couponType.value,
+            couponValue: this.couponValue.value,
+            startDate: this.startDate.value,
+            endDate: this.endDate.value
+        }
+
+        fetch("/admin/coupons", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.message ? "success" : "error",
+                    title: data.message ? "Add coupon successfully!" : "Add coupon failed!",
+                    text: data.message ? "" : "Please try again.",
+                    timer: data.message ? 3000 : undefined,
+                    customClass: {
+                        confirmButton: data.message ? "btn btn-success" : "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    if (data.message) location.reload(); // Chỉ reload khi thành công
+                });
+            })
+            .catch(error => {
+                console.error("Error adding coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Add coupon failed!",
+                    text: "Please try again.",
+                    customClass: { confirmButton: "btn btn-danger" },
+                    buttonsStyling: false
+                });
+            });
+    });
+    document.getElementById("edit-coupon-form").addEventListener("submit",function (){
+        event.preventDefault();
+        const couponId = document.getElementById("couponID-edit").value;
+        const formData = {
+            couponName: this.couponName.value,
+            couponType: this.couponType.value,
+            couponValue: this.couponValue.value,
+            startDate: this.startDate.value,
+            endDate: this.endDate.value
+        }
+        fetch(`/admin/coupons/${couponId}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.message ? "success" : "error",
+                    title: data.message ? "Update coupon successfully!" : "Update coupon failed!",
+                    text: data.message ? "" : "Please try again.",
+                    timer: data.message ? 3000 : undefined,
+                    customClass: {
+                        confirmButton: data.message ? "btn btn-success" : "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    if (data.message) location.reload(); // Chỉ reload khi thành công
+                });
+            })
+            .catch(error => {
+                console.error("Error updating coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Update coupon failed!",
+                    text: "Please try again.",
+                    customClass: { confirmButton: "btn btn-danger" },
+                    buttonsStyling: false
+                });
+            });
+    })
+    document.getElementById("deletedCouponForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const couponId = document.getElementById("deleteCouponId").value
+        fetch(`/admin/coupons/${couponId}`, {
+            method: "DELETE",
+            credentials: "include"
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.message ? "success" : "error",
+                    title: data.message ? "Delete coupon successfully!" : "Delete coupon failed!",
+                    text: data.message ? "" : "Please try again.",
+                    timer: data.message ? 3000 : undefined,
+                    customClass: {
+                        confirmButton: data.message ? "btn btn-success" : "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    if (data.message) location.reload(); // Chỉ reload khi thành công
+                });
+            })
+            .catch(error => {
+                console.error("Error deleting coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Delete coupon failed!",
+                    text: "Please try again.",
+                    customClass: { confirmButton: "btn btn-danger" },
+                    buttonsStyling: false
+                });
+            });
+    });
 </script>
 
 </body>

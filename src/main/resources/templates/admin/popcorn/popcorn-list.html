@@ -14,7 +14,7 @@
             <div class="col-12">
                 <div class="main__title">
                     <h2>Popcorns</h2>
-                    <span class="main__title-stat">Total:<span id="total Popcorn">0</span></span>
+                    <span class="main__title-stat">Total:<span id="totalPopcorn">0</span></span>
 
                     <div class="main__title-wrap">
                         <button type="button" data-bs-toggle="modal"
@@ -23,7 +23,7 @@
                         </button>
                         <!-- search -->
                         <form id="searchForm" class="main__title-form">
-                            <input type="text" name="searchQuery" placeholder="Find popcorn...">
+                            <input id="keywordInput" type="text" name="searchQuery" placeholder="Find popcorn...">
                             <button type="submit">
                                 <i class="ti ti-search"></i>
                             </button>
@@ -122,9 +122,9 @@
                     <div class="row">
                         <div class="col-12">
                             <div class="sign__group">
-                                <label class="sign__label" for="namePopCorn1">PopCorn
-                                    Name</label> <input type="text" class="sign__input" name="namePopCorn"
-                                                        id="namePopCorn1" placeholder="Popcorn Combo Name" required>
+                                <label class="sign__label" for="namePopcorn1">PopCorn
+                                    Name</label> <input type="text" class="sign__input" name="namePopcorn"
+                                                        id="namePopcorn1" placeholder="Popcorn Combo Name" required>
                             </div>
                         </div>
                         <div class="col-12">
@@ -151,8 +151,8 @@
                                 <label class="sign__label" for="status1">Status</label> <select
                                     class="sign__selectjs" name="status" id="status1" required
                                     style="color: white; width: 320px;">
-                                <option value="1" >Available</option>
-                                <option value="0" >Unavailable</option>
+                                <option value="true" >Available</option>
+                                <option value="false" >Unavailable</option>
                             </select>
                             </div>
                         </div>
@@ -216,8 +216,8 @@
                                 <label class="sign__label" for="status">Status</label> <select
                                     class="sign__selectjs" name="status" id="status" required
                                     style="color: white; font-weight: bold; width: 320px;">
-                                <option value="1">Available</option>
-                                <option value="0">Unavailable</option>
+                                <option value="true">Available</option>
+                                <option value="false">Unavailable</option>
                             </select>
                             </div>
                         </div>
@@ -241,7 +241,7 @@
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal__content">
-                <form id="deletePopcornForm" class="modal__form_delete">
+                <form id="deleted-popcorn-form" class="modal__form_delete">
                     <input type="hidden" id="popId"></input>
                     <h4 class="modal__title">Service delete</h4>
                     <p class="modal__text">Are you sure to permanently delete this
@@ -267,23 +267,23 @@
 <script>
     function renderPopcorns(popcorns) {
         let tbody = document.querySelector("tbody");
-        tbody.innerHTML = ""; // Xóa nội dung cũ
+        tbody.innerHTML = "";
 
         popcorns.forEach(popcorn => {
             let row = `
             <tr>
-                <td><div class="catalog__text">${popcorn.popcornID}</div></td>
-                <td><div class="catalog__text">${popcorn.namePopCorn}</div></td>
-                <td><div class="catalog__text">${popcorn.typePopCorn}</div></td>
+                <td><div class="catalog__text">${popcorn.popcornId}</div></td>
+                <td><div class="catalog__text">${popcorn.namePopcorn}</div></td>
+                <td><div class="catalog__text">${popcorn.typePopcorn}</div></td>
                 <td><div class="catalog__text">${formatPrice(popcorn.price)} VND</div></td>
-                <td><div class="catalog__text">${popcorn.status ? 'Available' : 'Unavailable'}</div></td>
+                <td><div class="catalog__text ${popcorn.status ? 'catalog__text--green' : 'catalog__text--red'}" >${popcorn.status ? 'Available' : 'Unavailable'}</div></td>
                 <td>
                     <div class="catalog__btns">
                         <a href="#" class="catalog__btn catalog__btn--edit"
                            data-bs-toggle="modal" data-bs-target="#modal-edit"
-                           data-id="${popcorn.popcornID}"
-                           data-type="${popcorn.typePopCorn}"
-                           data-name="${popcorn.namePopCorn}"
+                           data-id="${popcorn.popcornId}"
+                           data-type="${popcorn.typePopcorn}"
+                           data-name="${popcorn.namePopcorn}"
                            data-price="${popcorn.price}"
                            data-status="${popcorn.status}">
                             <i class="ti ti-edit"></i>
@@ -291,7 +291,7 @@
                         <button type="button" data-bs-toggle="modal"
                                 class="catalog__btn catalog__btn--delete"
                                 data-bs-target="#modal-delete"
-                                data-id="${popcorn.popcornID}">
+                                data-pc-id="${popcorn.popcornId}">
                             <i class="ti ti-trash"></i>
                         </button>
                     </div>
@@ -303,15 +303,11 @@
     function formatPrice(price) {
         return new Intl.NumberFormat('vi-VN').format(price);
     }
-    // Lắng nghe sự kiện khi mở Modal
-    document.addEventListener("DOMContentLoaded", function () {
-        const deleteButtons = document.querySelectorAll(".catalog__btn--delete"); // Nút mở modal xóa
-        const modalForm = document.querySelector(".modal__form_delete"); // Form trong modal
-        deleteButtons.forEach(button => {
-            button.addEventListener("click", function () {
-                document.getElementById("popId").value = this.getAttribute("data-id");
-            });
-        });
+    document.addEventListener("click", function(event) {
+        if (event.target.closest(".catalog__btn--delete")) {
+            const button = event.target.closest(".catalog__btn--delete");
+            document.getElementById("popId").value = button.getAttribute("data-pc-id");
+        }
     });
     document.addEventListener('DOMContentLoaded', function () {
         // Lắng nghe sự kiện khi modal được hiển thị
@@ -336,12 +332,235 @@
             modalPopcornType.value = popcornType;
             modalPopcornPrice.value = popcornPrice;
             modalPopcornName.value = popcornName;
-            if (popcornStatus == "true") {
-                modalPopcornStatus.value = "1";
-            } else {
-                modalPopcornStatus.value = "0";
-            }
+            modalPopcornStatus.value = popcornStatus;
         });
+    });
+    document.addEventListener("DOMContentLoaded", function(){
+        let currentPage = 1;
+        let recordsPerPage = 5;
+        function updatePagination(noOfPages, currentPage) {
+            document.getElementById("noOfPages").innerText = noOfPages;
+            document.getElementById("currentPage").innerText = currentPage;
+            const paginationContainer = document.getElementById("paginationNumbers");
+            paginationContainer.innerHTML = "";
+            let totalPages = noOfPages;
+
+            if (totalPages <= 1) return;
+
+            const createPageItem = (page) => {
+                let pageItem = document.createElement("li");
+                pageItem.classList.add("paginator__item");
+                if (page === currentPage) {
+                    pageItem.classList.add("paginator__item--active");
+                }
+                pageItem.innerHTML = `<a href="#">${page}</a>`;
+                pageItem.addEventListener("click", function () {
+                    if (currentPage !== page) {
+                        searchPopCorn(page);
+                    }
+                });
+                paginationContainer.appendChild(pageItem);
+            };
+            const prevPage = document.getElementById("prevPage");
+            const nextPage = document.getElementById("nextPage");
+
+            // Xử lý Previous
+            prevPage.classList.toggle("disabled", currentPage === 1);
+            prevPage.onclick = currentPage > 1 ? () => searchPopCorn(currentPage - 1) : null;
+
+            // Xử lý trang đầu và dấu "..."
+            const firstPage = document.getElementById("firstPage");
+            const dotsBefore = document.getElementById("dotsBefore");
+            firstPage.style.display = currentPage > 2 ? "block" : "none";
+            dotsBefore.style.display = currentPage > 3 ? "block" : "none";
+
+            if (currentPage > 2) {
+                firstPage.innerHTML = `<a href="#">1</a>`;
+                firstPage.onclick = () => searchPopCorn(1);
+            }
+
+            // Hiển thị các trang xung quanh trang hiện tại
+            let startPage = Math.max(1, currentPage - 1);
+            let endPage = Math.min(totalPages, currentPage + 1);
+            for (let page = startPage; page <= endPage; page++) {
+                createPageItem(page);
+            }
+            // Xử lý trang cuối và dấu "..."
+            const lastPage = document.getElementById("lastPage");
+            const dotsAfter = document.getElementById("dotsAfter");
+            lastPage.style.display = currentPage < totalPages - 1 ? "block" : "none";
+            dotsAfter.style.display = currentPage < totalPages - 2 ? "block" : "none";
+
+            if (currentPage < totalPages - 1) {
+                lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
+                lastPage.onclick = () => searchPopCorn(totalPages);
+            }
+            // Xử lý Next
+            nextPage.classList.toggle("disabled", currentPage === totalPages);
+            nextPage.onclick = currentPage < totalPages ? () => searchPopCorn(currentPage + 1) : null;
+        }
+        function fetchPopCorns( ) {
+            const apiUrl = `/admin/popcorn's?page=${currentPage}&soluong=${recordsPerPage}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderPopcorns(data.popCorns);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("totalPopcorn").innerText = data.noOfRecords;
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        function searchPopCorn(currentPage) {
+            const keyword = document.getElementById("keywordInput").value;
+            const recordsPerPage = document.getElementById("soluong").value;
+            const apiUrl = `/admin/popcorn's/search?page=${currentPage}&soluong=${recordsPerPage}&keyword=${keyword}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    renderPopcorns(data.popCorns);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("total Popcorn").innerText = data.noOfRecords;
+                    document.getElementById("keywordInput").text = data.keyword;
+                    let quantity = String(data.recordsPerPage); // Ép kiểu về string
+                    console.log(quantity)
+                    document.querySelectorAll("#soluong option").forEach(option => {
+                        if (option.value === quantity) {
+                            option.setAttribute("selected", "selected"); // Chọn đúng option
+                        } else {
+                            option.removeAttribute("selected"); // Xóa selected nếu không khớp
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        document.getElementById("searchForm").addEventListener("submit", function (event) {
+            event.preventDefault();
+            searchPopCorn(currentPage);
+        });
+        document.getElementById("soluong").addEventListener("change", function (event) {
+            event.preventDefault();
+            searchPopCorn(document.getElementById("currentPage").innerText);
+        });
+        fetchPopCorns();
+    })
+    document.getElementById("addPopcornForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        // Lấy dữ liệu từ form
+        const formData = {
+            namePopCorn: document.getElementById("namePopcorn1").value,
+            price: document.getElementById("price1").value,
+            typePopCorn: document.getElementById("typePopCorn1").value,
+            status: document.getElementById("status1").value
+        }
+
+        fetch("/admin/popcorn's", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.message ? "success" : "error",
+                    title: data.message ? "Add popcorn successfully!" : "Add popcorn failed!",
+                    text: data.message ? "" : "Please try again.",
+                    timer: data.message ? 3000 : undefined,
+                    customClass: {
+                        confirmButton: data.message ? "btn btn-success" : "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    if (data.message) location.reload(); // Chỉ reload khi thành công
+                });
+            })
+            .catch(error => {
+                console.error("Error adding coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Add popcorn failed!",
+                    text: "Please try again.",
+                    customClass: { confirmButton: "btn btn-danger" },
+                    buttonsStyling: false
+                });
+            });
+    });
+    document.getElementById("edit-popcorn-form").addEventListener("submit",function (event){
+        event.preventDefault();
+        const popcornID =  document.getElementById("popcornID-edit").value;
+        const formData = {
+            namePopCorn: document.getElementById("namePopCorn").value,
+            price: document.getElementById("price").value,
+            typePopCorn: document.getElementById("typePopCorn").value,
+            status: document.getElementById("status").value
+        }
+        fetch(`/admin/popcorn's/${popcornID}`, {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(formData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.message ? "success" : "error",
+                    title: data.message ? "Update popcorn successfully!" : "Update popcorn failed!",
+                    text: data.message ? "" : "Please try again.",
+                    timer: data.message ? 3000 : undefined,
+                    customClass: {
+                        confirmButton: data.message ? "btn btn-success" : "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    if (data.message) location.reload(); // Chỉ reload khi thành công
+                });
+            })
+            .catch(error => {
+                console.error("Error updating coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Update popcorn failed!",
+                    text: "Please try again.",
+                    customClass: { confirmButton: "btn btn-danger" },
+                    buttonsStyling: false
+                });
+            });
+    })
+    document.getElementById("deleted-popcorn-form").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const popCornId = document.getElementById("popId").value;
+        fetch(`/admin/popcorn's/${popCornId}`, {
+            method: "DELETE",
+            credentials: "include"
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.message ? "success" : "error",
+                    title: data.message ? "Delete popcorn successfully!" : "Delete popcorn failed!",
+                    text: data.message ? "" : "Please try again.",
+                    timer: data.message ? 3000 : undefined,
+                    customClass: {
+                        confirmButton: data.message ? "btn btn-success" : "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    if (data.message) location.reload(); // Chỉ reload khi thành công
+                });
+            })
+            .catch(error => {
+                console.error("Error deleting coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Delete popcorn failed!",
+                    text: "Please try again.",
+                    customClass: { confirmButton: "btn btn-danger" },
+                    buttonsStyling: false
+                });
+            });
     });
 
 </script>

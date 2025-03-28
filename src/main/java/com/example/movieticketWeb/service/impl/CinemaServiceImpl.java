@@ -4,11 +4,13 @@ import com.example.movieticketWeb.dto.request.CinemaRequest;
 import com.example.movieticketWeb.dto.response.CinemaResponse;
 import com.example.movieticketWeb.dto.response.PersonInfoResponse;
 import com.example.movieticketWeb.entity.Cinema;
+import com.example.movieticketWeb.entity.Movie;
 import com.example.movieticketWeb.entity.Person;
 import com.example.movieticketWeb.mapper.CinemaMapper;
 import com.example.movieticketWeb.repository.ICinemaRepository;
 import com.example.movieticketWeb.service.ICinemaService;
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -54,14 +56,22 @@ public class CinemaServiceImpl implements ICinemaService {
                 cinema.setStatus(cinemaRequest.isStatus());
                 cinema.setRoomCount(cinemaRequest.getRoomCount());
                 cinemaRepository.save(cinema);
+                redisTemplate.delete("cinema:" + id);
                 List<CinemaResponse> cachedMovies = getCinemaFromCache();
-                if (cachedMovies != null) {
+                if (cachedMovies != null && cachedMovies.size() < 1000) {
+                    // 🔄 Cập nhật từng phần tử nếu danh sách nhỏ
                     cachedMovies = cachedMovies.stream()
-                            .map(m -> m.getCinemaId() == id.intValue() ? cinemaMapper.toDTO(cinema) : m).collect(Collectors.toList());
+                            .map(m -> m.getCinemaId() == id.intValue() ? cinemaMapper.toDTO(cinema) : m)
+                            .collect(Collectors.toList());
                     redisTemplate.opsForValue().set(CINEMA_CACHE_KEY, cachedMovies, Duration.ofHours(1));
+                } else {
+                    // 🚀 Xóa Redis & lưu lại nếu danh sách lớn
+                    redisTemplate.delete(CINEMA_CACHE_KEY);
+                   List<CinemaResponse> freshMovies = cinemaRepository.findAll().stream()
+                            .map(cinemaMapper::toDTO)
+                            .collect(Collectors.toList());
+                    redisTemplate.opsForValue().set(CINEMA_CACHE_KEY, freshMovies, Duration.ofHours(1));
                 }
-                String userCacheKey = "cinema:" + id;
-                redisTemplate.opsForValue().set(userCacheKey, cinema, Duration.ofHours(1));
             });
             return true;
         } catch (Exception e) {
@@ -71,18 +81,16 @@ public class CinemaServiceImpl implements ICinemaService {
 
     @Override
     public CinemaResponse getCinemaById(Long id) {
-        redisTemplate.getConnectionFactory().getConnection().flushDb();
         String cacheKey = "cinema:" + id;
         CinemaResponse cinema =  (CinemaResponse) redisTemplate.opsForValue().get(cacheKey);
-
         if (cinema != null) {
             return cinema;
         }
         Cinema cinema1 = cinemaRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Cinema not found with ID: " + id));
-
-        redisTemplate.opsForValue().set(cacheKey, cinema1, Duration.ofHours(1));
-        return cinemaMapper.toDTO(cinema1);
+        CinemaResponse cinemaResponse = cinemaMapper.toDTO(cinema1);
+        redisTemplate.opsForValue().set(cacheKey, cinemaResponse, Duration.ofHours(1));
+        return cinemaResponse;
     }
 
     @Override
@@ -99,6 +107,7 @@ public class CinemaServiceImpl implements ICinemaService {
     }
 
     @Override
+    @Transactional
     public boolean deleteCinema(Long id) {
         try {
             cinemaRepository.deleteById(id);
