@@ -1,325 +1,394 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout/admin-layout.html}"
-	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  xmlns:th="http://www.thymeleaf.org" lang="en">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-<meta charset="UTF-8">
-<title>Insert title here</title>
-<link
-	href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
-	rel="stylesheet">
-	<style>
-		.modal__btns {
-			display: flex;
-			justify-content: center;
-			margin-top: 20px; /* Khoảng cách phía trên nút */
-		}
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
+    <link
+            href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"
+            rel="stylesheet">
+    <style>
+        .modal__btns {
+            display: flex;
+            justify-content: center;
+            margin-top: 20px; /* Khoảng cách phía trên nút */
+        }
 
-		.modal__btn {
-			padding: 10px 20px;
-			background-color: #333; /* Màu nền cho nút */
-			color: #fff; /* Màu chữ cho nút */
-			border: none;
-			border-radius: 5px;
-			cursor: pointer;
-		}
+        .modal__btn {
+            padding: 10px 20px;
+            background-color: #333; /* Màu nền cho nút */
+            color: #fff; /* Màu chữ cho nút */
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-		.modal__btn:hover {
-			background-color: #555; /* Màu nền khi hover */
-		}
-		/* Tùy chỉnh modal */
-		#modal-description .modal__content {
-			background-color: #2c2c2c; /* Nền tối */
-			color: #ffffff; /* Màu chữ */
-			padding: 20px;
-			border-radius: 8px;
-		}
+        .modal__btn:hover {
+            background-color: #555; /* Màu nền khi hover */
+        }
 
-		/* Tùy chỉnh tiêu đề */
-		#modal-description .modal__title {
-			color: #ffffff;
-			font-size: 1.5rem;
-			font-weight: bold;
-			margin-bottom: 15px;
-		}
+        /* Tùy chỉnh modal */
+        #modal-description .modal__content {
+            background-color: #2c2c2c; /* Nền tối */
+            color: #ffffff; /* Màu chữ */
+            padding: 20px;
+            border-radius: 8px;
+        }
 
-		/* Tùy chỉnh nội dung văn bản */
-		#modal-description .modal__text {
-			color: #dcdcdc;
-			font-size: 1rem;
-			line-height: 1.6;
-		}
+        /* Tùy chỉnh tiêu đề */
+        #modal-description .modal__title {
+            color: #ffffff;
+            font-size: 1.5rem;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
 
-		/* Tùy chỉnh nút Close */
-		#modal-description .modal-footer .modal__btns {
-			background-color: #444;
-			color: #ffffff;
-			border: 1px solid #888;
-			padding: 10px 20px;
-			font-size: 1rem;
-			border-radius: 5px;
-			cursor: pointer;
-		}
+        /* Tùy chỉnh nội dung văn bản */
+        #modal-description .modal__text {
+            color: #dcdcdc;
+            font-size: 1rem;
+            line-height: 1.6;
+        }
 
-		/* Hiệu ứng khi hover cho nút Close */
-		#modal-description .modal-footer .modal__btns:hover {
-			background-color: #555;
-			border-color: #aaa;
-		}
+        /* Tùy chỉnh nút Close */
+        #modal-description .modal-footer .modal__btns {
+            background-color: #444;
+            color: #ffffff;
+            border: 1px solid #888;
+            padding: 10px 20px;
+            font-size: 1rem;
+            border-radius: 5px;
+            cursor: pointer;
+        }
 
-		/* Tùy chỉnh nút đóng (btn-close) ở góc modal */
-		#modal-description .btn-close {
-			color: #ffffff;
-			opacity: 1;
-		}
+        /* Hiệu ứng khi hover cho nút Close */
+        #modal-description .modal-footer .modal__btns:hover {
+            background-color: #555;
+            border-color: #aaa;
+        }
 
-		#modal-description .btn-close:hover {
-			color: #ff0000; /* Đổi màu thành đỏ khi hover */
-		}
-	</style>
+        /* Tùy chỉnh nút đóng (btn-close) ở góc modal */
+        #modal-description .btn-close {
+            color: #ffffff;
+            opacity: 1;
+        }
+
+        #modal-description .btn-close:hover {
+            color: #ff0000; /* Đổi màu thành đỏ khi hover */
+        }
+    </style>
 </head>
-<body>
-	<!-- main content -->
-	<div class="container-fluid" layout:fragment="content">
-		<div class="row">
-			<!-- main title -->
-			<div class="col-12">
-				<div class="main__title">
-					<h2>News And Discount</h2>
-
-					<div class="main__title-wrap">
-						<a
-							th:href="@{/adminnewsOrDiscountadd}" class="main__title-link main__title-link--wrap">Add item</a>
-						<!-- search -->
-						<form th:action="@{/adminnewsOrDiscounts}" class="main__title-form" method="get">
-							<input type="text" name="search" placeholder="Search by title"
-								value="${param.search}">
-							<button type="submit">
-							<i class="ti ti-search"></i>
-							</button>
-						</form>
-						<!-- end search -->
-					</div>
-				</div>
-			</div>
-			<!-- end main title -->
-
-			<!-- items -->
-			<div class="col-12">
-				<div class="catalog catalog--1">
-					<table class="catalog__table">
-						<thead>
-							<tr>
-								<th>ID</th>
-								<th>TITLE</th>
-								<th>Description</th>
-								<th>Images</th>
-								<th>Author</th>
-								<th>Date</th>
-								<th>Actions</th>
-							</tr>
-						</thead>
-
-						<tbody>
-						<tr th:each="newsOrDiscount, loopStatus : ${listNewsOrDiscount}">
-							<td>
-								<div class="catalog__text" th:text="${loopStatus.index + 1}"></div>
-							</td>
-							<td>
-								<div class="catalog__text" th:text="${newsOrDiscount.title}"></div>
-							</td>
-							<td>
-								<div class="catalog__text" th:text="${newsOrDiscount.description}"></div>
-							</td>
-							<td>
-								<div class="catalog__text">
-									<img th:src="${#strings.startsWith(newsOrDiscount.images, 'https') ? newsOrDiscount.images : '/image?fname=' + newsOrDiscount.images}"
-										 th:alt="${newsOrDiscount.title}" width="150" height="150" />
-								</div>
-							</td>
-							<td>
-								<div class="catalog__text" th:text="${newsOrDiscount.author}"></div>
-							</td>
-							<td>
-								<div class="catalog__text" th:text="${#dates.format(newsOrDiscount.date, 'yyyy-MM-dd')}"></div>
-							</td>
-							<td>
-								<div class="catalog__btns">
-									<a href="javascript:void(0);"
-									   th:onclick="|showDescriptionFromElement(this, '${newsOrDiscount.detail}')|"
-									   class="catalog__btn catalog__btn--edit">
-										<i class="ti ti-eye"></i>
-									</a>
-									<a th:href="@{/adminnewsOrDiscountedit(id=${newsOrDiscount.newsID})}"
-									   class="catalog__btn catalog__btn--edit">
-										<i class="ti ti-edit"></i>
-									</a>
-									<a href="javascript:void(0);"
-									   th:onclick="|setDeleteId('${newsOrDiscount.newsID}')|"
-									   data-bs-toggle="modal"
-									   class="catalog__btn catalog__btn--delete"
-									   data-bs-target="#modal-delete">
-										<i class="ti ti-trash"></i>
-									</a>
-								</div>
-							</td>
-						</tr>
-						</tbody>
-					</table>
-				</div>
-			</div>
-			<!-- end items -->
-            <!-- paginator -->
-            <div class="col-12">
-                <div class="main__paginator">
-                    <div th:if="${totalPages > 0}">
-                        <span class="main__paginator-pages">${currentPage + 1} of ${totalPages}</span>
-                        <ul class="main__paginator-list">
-                            <li><a th:href="@{/adminnewsOrDiscounts(page=${currentPage - 1 > 0 ? currentPage - 1 : 0},search=${param.search})}">
-                                <i class="ti ti-chevron-left"></i> <span>Prev</span>
-                            </a></li>
-                            <li><a th:href="@{/adminnewsOrDiscounts(page=${currentPage + 1 < totalPages ? currentPage + 1 : totalPages - 1},search=${param.search})}">
-                                <span>Next</span> <i class="ti ti-chevron-right"></i>
-                            </a></li>
-                        </ul>
-                        <ul class="paginator">
-                            <li class="paginator__item paginator__item--prev">
-                                <a th:href="@{/adminnewsOrDiscounts(page=${currentPage - 1 > 0 ? currentPage - 1 : 0},search=${param.search})}">
-                                    <i class="ti ti-chevron-left"></i>
-                                </a>
-                            </li>
-							<th:block th:each="i : ${#numbers.sequence(0, totalPages - 1)}">
-								<li th:classappend="${i == currentPage} ? 'paginator__item--active'">
-									<a th:href="@{/adminnewsOrDiscounts(page=${i}, search=${param.search})}" th:text="${i + 1}"></a>
-								</li>
-							</th:block>
-                            <li class="paginator__item paginator__item--next">
-                                <a th:href="@{/adminnewsOrDiscounts(page=${currentPage + 1 < totalPages ? currentPage + 1 : totalPages - 1},search=${param.search})}">
-                                    <i class="ti ti-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
-                    </div>
-                    <div th:if="${totalPages == 0}">
-                        <span class="main__paginator-pages">No pages available....</span>
-                    </div>
+<body layout:fragment="content">
+<!-- main content -->
+<div class="container-fluid">
+    <div class="row">
+        <!-- main title -->
+        <div class="col-12">
+            <div class="main__title">
+                <h2>News And Discount</h2>
+                <div class="main__title-wrap">
+                    <a th:href="@{/admin/news/addNews}" class="main__title-link main__title-link--wrap">Add item</a>
+                    <!-- search -->
+                    <form class="main__title-form" >
+                        <input type="text" name="search" placeholder="Search by title">
+                        <button type="submit">
+                            <i class="ti ti-search"></i>
+                        </button>
+                    </form>
+                    <!-- end search -->
                 </div>
             </div>
-            <!-- end paginator -->
-			<!-- end paginator -->
-		</div>
-	</div>
-	<!-- end main content -->
-	<div class="modal" id="modal-description" tabindex="-1"
-		aria-labelledby="modal-description" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal__content">
-				<div class="modal-header">
-					<h4 class="modal__title">Detail</h4>
-					<button type="button" class="btn-close" data-bs-dismiss="modal"
-						aria-label="Close"></button>
-				</div>
-				<div class="modal-body">
-					<p id="descriptionContent" class="modal__text"></p>
-				</div>
-				<div class="modal-footer text-center">
-					<button class="modal__btns text-center" type="button"
-						data-bs-dismiss="modal" aria-label="Close">Close</button>
-				</div>
-			</div>
-		</div>
-	</div>
-	<div class="modal fade" id="modal-delete" tabindex="-1"
-		aria-labelledby="modal-delete" aria-hidden="true">
-		<div class="modal-dialog modal-dialog-centered">
-			<div class="modal-content">
-				<div class="modal__content">
-					<form action="#" class="modal__form">
-						<input type="hidden" id="delete-id" name="delete-id">
+        </div>
+        <!-- end main title -->
 
-						<h4 class="modal__title">Item delete</h4>
-						<p class="modal__text">Are you sure to permanently delete this item?</p>
+        <!-- items -->
+        <div class="col-12">
+            <div class="catalog catalog--1">
+                <table class="catalog__table">
+                    <thead>
+                    <tr>
+                        <th>ID</th>
+                        <th>TITLE</th>
+                        <th>Description</th>
+                        <th>Images</th>
+                        <th>Author</th>
+                        <th>Date</th>
+                        <th>Actions</th>
+                    </tr>
+                    </thead>
+                    <tbody id="tbodyTable">
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <!-- end items -->
+        <!-- paginator -->
+        <div class="col-12">
+            <div class="main__paginator">
+                <span class="main__paginator-pages">Page <span id="currentPage">1</span> of <span id="noOfPages">1</span></span>
+                <div class="col-1">
+                    <div class="sign__group">
+                        <label class="sign__label">Items Per Page</label>
+                        <form >
+                            <!-- Select số lượng bản ghi -->
+                            <select class="sign__select" name="soluong" id="soluong" >
+                                <option value="5" >5 items</option>
+                                <option value="10" >10 items</option>
+                                <option value="20" >20 items</option>
+                                <option value="50" >50 items</option>
+                            </select>
+                            <input type="hidden" name="page" >
+                        </form>
+                    </div>
+                </div>
+                <ul class="main__paginator-list">
+                    <!-- Nút Previous -->
+                    <li class="paginator__item paginator__item--prev disabled" id="prevPage">
+                        <a href="javascript:void(0)">
+                            <i class="ti ti-chevron-left"></i>
+                        </a>
+                    </li>
 
-						<div class="modal__btns">
-							<button id="confirm-delete" class="modal__btn modal__btn--apply"
-								type="button">
-								<span>Delete</span>
-							</button>
-							<button class="modal__btn modal__btn--dismiss" type="button"
-								data-bs-dismiss="modal" aria-label="Close">
-								<span>Dismiss</span>
-							</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	</div>
-	<!-- end delete modal -->
+                    <!-- Hiển thị trang đầu nếu cần -->
+                    <li class="paginator__item" id="firstPage" style="display: none;">
+                        <a href="javascript:void(0)">1</a>
+                    </li>
+                    <li class="paginator__item" id="dotsBefore" style="display: none;">...</li>
 
-	<script>
-		// Lấy contextPath để sử dụng trong JavaScript
-		const contextPath = '${pageContext.request.contextPath}';
+                    <!-- Các trang số động -->
+                    <div id="paginationNumbers" style="display: flex"></div>
 
-		function setDeleteId(id) {
-			// Lưu id của item cần xóa vào input hidden trong modal
-			document.getElementById('delete-id').value = id;
-		}
+                    <!-- Hiển thị trang cuối nếu cần -->
+                    <li class="paginator__item" id="dotsAfter" style="display: none;">...</li>
+                    <li class="paginator__item" id="lastPage" style="display: none;"></li>
 
-		document
-				.getElementById('confirm-delete')
-				.addEventListener(
-						'click',
-						function() {
-							// Lấy id của item cần xóa từ input hidden
-							const deleteId = document
-									.getElementById('delete-id').value;
+                    <!-- Nút Next -->
+                    <li class="paginator__item paginator__item--next disabled" id="nextPage">
+                        <a href="javascript:void(0)">
+                            <i class="ti ti-chevron-right"></i>
+                        </a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <!-- end paginator -->
+        <!-- end paginator -->
+    </div>
+</div>
+<!-- end main content -->
+<div class="modal" id="modal-description" tabindex="-1" aria-labelledby="modal-description" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal__content">
+            <div class="modal-header">
+                <h4 class="modal__title">Detail</h4>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p id="descriptionContent" class="modal__text"></p>
+            </div>
+            <div class="modal-footer text-center">
+                <button class="modal__btns text-center" type="button" data-bs-dismiss="modal" aria-label="Close">Close
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="modal-delete" tabindex="-1"
+     aria-labelledby="modal-delete" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal__content">
+                <form id="deleteNewsForm" class="modal__form">
+                    <input type="hidden" id="delete-news-id" name="delete-id">
+                    <h4 class="modal__title">Item delete</h4>
+                    <p class="modal__text">Are you sure to permanently delete this item?</p>
+                    <div class="modal__btns">
+                        <button id="confirm-delete" class="modal__btn modal__btn--apply" type="button">
+                            <span>Delete</span>
+                        </button>
+                        <button class="modal__btn modal__btn--dismiss" type="button" data-bs-dismiss="modal" aria-label="Close">
+                            <span>Dismiss</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- end delete modal -->
+<script>
+    document.addEventListener("DOMContentLoaded", function(){
+        let currentPage = 1;
+        let pageSize = 5;
+        function renderNews(news){
+            let tbodyTable = document.getElementById('tbodyTable');
+            tbodyTable.innerHTML = '';
+            news.forEach(function(item){
+                let tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><div class="catalog__text">${item.newsID}</div></td>
+                    <td><div class="catalog__text">${item.title}</div></td>
+                    <td><div class="catalog__text">${item.description}</div></td>
+                    <td>
+                    	<img src="${item.images}" width="150" height="150"
+                         onerror="this.src='http://localhost:8080/static/assets/images/default-image.png'"  alt=""/>
+               		</td>
+                    <td><div class="catalog__text">${item.author}</div></td>
+                    <td><div class="catalog__text">${formatDate(item.date)}</div></td>
+                    <td><div class="catalog__text"></div></td>
+                    <td>
+                        <a href="javascript:void(0);" class="catalog__btn catalog__btn--edit"
+                           data-bs-toggle="modal" data-bs-target="#modal-description"
+                           data-description="${item.detail}">
+                            <i class="ti ti-eye"></i>
+                        </a>
+                    </td>
+                    <td>
+                       <a href="/admin/news/editNews?newsID=${item.newsID}" class="catalog__btn catalog__btn--edit">
+                			<i class="ti ti-edit"></i>
+            			</a>
+                        <button type="button" data-bs-toggle="modal"
+                                class="catalog__btn catalog__btn--delete"
+                                data-bs-target="#modal-delete"
+                                data-news-id="${item.newsID}">
+                            <i class="ti ti-trash"></i>
+                        </button>
+                    </td>
+                `;
+                tbodyTable.appendChild(tr);
+            });
+        }
+        function loadNews(){
+            const apiUrl = `/admin/news?page=${currentPage}&soluong=${pageSize}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderCoupons(data.news);
+                    updatePagination(data.noOfPages, data.currentPage);
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+        function updatePagination(noOfPages, currentPage) {
+            document.getElementById("noOfPages").innerText = noOfPages;
+            document.getElementById("currentPage").innerText = currentPage;
+            const paginationContainer = document.getElementById("paginationNumbers");
+            paginationContainer.innerHTML = "";
+            let totalPages = noOfPages;
 
-							if (deleteId) {
-								// Tạo URL xóa với id
-								// 								const deleteUrl = `${contextPath}/adminnewsOrDiscountdelete?id=${deleteId}`;
-								const deleteUrl = contextPath
-										+ '/adminnewsOrDiscountdelete?id='
-										+ deleteId;
+            if (totalPages <= 1) return;
 
-								// Điều hướng trình duyệt đến URL xóa
-								window.location.href = deleteUrl;
-							} else {
-								console
-										.error('ID không tồn tại, không thể thực hiện xóa.');
-							}
-						});
-	</script>
+            const createPageItem = (page) => {
+                let pageItem = document.createElement("li");
+                pageItem.classList.add("paginator__item");
+                if (page === currentPage) {
+                    pageItem.classList.add("paginator__item--active");
+                }
+                pageItem.innerHTML = `<a href="#">${page}</a>`;
+                pageItem.addEventListener("click", function () {
+                    if (currentPage !== page) {
+                        searchCoupon(page);
+                    }
+                });
+                paginationContainer.appendChild(pageItem);
+            };
+            const prevPage = document.getElementById("prevPage");
+            const nextPage = document.getElementById("nextPage");
+
+            // Xử lý Previous
+            prevPage.classList.toggle("disabled", currentPage === 1);
+            prevPage.onclick = currentPage > 1 ? () => searchCoupon(currentPage - 1) : null;
+
+            // Xử lý trang đầu và dấu "..."
+            const firstPage = document.getElementById("firstPage");
+            const dotsBefore = document.getElementById("dotsBefore");
+            firstPage.style.display = currentPage > 2 ? "block" : "none";
+            dotsBefore.style.display = currentPage > 3 ? "block" : "none";
+
+            if (currentPage > 2) {
+                firstPage.innerHTML = `<a href="#">1</a>`;
+                firstPage.onclick = () => searchCoupon(1);
+            }
+
+            // Hiển thị các trang xung quanh trang hiện tại
+            let startPage = Math.max(1, currentPage - 1);
+            let endPage = Math.min(totalPages, currentPage + 1);
+            for (let page = startPage; page <= endPage; page++) {
+                createPageItem(page);
+            }
+            // Xử lý trang cuối và dấu "..."
+            const lastPage = document.getElementById("lastPage");
+            const dotsAfter = document.getElementById("dotsAfter");
+            lastPage.style.display = currentPage < totalPages - 1 ? "block" : "none";
+            dotsAfter.style.display = currentPage < totalPages - 2 ? "block" : "none";
+
+            if (currentPage < totalPages - 1) {
+                lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
+                lastPage.onclick = () => searchCoupon(totalPages);
+            }
+            // Xử lý Next
+            nextPage.classList.toggle("disabled", currentPage === totalPages);
+            nextPage.onclick = currentPage < totalPages ? () => searchCoupon(currentPage + 1) : null;
+        }
+        function formatDate(dateString) {
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN'); // Format theo kiểu VN (DD/MM/YYYY)
+        }
+        loadNews();
+    })
+    document.addEventListener("click", function(event) {
+        if (event.target.closest(".catalog__btn--delete")) {
+            const button = event.target.closest(".catalog__btn--delete");
+            document.getElementById("delete-news-id").value = button.getAttribute("data-news-id");
+        }
+    });
+    document.addEventListener('DOMContentLoaded', function () {
+        const detailModal = document.getElementById('modal-description');
+        detailModal.addEventListener('show.bs.modal', function (event) {
+            const button = event.relatedTarget;
+            document.getElementById('descriptionContent').innerText = button.getAttribute('data-description');
+        });
+    });
+    document.getElementById("deleteNewsForm").addEventListener("submit", function (event) {
+        event.preventDefault();
+        const newsId = document.getElementById("delete-news-id").value;
+        fetch(`/admin/news/${newsId}`, {
+            method: "DELETE",
+            credentials: "include",
+        })
+            .then(response => response.json())
+            .then(data => {
+                Swal.fire({
+                    icon: data.message ? "success" : "error",
+                    title: data.message ? "Delete popcorn successfully!" : "Delete popcorn failed!",
+                    text: data.message ? "" : "Please try again.",
+                    timer: data.message ? 3000 : undefined,
+                    customClass: {
+                        confirmButton: data.message ? "btn btn-success" : "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                }).then(() => {
+                    if (data.message) location.reload(); // Chỉ reload khi thành công
+                });
+            })
+            .catch(error => {
+                console.error("Error deleting coupon:", error);
+                Swal.fire({
+                    icon: "error",
+                    title: "Delete popcorn failed!",
+                    text: "Please try again.",
+                    customClass: { confirmButton: "btn btn-danger" },
+                    buttonsStyling: false
+                });
+            });
+    })
+</script>
 
 
-	<script>
-		function showDescriptionFromElement(element) {
-			// Lấy dữ liệu description từ thuộc tính data-description
-			var description = element.getAttribute("data-description");
-
-			// Thay thế các ký tự xuống dòng trong mô tả thành thẻ <br> để hiển thị đúng trong HTML
-			description = description.replace(/(?:\r\n|\r|\n)/g, '<br>');
-
-			// Đặt nội dung đã xử lý vào modal và hiển thị
-			document.getElementById('descriptionContent').innerHTML = description;
-			var myModal = new bootstrap.Modal(document
-					.getElementById('modal-description'));
-			myModal.show();
-		}
-	</script>
-
-	<!-- JS -->
-	<script src="/assets2/js/bootstrap.bundle.min.js"></script>
-	<script src="/assets2/js/slimselect.min.js"></script>
-	<script src="/assets2/js/smooth-scrollbar.js"></script>
-	<script src="/assets2/js/admin.js"></script>
 
 
-
-	<!-- Bootstrap JavaScript -->
-	<script
-		src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
-
+<!-- Bootstrap JavaScript -->
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

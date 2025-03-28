@@ -224,7 +224,7 @@
                 pageItem.innerHTML = `<a href="#">${page}</a>`;
                 pageItem.addEventListener("click", function () {
                     if (currentPage !== page) {
-                        searchMovies(page);
+                        searchCinemas(page);
                     }
                 });
                 paginationContainer.appendChild(pageItem);
@@ -234,7 +234,7 @@
 
             // Xử lý Previous
             prevPage.classList.toggle("disabled", currentPage === 1);
-            prevPage.onclick = currentPage > 1 ? () => searchMovies(currentPage - 1) : null;
+            prevPage.onclick = currentPage > 1 ? () => searchCinemas(currentPage - 1) : null;
 
             // Xử lý trang đầu và dấu "..."
             const firstPage = document.getElementById("firstPage");
@@ -244,7 +244,7 @@
 
             if (currentPage > 2) {
                 firstPage.innerHTML = `<a href="#">1</a>`;
-                firstPage.onclick = () => searchMovies(1);
+                firstPage.onclick = () => searchCinemas(1);
             }
 
             // Hiển thị các trang xung quanh trang hiện tại
@@ -262,12 +262,12 @@
 
             if (currentPage < totalPages - 1) {
                 lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
-                lastPage.onclick = () => searchMovies(totalPages);
+                lastPage.onclick = () => searchCinemas(totalPages);
             }
 
             // Xử lý Next
             nextPage.classList.toggle("disabled", currentPage === totalPages);
-            nextPage.onclick = currentPage < totalPages ? () => searchMovies(currentPage + 1) : null;
+            nextPage.onclick = currentPage < totalPages ? () => searchCinemas(currentPage + 1) : null;
         }
         function searchCinemas(currentPage) {
             const keyword = document.getElementById("keywordInput").value;
@@ -311,25 +311,22 @@
     });
 
     // JavaScript to assign the cinema ID to the hidden input field in the delete form
-    document.querySelectorAll('.catalog__btn--delete').forEach(button => {
-        button.addEventListener('click', function () {
-            document.getElementById('deleteCinemaId').value = this.getAttribute('data-cinema-id');
-        });
+    document.addEventListener("click", function(event) {
+        if (event.target.closest(".catalog__btn--delete")) {
+            const button = event.target.closest(".catalog__btn--delete");
+            document.getElementById("deleteCinemaId").value = button.getAttribute("data-cinema-id");
+        }
     });
     function renderCinemas(cinemas) {
         const cinemaTableBody = document.getElementById("cinema-table-body");
         cinemaTableBody.innerHTML = ""; // Xóa dữ liệu cũ
-
         cinemas.forEach(cinema => {
-            const statusClass = cinema.status ? "catalog__text--green" : "catalog__text--red";
-            const statusText = cinema.status ? "Active" : "Inactive";
-
             const row = `
             <tr>
                 <td><div class="catalog__text">${cinema.cinemaId}</div></td>
                 <td>
                     <div class="catalog__text">
-                        <a href="/admin/rooms?id=${cinema.cinemaID}">${cinema.cinemaName}</a>
+                        <a href="/admin/room?cinemaId=${cinema.cinemaId}">${cinema.cinemaName}</a>
                     </div>
                 </td>
                 <td><div class="catalog__text">${cinema.address}</div></td>
@@ -344,7 +341,7 @@
                         <button type="button" class="catalog__btn catalog__btn--delete"
                                 data-bs-toggle="modal"
                                 data-bs-target="#modal-delete"
-                                data-cinema-id="${cinema.cinemaID}">
+                                data-cinema-id="${cinema.cinemaId}">
                             <i class="ti ti-trash"></i>
                         </button>
                     </div>
@@ -397,7 +394,7 @@
         } catch (error) {
             Swal.fire({
                 icon: "error",
-                title: "Add user failed!",
+                title: "Add cinema failed!",
                 text: "Please try again.",
                 customClass: {
                     confirmButton: "btn btn-danger",
@@ -409,7 +406,7 @@
     document.getElementById("deleteCinemaForm").addEventListener("submit", async function (event) {
         event.preventDefault(); // Ngăn chặn reload trang
 
-        const movieId = document.getElementById("deleteMovieId").value;
+        const movieId = document.getElementById("deleteCinemaId").value;
 
         try {
             const response = await fetch(`/admin/cinemas/${movieId}`, {

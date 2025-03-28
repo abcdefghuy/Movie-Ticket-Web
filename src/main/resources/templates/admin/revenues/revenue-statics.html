@@ -30,23 +30,16 @@
 					style="display: flex; justify-content: flex-start; align-items: center; gap: 0px; margin-top: 20px;">
 
 					<div class="tab">
-						<button class="tablinks" onclick="showOption(event, 'time-group')"
-							style="color: white; font-size: 24px;">Time</button>
+						<button class="tablinks" onclick="showOption(event, 'time-group')" style="color: white; font-size: 24px;">Time</button>
 					</div>
 					<div class="tab">
-						<button class="tablinks"
-							onclick="showOption(event, 'movie-group')"
-							style="color: white; font-size: 24px;">Movies</button>
+						<button class="tablinks" onclick="showOption(event, 'movie-group')" style="color: white; font-size: 24px;">Movies</button>
 					</div>
 					<div class="tab">
-						<button class="tablinks"
-							onclick="showOptionAndFetchData(event, 'region-group')"
-							style="color: white; font-size: 24px;">Regions</button>
+						<button class="tablinks" onclick="showOptionAndFetchData(event, 'region-group')" style="color: white; font-size: 24px;">Regions</button>
 					</div>
 				</div>
 			</div>
-
-
 
 			<div class="row">
 				<div id="Time" class="time-container">
@@ -284,7 +277,6 @@
 	function showOptionAndFetchData(evt, optionName) {
 	    // Hiển thị phần tử tương ứng
 	   showOption(evt, optionName);
-
 		// Gửi yêu cầu GET tới Controller, thay đổi URL phù hợp với Controller của bạn
     	const tmp = `${pageContext.request.contextPath}`;
         const url = tmp + "/admin/revenues-statics?cinemaID="+"1" + "&tab=region-group";
@@ -307,8 +299,7 @@
 			}
 			tablinks = document.getElementsByClassName("tablinks");
 			for (i = 0; i < tablinks.length; i++) {
-				tablinks[i].className = tablinks[i].className.replace(
-						" active", "");
+				tablinks[i].className = tablinks[i].className.replace(" active", "");
 			}
 			const elements = document.getElementsByClassName(optionName)
 			Array.from(elements).forEach(element => {
@@ -600,7 +591,6 @@
 
 	    // Thêm thẻ <style> vào <head>
 	    document.head.appendChild(styleTag);
-
 	}
 
 	// Gọi hàm để thêm CSS khi tài liệu đã tải

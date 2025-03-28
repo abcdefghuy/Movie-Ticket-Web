@@ -15,6 +15,6 @@ public class CinemaResponse {
     private String cinemaName;
     private String address;
     private String location;
-    private String status;
+    private boolean status;
     private int roomCount;
 }

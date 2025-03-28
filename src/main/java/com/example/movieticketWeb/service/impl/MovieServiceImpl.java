@@ -8,21 +8,16 @@ import com.example.movieticketWeb.repository.IMovieRepository;
 import com.example.movieticketWeb.service.IMovieService;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.lang.reflect.Field;
 import java.time.Duration;
-import java.util.Arrays;
-import java.util.List;
-import java.util.Objects;
-import java.util.Optional;
-import java.util.concurrent.TimeUnit;
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,19 +35,18 @@ public class MovieServiceImpl implements IMovieService {
     @Override
     public MovieResponse getMovieById(Long movieID) {
         String cacheKey = "movie:" + movieID;
-        Movie movie = (Movie) redisTemplate.opsForValue().get(cacheKey);
+        MovieResponse cachedMovie = (MovieResponse) redisTemplate.opsForValue().get(cacheKey);
 
-        if (movie == null) {
-            movie = movieRepository.findById(movieID)
+        if (cachedMovie == null) {
+            Movie movie = movieRepository.findById(movieID)
                     .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + movieID));
 
-            redisTemplate.opsForValue().set(cacheKey, movie, Duration.ofHours(1));
+            // Chuyển đổi sang DTO trước khi lưu vào Redis
+            cachedMovie = movieMapper.toDTO(movie);
+            redisTemplate.opsForValue().set(cacheKey, cachedMovie, Duration.ofHours(1));
         }
-
-        // 🎯 Chuyển đổi sang MovieResponse để trả về
-        return movieMapper.toDTO(movie);
+        return cachedMovie;
     }
-
     @Override
     public boolean addMovie(MovieRequest movieRequest) {
         try {
@@ -70,30 +64,23 @@ public class MovieServiceImpl implements IMovieService {
         try{
             Movie movie = movieRepository.findById(movieID)
                     .orElseThrow(() -> new RuntimeException("Movie not found"));
-            boolean updated = false;
-
-            for (Field field : Movie.class.getDeclaredFields()) {
-                field.setAccessible(true);
-                Object oldValue = field.get(movie);
-                Object newValue = field.get(movieRequest);
-
-                if (!Objects.equals(oldValue, newValue)) {
-                    field.set(movie, newValue);
-                    updated = true;
-                }
+            movie.setMovieName(movieRequest.getMovieName());
+            movie.setCategory(movieRequest.getCategory());
+            movie.setMovieDuration(movieRequest.getMovieDuration());
+            movie.setDescription(movieRequest.getDescription());
+            movie.setStatus(movieRequest.isStatus());
+            movie.setReleaseDay(movieRequest.getReleaseDay());
+            movie.setMovieTrailer(movieRequest.getMovieTrailer());
+            movie.setImage(movieRequest.getImage());
+            movieRepository.save(movie);
+            List<MovieResponse> cachedMovies = (List<MovieResponse>) redisTemplate.opsForValue().get(MOVIE_CACHE_KEY);
+            if (cachedMovies != null) {
+                cachedMovies = cachedMovies.stream()
+                        .map(m -> m.getMovieID() == movieID.intValue() ? movieMapper.toDTO(movie) : m)                            .collect(Collectors.toList());
+                redisTemplate.opsForValue().set(MOVIE_CACHE_KEY, cachedMovies, Duration.ofHours(1));
             }
-            if(updated){
-                movieRepository.save(movie);
-                List<MovieResponse> cachedMovies = (List<MovieResponse>) redisTemplate.opsForValue().get(MOVIE_CACHE_KEY);
-                if (cachedMovies != null) {
-                    cachedMovies = cachedMovies.stream()
-                            .map(m -> m.getMovieID() == movieID.intValue() ? movieMapper.toDTO(movie) : m)                            .collect(Collectors.toList());
-                    redisTemplate.opsForValue().set(MOVIE_CACHE_KEY, cachedMovies, Duration.ofHours(1));
-                }
-                String movieCacheKey = "movie:" + movieID;
-                redisTemplate.opsForValue().set(movieCacheKey, movie, Duration.ofHours(1));
-            }
-
+            String movieCacheKey = "movie:" + movieID;
+            redisTemplate.opsForValue().set(movieCacheKey, movieMapper.toDTO(movie), Duration.ofHours(1));
             return true;
         }
         catch (Exception e){
@@ -106,6 +93,7 @@ public class MovieServiceImpl implements IMovieService {
         try{
             movieRepository.deleteById(movieID);
             redisTemplate.delete(MOVIE_CACHE_KEY);
+            redisTemplate.delete("movie:" + movieID);
             return true;
         }
         catch (Exception e){
@@ -199,6 +187,50 @@ public class MovieServiceImpl implements IMovieService {
         List<MovieResponse> movieResponses = moviePage.getContent().stream().map(movieMapper::toDTO).toList();
 
         return new PageImpl<>(movieResponses, PageRequest.of(page - 1, recordsPerPage), moviePage.getTotalElements());
+    }
+
+    @Override
+    public List<MovieResponse> getComingSoonMovies() {
+        LocalDate today = LocalDate.now();
+        LocalDate nextTwoMonths = today.plusMonths(2);
+        // Lấy danh sách phim từ cache Redis
+        List<MovieResponse> cachedMovies = getMoviesFromCache();
+        if (!cachedMovies.isEmpty()) {
+            return cachedMovies.stream()
+                    .filter(movie -> movie.getReleaseDay() != null &&
+                            movie.isStatus() && // Chỉ lấy phim có status = true
+                            !movie.getReleaseDay().before(Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant())) &&
+                            !movie.getReleaseDay().after(Date.from(nextTwoMonths.atStartOfDay(ZoneId.systemDefault()).toInstant())))
+                    .sorted(Comparator.comparing(MovieResponse::getReleaseDay)) // Sắp xếp theo ngày phát hành
+                    .collect(Collectors.toList());
+        }
+        // Nếu không có dữ liệu trong cache, lấy từ DB
+        List<Movie> movies = movieRepository.findComingSoonMovies();
+        return movies.stream()
+                .map(movieMapper::toDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Override
+    public List<MovieResponse> getMoviesShowing() {
+        LocalDate today = LocalDate.now();
+
+        // Lấy danh sách phim từ cache Redis
+        List<MovieResponse> cachedMovies = getMoviesFromCache();
+        if (!cachedMovies.isEmpty()) {
+            return cachedMovies.stream()
+                    .filter(movie -> movie.getReleaseDay() != null &&
+                            movie.isStatus() && // Chỉ lấy phim có status = true
+                            !movie.getReleaseDay().after(Date.from(today.atStartOfDay(ZoneId.systemDefault()).toInstant()))) // Chỉ lấy phim đã phát hành
+                    .sorted(Comparator.comparing(MovieResponse::getReleaseDay).reversed()) // Sắp xếp giảm dần theo ngày phát hành
+                    .collect(Collectors.toList());
+        }
+
+        // Nếu không có dữ liệu trong cache, lấy từ DB
+        List<Movie> movies = movieRepository.findMoviesShowing();
+        return movies.stream()
+                .map(movieMapper::toDTO)
+                .collect(Collectors.toList());
     }
 
     private List<MovieResponse> filterMovies(List<MovieResponse> cachedMovies, String keyword, List<String> categories) {

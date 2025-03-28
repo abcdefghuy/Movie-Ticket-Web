@@ -8,8 +8,7 @@ import lombok.*;
 @AllArgsConstructor
 @Entity
 @Table(name = "Review")
-@Getter
-@Setter
+@Builder
 public class Review {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

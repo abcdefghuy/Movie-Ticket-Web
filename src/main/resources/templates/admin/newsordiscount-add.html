@@ -1,174 +1,217 @@
 <!DOCTYPE html>
 <html layout:decorate="~{layout/admin-layout.html}"
-	  xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
-	  xmlns:th="http://www.thymeleaf.org" lang="en">
+      xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+      xmlns:th="http://www.thymeleaf.org" lang="en">
 <head>
-	<meta charset="UTF-8">
-	<title>Insert title here</title>
+    <meta charset="UTF-8">
+    <title>Insert title here</title>
 </head>
-<body>
+<body layout:fragment="content">
 <!-- main content -->
-<div class="container-fluid" layout:fragment="content">
-	<div class="row">
-		<!-- main title -->
-		<div class="col-12">
-			<div class="main__title">
-				<h2>Add Your News Or Discount Here!</h2>
-			</div>
-		</div>
+<div class="container-fluid">
+    <div class="row">
+        <!-- main title -->
+        <div class="col-12">
+            <div class="main__title">
+                <h2>Add Your News Or Discount Here!</h2>
+            </div>
+        </div>
 
-		<div class="col-12">
-			<a th:href="@{/adminnewsOrDiscounts}"
-			   class="sign__btn sign__btn--small"
-			   style="text-align: center; display: inline-block;"><span>Back
-						to News Or Discount</span></a>
-		</div>
-		<!-- end main title -->
+        <div class="col-12">
+            <a th:href="@{/admin/news/news-list}" class="sign__btn sign__btn--small"
+               style="text-align: center; display: inline-block;"><span>Back to News Or Discount</span></a>
+        </div>
+        <!-- end main title -->
 
-		<!-- form -->
-		<div class="col-12">
-			<form
-					th:action="@{/adminnewsOrDiscountinsert}"
-					method="post" enctype="multipart/form-data"
-					class="sign__form sign__form--add">
-				<div class="row">
-					<div class="col-12 col-xl-12">
-						<div class="row">
-							<div class="col-12">
-								<div class="sign__group">
-									<label class="sign__label">Title</label>
-									<input type="text" id="title" name="title" class="sign__input" placeholder="Title" required>
-								</div>
-							</div>
+        <!-- form -->
+        <div class="col-12">
+            <form id="addNewsForm" enctype="multipart/form-data" class="sign__form sign__form--add">
+                <div class="row">
+                    <div class="col-12 col-xl-12">
+                        <div class="row">
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="title">Title</label>
+                                    <input type="text" id="title" name="title" class="sign__input" placeholder="Title"
+                                           required>
+                                </div>
+                            </div>
 
-							<div class="col-12">
-								<div class="sign__group">
-									<label class="sign__label">Short Description</label>
-									<input type="text" id="description" name="description" class="sign__input"
-										   placeholder="Short Description" required>
-								</div>
-							</div>
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="description">Short Description</label>
+                                    <input type="text" id="description" name="description" class="sign__input"
+                                           placeholder="Short Description" required>
+                                </div>
+                            </div>
 
-							<div class="col-12">
-								<div class="sign__group">
-									<label class="sign__label">Author</label>
-									<input type="text" id="author" name="author" class="sign__input" placeholder="Author" required>
-								</div>
-							</div>
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="author">Author</label>
+                                    <input type="text" id="author" name="author" class="sign__input"
+                                           placeholder="Author" required>
+                                </div>
+                            </div>
 
-							<div class="col-12">
-								<div class="sign__group">
-									<label class="sign__label">Detail</label>
-									<textarea id="detail" name="detail" class="sign__textarea"
-											  placeholder="Detail" style="width: 100%; height: 200px;" required></textarea>
-								</div>
-							</div>
+                            <div class="col-12">
+                                <div class="sign__group">
+                                    <label class="sign__label" for="detail">Detail</label>
+                                    <textarea id="detail" name="detail" class="sign__textarea"
+                                              placeholder="Detail" style="width: 100%; height: 200px;"
+                                              required></textarea>
+                                </div>
+                            </div>
 
-							<div class="row align-items-center"
-								 style="display: flex; align-items: center;">
-								<!-- Hộp thoại yêu cầu nhập ngày -->
-								<div class="col-4">
-									<label for="publish-date" class="form-label"
-										   style="font-weight: bold; color: white;">Please enter
-										the publish date:</label>
-								</div>
-								<!-- Ô chọn ngày -->
-								<div class="col-8">
-									<div class="sign__group">
-										<input type="date" id="date" name="date" class="sign__input"
-											   placeholder="Select date" required>
-									</div>
-								</div>
-							</div>
+                            <div class="row align-items-center"
+                                 style="display: flex; align-items: center;">
+                                <!-- Hộp thoại yêu cầu nhập ngày -->
+                                <div class="col-4">
+                                    <label for="publish-date" class="form-label"
+                                           style="font-weight: bold; color: white;">Please enter the publishing
+                                        date:</label>
+                                </div>
+                                <!-- Ô chọn ngày -->
+                                <div class="col-8">
+                                    <div class="sign__group">
+                                        <input type="date" id="publish-date" name="date" class="sign__input"
+                                               placeholder="Select date" required>
+                                    </div>
+                                </div>
+                            </div>
 
-						</div>
-					</div>
+                        </div>
+                    </div>
 
-					<div class="col-6">
-						<div class="sign__group">
-							<div class="sign__gallery">
-								<label id="gallery1" for="sign__gallery-upload">Upload
-									cover (240x340)</label> <input data-name="#gallery1"
-																   id="sign__gallery-upload" name="images"
-																   class="sign__gallery-upload" type="file"
-																   accept=".png, .jpg, .jpeg" style="display: none;"
-																   onchange="chooseFile(this)"required>
-							</div>
-						</div>
+                    <div class="col-6">
+                        <div class="sign__group">
+                            <div class="sign__gallery">
+                                <label id="gallery1" for="sign__gallery-upload">Upload cover (240x340)</label>
+                                <input data-name="#gallery1" id="sign__gallery-upload" name="images"
+                                       class="sign__gallery-upload" type="file"
+                                       accept=".png, .jpg, .jpeg" style="display: none;"
+                                       onchange="chooseFile(this)" required>
+                            </div>
+                        </div>
 
-						<div class="col-12">
-							<button type="submit" class="sign__btn sign__btn--small">
-								<span>Insert</span>
-							</button>
-						</div>
-					</div>
+                        <div class="col-12">
+                            <button type="submit" class="sign__btn sign__btn--small">
+                                <span>Add</span>
+                            </button>
+                        </div>
+                    </div>
 
-					<!-- Cột hiển thị hình ảnh -->
-					<div class="col-6">
-						<div id="image-preview-container" style="margin-left: 20px;">
-							<img id="preview-image"
-								 style="display: none; width: 300px; height: 300px;" />
-						</div>
-
-					</div>
-
-					<!-- <div class="col-md-6 d-flex align-items-center justify-content-start" style="margin-top: 20px;">
-                            <button type="button" class="sign__btn sign__btn--small"><span>Publish</span></button>
-                        </div> -->
-
-					<!-- <div class="col-12">
-                            <button type="button" class="sign__btn sign__btn--small"><span>Publish</span></button>
-                        </div> -->
-				</div>
+                    <!-- Cột hiển thị hình ảnh -->
+                    <div class="col-6">
+                        <div id="image-preview-container" style="margin-left: 20px;">
+                            <img id="preview-image"
+                                 style="display: none; width: 300px; height: 300px;"/>
+                        </div>
+                    </div>
+                </div>
 
 
-
-
-			</form>
-		</div>
-		<!-- end form -->
-	</div>
+            </form>
+        </div>
+        <!-- end form -->
+    </div>
 </div>
 <!-- end main content -->
 <script>
-	document.getElementById('sign__gallery-upload').addEventListener(
-			'change', function(event) {
-				const preview = document.getElementById('preview-image');
-				const file = event.target.files[0];
+    function chooseFile(input) {
+        const preview = document.getElementById('preview-image');
+        const file = input.files[0];
+        if (file) {
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                preview.src = e.target.result;
+                preview.style.display = 'block'; // Hiển thị ảnh xem trước
+            };
+            reader.readAsDataURL(file);
+        } else {
+            preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
+        }
+    }
 
-				if (file) {
-					const reader = new FileReader();
-					reader.onload = function(e) {
-						preview.src = e.target.result;
-						preview.style.display = 'block'; // Hiển thị ảnh xem trước
-					};
-					reader.readAsDataURL(file);
-				} else {
-					preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
-				}
-			});
-</script>
+    document.getElementById('sign__gallery-upload').addEventListener('change', function (event) {
+            const preview = document.getElementById('preview-image');
+            const file = event.target.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function (e) {
+                    preview.src = e.target.result;
+                    preview.style.display = 'block'; // Hiển thị ảnh xem trước
+                };
+                reader.readAsDataURL(file);
+            } else {
+                preview.style.display = 'none'; // Ẩn ảnh xem trước nếu không có file
+            }
+        });
+    document.getElementById("addNewsForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const newsData = {
+            title: document.getElementById("title").value,
+            description: document.getElementById("description").value,
+            detail: document.getElementById("detail").value,
+            author: document.getElementById("author").value,
+            date: document.getElementById("publish-date").value
+        };
+        // Lấy ảnh từ input file
+        const imageFile = document.getElementById("sign__gallery-upload").files[0];
+        // Tạo FormData để gửi lên API
+        const formData = new FormData();
+        formData.append("news", new Blob([JSON.stringify(newsData)], { type: "application/json" }));
 
-<script>
-	document.addEventListener("DOMContentLoaded", function() {
-		// Lấy phần tử input chọn ngày
-		const dateInput = document.getElementById('publish-date');
+        if (imageFile) {
+            formData.append("imageFile", imageFile);
+        }
+        try {
+            const response = await fetch("/admin/news", {
+                method: "POST",
+                body: formData
+            });
+            if(!response.ok){
+                Swal.fire({
+                    icon: "error",
+                    title: "Add News failed!",
+                    text: "Please try again",
+                    customClass: {
+                        confirmButton: "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                });
+            }
 
-		// Lấy ngày hiện tại
-		const today = new Date();
-		const year = today.getFullYear();
-		const month = String(today.getMonth() + 1).padStart(2, '0'); // Tháng bắt đầu từ 0 nên cần cộng thêm 1
-		const day = String(today.getDate()).padStart(2, '0');
+            else{
+                // Hiển thị thông báo thành công
+                Swal.fire({
+                    icon: "success",
+                    title: "Add News successfully!",
+                    customClass: {
+                        cancelButton: "btn btn-primary",
+                    },
+                    timer: 3000
+                }).then(() => {
+                    window.location.href = "/admin/news/news-list"; // Điều hướng về danh sách phim
+                });
+            }
 
-		// Định dạng ngày theo chuẩn "yyyy-mm-dd" và gán vào input
-		dateInput.value = `${year}-${month}-${day}`;
-	});
+        } catch (error) {
+            console.error("📌 Fetch Error:", error);
+
+            // Hiển thị thông báo lỗi
+            Swal.fire({
+                icon: "error",
+                title: "Add News failed!",
+                text: "Please try again",
+                customClass: {
+                    confirmButton: "btn btn-danger",
+                },
+                buttonsStyling: false
+            });
+        }
+    });
 </script>
 
 <!-- JS -->
-<script src="${pageContext.request.contextPath}/assets2/js/bootstrap.bundle.min.js"></script>
-<script src="${pageContext.request.contextPath}/assets2/js/slimselect.min.js"></script>
-<script src="${pageContext.request.contextPath}/assets2/js/smooth-scrollbar.js"></script>
-<script src="${pageContext.request.contextPath}/assets2/js/admin.js"></script>
 </body>
 </html>

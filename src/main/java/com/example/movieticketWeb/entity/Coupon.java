@@ -10,6 +10,7 @@ import java.util.List;
 @AllArgsConstructor
 @Entity
 @Table(name = "Coupon")
+@Builder
 public class Coupon {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

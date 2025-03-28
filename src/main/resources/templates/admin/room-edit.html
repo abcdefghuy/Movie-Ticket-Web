@@ -21,11 +21,12 @@
 
                 <!-- form -->
                 <form id="editRoomForm" class="sign__form sign__form--add">
-
+                    <input type="hidden" name="id" id="roomId">
+                    <input type="hidden" name="cinemaId" id="cinemaId">
                     <div class="col-12">
-                        <label class="sign__label" for="cinema_num_rooms">Cinema Name</label>
+                        <label class="sign__label" for="cinemaId">Cinema Name</label>
                         <div class="sign__group">
-                            <input type="text" class="sign__input" name="cinema_name"  placeholder="Cinema Name" id="cinema_num_rooms" required>
+                            <input type="text" class="sign__input" name="cinema_name"  placeholder="Cinema Name" id="cinemaName" readonly>
                         </div>
                     </div>
 
@@ -46,7 +47,7 @@
                     <div class="col-12">
                         <label class="sign__label" for="room_type">Screen Type</label>
                         <div class="sign__group">
-                            <select class="sign__selectjs" name="room_type" id="room_type" required>
+                            <select class="sign__select" name="room_type" id="room_type" required>
                                 <option value="2D">2D</option>
                                 <option value="3D">3D</option>
                                 <option value="IMAX">IMAX</option>
@@ -64,7 +65,7 @@
                         </div>
                     </div>
                     <div class="col-12 d-flex justify-content-start align-items-center" style="gap: 15px;">
-                        <a th:href="@{/admin/room/room-list?cinemaId=${room.cinema.cinemaID}}" class="sign__btn sign__btn--small sign__btn--outline">
+                        <a id="roomLink" href="#" class="sign__btn sign__btn--small sign__btn--outline">
                             <span>Back to List</span>
                         </a>
                     <button type="submit" class="sign__btn sign__btn--small"><span>Apply Changes</span></button>
@@ -77,10 +78,67 @@
     <script>
         // Lấy URL hiện tại
         const urlParams = new URLSearchParams(window.location.search);
-        // Lấy giá trị roomId và cinemaId
         const roomId = urlParams.get("roomId");
         const cinemaId = urlParams.get("cinemaId");
-
+        document.addEventListener("DOMContentLoaded", async function () {// Lấy cinemaId từ URL
+            if (cinemaId) {
+                const roomLink = document.getElementById("roomLink"); // Lấy thẻ <a>
+                if (roomLink) {
+                    roomLink.href = `/admin/room?cinemaId=` + cinemaId; // Cập nhật href
+                }
+            }
+            document.getElementById("roomId").value=roomId;
+            document.getElementById("cinemaId").value=cinemaId;
+            try {
+                const res = await fetch(`/admin/rooms/${roomId}`, { method: "GET", credentials: "include" });
+                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+                const data = await res.json();
+                document.getElementById("room_name").value = data.roomName;
+                document.getElementById("seating_capacity").value = data.chairNumber;
+                document.getElementById("room_type").value = data.screenType;
+                document.getElementById("status").value = data.status.toString();
+                document.getElementById("cinemaName").value = data.cinemaName;
+            } catch (err) {
+                console.error("📌 Lỗi khi fetch dữ liệu:", err);
+            }
+        });
+        document.getElementById("editRoomForm").addEventListener("submit", async function (event) {
+            event.preventDefault();
+            const json = {
+                roomName: document.getElementById("room_name").value,
+                chairNumber: document.getElementById("seating_capacity").value,
+                screenType: document.getElementById("room_type").value,
+                status: document.getElementById("status").value,
+                cinemaId: document.getElementById("cinemaId").value,
+            }
+            try {
+                const res = await fetch(`/admin/rooms/${roomId}`, {
+                    method: "PUT",
+                    headers: {
+                        "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify(json),
+                });
+                if (!res.ok) throw new Error(`HTTP error! Status: ${res.status}`);
+                Swal.fire({
+                    icon: "success",
+                    title: "Edit room successfully!",
+                    timer: 3000
+                }).then(() => {
+                    window.location.href = `/admin/room?cinemaId=${cinemaId}`;
+                });
+            } catch (err) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Edit room failed!",
+                    text: "Please try again.",
+                    customClass: {
+                        confirmButton: "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                });
+            }
+        });
     </script>
     <!-- end main content -->
 </body>

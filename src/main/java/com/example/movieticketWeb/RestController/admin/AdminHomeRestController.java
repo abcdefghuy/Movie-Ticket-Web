@@ -24,7 +24,7 @@ public class AdminHomeRestController {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Unauthorized");
         }
-        PersonInfoResponse personInfoResponse = IPersonService.getAdminInfo(person);
+        PersonInfoResponse personInfoResponse = IPersonService.getInfo(person);
         return ResponseEntity.ok(personInfoResponse);
     }
 }

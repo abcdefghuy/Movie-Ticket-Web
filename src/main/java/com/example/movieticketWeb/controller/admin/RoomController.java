@@ -12,7 +12,7 @@ import org.springframework.web.servlet.ModelAndView;
 @Controller
 @RequestMapping("/admin/room")
 public class RoomController {
-    @GetMapping("/room-list")
+    @GetMapping("")
     public ModelAndView list(@RequestParam(name = "cinemaId", required = false) String cinemaId) {
         ModelAndView modelAndView = new ModelAndView("admin/room-list");
         // Nếu có cinemaId, thêm vào model để hiển thị
@@ -23,8 +23,8 @@ public class RoomController {
         return modelAndView;
     }
     @GetMapping("/editRoom")
-    public ModelAndView editRoom(@RequestParam("roomId") String roomId,
-                                 @RequestParam("cinemaId") String cinemaId) {
+    public ModelAndView editRoom(@RequestParam("roomId") Long roomId,
+                                 @RequestParam("cinemaId") Long cinemaId) {
         ModelAndView modelAndView = new ModelAndView("admin/room-edit");
         modelAndView.addObject("roomId", roomId);
         modelAndView.addObject("cinemaId", cinemaId);

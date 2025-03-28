@@ -7,8 +7,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Seat Management</title>
 </head>
-<body>
-<main layout:fragment="content">
+<body layout:fragment="content">
+<main>
     <!-- Hiển thị danh sách ghế -->
     <div class="seat-plan-section padding-bottom padding-top">
         <!-- ==========Page-Title========== -->
@@ -16,7 +16,8 @@
             <div class="container">
                 <div class="page-title-area">
                     <div class="item md-order-1">
-                        <a th:href="@{/admin/moviescreenings(id=${room.roomID},cinemaId=${cinemaID})}" class="custom-button back-button">
+                        <a id="msLink"
+                           class="custom-button back-button">
                             <i class="flaticon-double-right-arrows-angles"></i>Back
                         </a>
                     </div>
@@ -24,7 +25,7 @@
                         <span class="date">
                             <!-- Hiển thị ngày chiếu -->
                             <h4 class="title">Date Screening</h4>
-                            <h4 class="title"><span th:text="${#temporals.format(screening.screeningDate, 'dd-MM-yyyy')}"></span></h4>
+                            <h4 class="title"><span id="screen-date"></span></h4>
                         </span>
                     </div>
                     <div class="item date-item">
@@ -32,17 +33,16 @@
                             <h4 class="title">Showtime </h4>
                             <h4 class="title">
                             <!-- Hiển thị giờ chiếu, chỉ lấy phần giờ và phút -->
-                            <span th:text="${#temporals.format(screening.startHour, 'HH:mm')}"></span> -
-                            <span th:text="${#temporals.format(screening.endHour, 'HH:mm')}"></span>
+                            <span id="startTime"></span> - <span id="endTime"></span>
                             </h4>
                        </span>
                     </div>
                     <section class="item date-item">
                         <div class="container">
                             <div class="cinema-info-area">
-                                <p><strong>Cinema:</strong> ${cinema.cinemaName}</p>
-                                <p><strong>Room:</strong> ${room.roomName}</p>
-                                <p><strong>Seats:</strong> ${availableSeats} available seats</p>
+                                <p><strong>Cinema:</strong> <span id="cinemaName"></span></p>
+                                <p><strong>Room:</strong> <span id="roomName"></span></p>
+                                <p><strong>Seats:</strong> <span id="availableSeats"></span> available seats</p>
                             </div>
                         </div>
                     </section>
@@ -60,7 +60,8 @@
                         <span>Seat (Available)</span>
                     </div>
                     <div class="cinema-info-area">
-                        <img th:src="@{static/assets/images/movie/seat01-free.png}" alt="Booked Seat" class="legend-icon">
+                        <img th:src="@{static/assets/images/movie/seat01-free.png}" alt="Booked Seat"
+                             class="legend-icon">
                         <span>Seat (Booked)</span>
                     </div>
                 </div>
@@ -79,46 +80,12 @@
                     <form th:action="@{/selectSeats}" method="post">
                         <input type="hidden" name="selectedSeats" id="hiddenSelectedSeats" value="">
                         <input type="hidden" name="totalPrice" id="hiddenTotalPrice" value="">
-                        <input type="hidden" name="screeningId" value="${screeningId}">
+                        <input type="hidden" name="screeningId">
 
                         <h5 class="subtitle">Silver Plus</h5>
                         <!-- Duyệt qua từng hàng -->
-                        <ul class="seat-area">
-                            <div th:if="${empty seatStatusesGroupedByRow}">
-                                <li>No seats available for this screening.</li>
-                            </div>
-                            <th:block th:each="row : ${seatStatusesGroupedByRow}">
-                                <!-- Nếu hàng là D, chèn thẻ Couple Plan -->
-                                <h5 class="subtitle" th:if="${row.key == 'D'}">Couple Plan</h5>
-
-                                <li class="seat-line" th:attr="data-row=${row.key}">
-                                    <span th:text="${row.key}"></span>
-                                    <ul class="seat--area">
-                                        <th:block th:each="seatStatus : ${row.value}">
-                                            <th:block th:if="${seatStatus != null and seatStatus.seat != null}">
-                                                <li class="single-seat"
-                                                    th:classappend="${seatStatus.status ? 'seat-booked' : 'seat-free'}"
-                                                    th:classappend="${seatCoupleMap[seatStatus.seat.seatID] == 1 ? 'seat-couple' : ''}">
-
-                                                    <label class="seat-label"
-                                                           th:attr="data-tooltip=${seatStatus.seat.seatNumber != null ? seatStatus.seat.seatNumber : 'Unknown'} + ' - ' +
-                               (${seatCoupleMap[seatStatus.seat.seatID] == 1 ? 'Couple Seat' : 'Single Seat'})">
-
-                                                        <img th:src="|static/assets/images/movie/${seatCoupleMap[seatStatus.seat.seatID] == 1 ?
-                                  (seatStatus.status ? 'seat02-free.png' : 'seat02.png') :
-                                  (seatStatus.status ? 'seat01-free.png' : 'seat01.png')}|"
-                                                             alt="seat" class="seat-img">
-                                                    </label>
-
-                                                    <!-- Hiển thị số ghế bên dưới -->
-                                                    <span class="seat-number" th:text="${seatStatus.seat.seatNumber}"></span>
-                                                </li>
-                                            </th:block>
-                                        </th:block>
-                                    </ul>
-                                </li>
-                            </th:block>
-
+                        <ul class="seat-area list-unstyled">
+                            <!-- Ghế sẽ được render tại đây bằng JavaScript -->
                         </ul>
                     </form>
                 </div>
@@ -126,6 +93,113 @@
         </div>
     </div>
 </main>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const msID = urlParams.get("movieScreenID");
+        const roomID = urlParams.get("roomID");
+        if (!msID || !roomID) {
+            console.error("Missing parameters for seat fetching.");
+            return;
+        }
+        const msLink = document.getElementById("msLink"); // Lấy thẻ <a>
+        if (msLink) {
+            msLink.href = `/admin/movie-screen?roomId=` + roomID; // Cập nhật href
+        }
+        fetch(`/api/seats?msID=${msID}&roomID=${roomID}`)
+            .then(response => response.json())
+            .then(data => renderSeats(data))
+            .catch(error => console.error("Error loading seats:", error));
+    });
+    function formatDate(dateString, format) {
+        const date = new Date(dateString);
+        const options = {};
+        if (format === 'dd-MM-yyyy') {
+            console.log(dateString);
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN');
+        } else if (format === 'HH:mm') {
+            options.hour = '2-digit';
+            options.minute = '2-digit';
+            options.hour12 = false;
+        }
+        return new Intl.DateTimeFormat('en-US', options).format(date);
+    }
 
+    function renderSeats(seatData) {
+        const seatArea = document.querySelector(".seat-area");
+        seatArea.innerHTML = "";
+
+        if (!seatData || !seatData.screen || !seatData.seat) {
+            seatArea.innerHTML = "<li>No seats available for this screening.</li>";
+            return;
+        }
+
+        // Cập nhật thông tin suất chiếu
+        document.getElementById("screen-date").textContent = formatDate(seatData.screen.screeningDate,"dd-MM-yyyy") ;
+        document.getElementById("startTime").textContent = formatDate(seatData.screen.startHour, "HH:mm");
+        document.getElementById("endTime").textContent = formatDate(seatData.screen.endHour, "HH:mm");
+        document.getElementById("cinemaName").textContent = seatData.screen.cinemaName;
+        document.getElementById("roomName").textContent = seatData.screen.roomName;
+        document.getElementById("availableSeats").textContent = seatData.screen.availableSeats;
+
+        // Duyệt qua danh sách ghế theo từng hàng
+        Object.entries(seatData.seat).forEach(([rowKey, seats]) => {
+            if (rowKey === "D") {
+                const couplePlan = document.createElement("h5");
+                couplePlan.classList.add("subtitle");
+                couplePlan.textContent = "Couple Plan";
+                seatArea.appendChild(couplePlan);
+            }
+
+            const rowElement = document.createElement("li");
+            rowElement.classList.add("seat-line", "d-flex", "align-items-center");
+            rowElement.setAttribute("data-row", rowKey);
+
+            const rowLabel = document.createElement("span");
+            rowLabel.textContent = rowKey;
+            rowLabel.classList.add("me-2", "fw-bold");
+            rowElement.appendChild(rowLabel);
+
+            const seatList = document.createElement("ul");
+            seatList.classList.add("seat--area", "list-unstyled", "d-flex");
+
+            seats.forEach(seatStatus => {
+                if (!seatStatus) return;
+
+                const seatItem = document.createElement("li");
+                seatItem.classList.add("single-seat", "me-2");
+                if (seatStatus.status) seatItem.classList.add("seat-booked");
+                else seatItem.classList.add("seat-free");
+
+                if (seatStatus.isCouple) seatItem.classList.add("seat-couple");
+
+                const label = document.createElement("label");
+                label.classList.add("seat-label");
+                label.setAttribute("data-tooltip", `${seatStatus.seatNumber} - ${seatStatus.isCouple ? 'Couple Seat' : 'Single Seat'}`);
+
+                const img = document.createElement("img");
+                img.src = `assets/images/movie/${seatStatus.isCouple ? (seatStatus.status ? 'seat02-free.png' : 'seat02.png') : (seatStatus.status ? 'seat01-free.png' : 'seat01.png')}`;
+                img.alt = "seat";
+                img.classList.add("seat-img");
+
+                label.appendChild(img);
+                seatItem.appendChild(label);
+
+                const seatNumber = document.createElement("span");
+                seatNumber.classList.add("seat-number");
+                seatNumber.textContent = seatStatus.seatNumber;
+                seatItem.appendChild(seatNumber);
+                seatList.appendChild(seatItem);
+            });
+
+            rowElement.appendChild(seatList);
+            seatArea.appendChild(rowElement);
+        });
+    }
+
+
+</script>
 </body>
 </html>

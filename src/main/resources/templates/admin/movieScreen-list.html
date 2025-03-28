@@ -7,140 +7,152 @@
     <title>Insert title here</title>
 </head>
 <body layout:fragment="content">
-	<!-- main content -->
-	<main class="container-fluid" >
-		<div class="container-fluid">
-			<div class="row">
-				<!-- main title -->
-				<div class="col-12">
-					<div class="main__title">
-					    <h2 class="main__title-heading">Movie Screenings</h2>
-					    <span class="main__title-stat">Total:<span id="totalMovieScreen">0</span></span>
-					    <div class="main__title-stat">
-					    	<div class="catalog__text">
-                                <a th:href="@{/admin/room/room-list?cinemaId=${cinemaId}}">Back to Room List</a>
-					   		 </div>
-						</div>
-						<div class="main__title-wrap">
-							<button type="button" data-bs-toggle="modal" class="main__title-link main__title-link--wrap" data-bs-target="#modal-add-movieScreen">Add MovieScreen</button>
-							<!-- search -->
-							<!-- search -->
-							<form th:action="@{/admin/moviescreenings}" method="GET" class="main__title-form">
-								    <!-- Input để tìm theo ngày chiếu -->
-								    <input type="date" name="screeningDate" placeholder="Find by screening date.." class="sign__input">
-								    
-								    <!-- Hidden Input để giữ lại các thông tin cần thiết khác trong URL -->
-								    <input type="hidden" name="id" value="${room.roomID}">
-								    <input type="hidden" name="cinemaId" value="${cinemaId}">
-								    <input type="hidden" name="page" value="1"> <!-- Đặt mặc định là trang 1 khi tìm kiếm -->
-								
-								    <!-- Nút lọc -->
-								    <button type="submit">
-								        <i class="ti ti-search"></i>
-								    </button>
-								</form>
-							
-							<!-- end search -->
+<!-- main content -->
+<main class="container-fluid">
+    <div class="container-fluid">
+        <div class="row">
+            <!-- main title -->
+            <div class="col-12">
+                <div class="main__title">
+                    <h2 class="main__title-heading">Movie Screenings</h2>
+                    <span class="main__title-stat">Total:<span id="totalMovieScreen">0</span></span>
+                    <div class="main__title-stat">
+                        <div class="catalog__text">
+                            <a th:href="@{/admin/room/room-list?cinemaId=${cinemaId}}">Back to Room List</a>
+                        </div>
+                    </div>
+                    <div class="main__title-wrap">
+                        <button id="buttonAdd" type="button" data-bs-toggle="modal"
+                                class="main__title-link main__title-link--wrap" data-bs-target="#modal-add-movieScreen"
+                                data-room-name="">Add MovieScreen
+                        </button>
+                        <!-- search -->
+                        <!-- search -->
+                        <form id="searchMSForm" class="main__title-form">
+                            <!-- Input để tìm theo ngày chiếu -->
+                            <input id="keywordInput" type="date" name="screeningDate"
+                                   placeholder="Find by screening date.." class="sign__input">
 
-							<!-- end search -->
-						</div>
-					</div>
-				</div>
-				<!-- end main title -->
-                <!-- <div>
-                    <label style="color: white; font-weight: bold;">ROOM NAME: </label>
-                    <input id="" type="text" name="" class="" value = "ROOM 1" readonly>
-                </div> -->
-<!-- movie screenings -->
-<div class="col-12">
-    <div class="catalog catalog--1">
-        <table class="catalog__table">
-            <thead>
-                <tr>
-                    <th>ID</th>
-                    <th>MOVIE NAME</th>
-                    <th>ROOM</th>
-                    <th>SCREENING DATE</th>
-                    <th>START HOUR</th>
-                    <th>END HOUR</th>
-                    <th>STATUS</th>
-                    <th>ACTIONS</th>
-                </tr>
-            </thead>
-            <tbody id="screeningTableBody"></tbody>
-        </table>
-    </div>
-</div>
-<!-- end movie screenings -->
-                <!-- pagination -->
-                <div class="col-12">
-                    <div class="main__paginator">
-                        <!-- amount -->
-                        <span class="main__paginator-pages">Page <span id="currentPage">1</span> of <span id="noOfPages">1</span></span>
-                        <!-- end amount -->
+                            <!-- Hidden Input để giữ lại các thông tin cần thiết khác trong URL -->
+                            <input type="hidden" name="roomId" id="roomId">
+                            <input type="hidden" name="cinemaId" id="cinemaId">
+                            <input type="hidden" name="page" value="1"> <!-- Đặt mặc định là trang 1 khi tìm kiếm -->
+                        </form>
 
-                        <ul class="main__paginator-list">
-                            <!-- Nút Previous -->
-                            <li class="paginator__item paginator__item--prev disabled" id="prevPage">
-                                <a href="javascript:void(0)">
-                                    <i class="ti ti-chevron-left"></i>
-                                </a>
-                            </li>
+                        <!-- end search -->
 
-                            <!-- Hiển thị trang đầu nếu cần -->
-                            <li class="paginator__item" id="firstPage" style="display: none;">
-                                <a href="javascript:void(0)">1</a>
-                            </li>
-                            <li class="paginator__item" id="dotsBefore" style="display: none;">...</li>
-
-                            <!-- Các trang số động -->
-                            <div id="paginationNumbers" style="display: flex"></div>
-
-                            <!-- Hiển thị trang cuối nếu cần -->
-                            <li class="paginator__item" id="dotsAfter" style="display: none;">...</li>
-                            <li class="paginator__item" id="lastPage" style="display: none;"></li>
-
-                            <!-- Nút Next -->
-                            <li class="paginator__item paginator__item--next disabled" id="nextPage">
-                                <a href="javascript:void(0)">
-                                    <i class="ti ti-chevron-right"></i>
-                                </a>
-                            </li>
-                        </ul>
+                        <!-- end search -->
                     </div>
                 </div>
-                <!-- end pagination -->
+            </div>
+            <!-- end main title -->
+            <!-- <div>
+                <label style="color: white; font-weight: bold;">ROOM NAME: </label>
+                <input id="" type="text" name="" class="" value = "ROOM 1" readonly>
+            </div> -->
+            <!-- movie screenings -->
+            <div class="col-12">
+                <div class="catalog catalog--1">
+                    <table class="catalog__table">
+                        <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>MOVIE NAME</th>
+                            <th>ROOM</th>
+                            <th>SCREENING DATE</th>
+                            <th>START HOUR</th>
+                            <th>END HOUR</th>
+                            <th>STATUS</th>
+                            <th>ACTIONS</th>
+                        </tr>
+                        </thead>
+                        <tbody id="screeningTableBody"></tbody>
+                    </table>
+                </div>
+            </div>
+            <!-- end movie screenings -->
+            <!-- pagination -->
+            <div class="col-12">
+                <div class="main__paginator">
+                    <!-- amount -->
+                    <span class="main__paginator-pages">Page <span id="currentPage">1</span> of <span
+                            id="noOfPages">1</span></span>
+                    <!-- end amount -->
+                    <div class="col-1">
+                        <div class="sign__group">
+                            <label class="sign__label">Items Per Page</label>
+                            <form >
+                                <!-- Select số lượng bản ghi -->
+                                <select class="sign__select" name="soluong" id="soluong" >
+                                    <option value="5" >5 items</option>
+                                    <option value="10" >10 items</option>
+                                    <option value="20" >20 items</option>
+                                </select>
+                                <input type="hidden" name="page" >
+                            </form>
+                        </div>
+                    </div>
+                    <ul class="main__paginator-list">
+                        <!-- Nút Previous -->
+                        <li class="paginator__item paginator__item--prev disabled" id="prevPage">
+                            <a href="javascript:void(0)">
+                                <i class="ti ti-chevron-left"></i>
+                            </a>
+                        </li>
 
-			</div>
-		</div>
-	</main>
-	<!-- end main content -->
+                        <!-- Hiển thị trang đầu nếu cần -->
+                        <li class="paginator__item" id="firstPage" style="display: none;">
+                            <a href="javascript:void(0)">1</a>
+                        </li>
+                        <li class="paginator__item" id="dotsBefore" style="display: none;">...</li>
 
-	<!-- add modal -->
-<div class="modal fade" id="modal-add-movieScreen" tabindex="-1" aria-labelledby="modal-add-movieScreen" aria-hidden="true">
+                        <!-- Các trang số động -->
+                        <div id="paginationNumbers" style="display: flex"></div>
+
+                        <!-- Hiển thị trang cuối nếu cần -->
+                        <li class="paginator__item" id="dotsAfter" style="display: none;">...</li>
+                        <li class="paginator__item" id="lastPage" style="display: none;"></li>
+
+                        <!-- Nút Next -->
+                        <li class="paginator__item paginator__item--next disabled" id="nextPage">
+                            <a href="javascript:void(0)">
+                                <i class="ti ti-chevron-right"></i>
+                            </a>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+            <!-- end pagination -->
+
+        </div>
+    </div>
+</main>
+<!-- end main content -->
+
+<!-- add modal -->
+<div class="modal fade" id="modal-add-movieScreen" tabindex="-1" aria-labelledby="modal-add-movieScreen"
+     aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
             <div class="modal__content">
-                <form th:action="@{/admin/addMovieScreening}" method="POST" class="modal__form">
+                <form id="addMSForm" class="modal__form">
                     <h4 class="modal__title">Add MovieScreen</h4>
-					<input type="hidden" name="cinemaId" value="${cinemaId}">
-					<input type="hidden" name="roomID" value="${room.roomID}">
+                    <input type="hidden" name="cinemaId">
+                    <input type="hidden" name="roomId">
                     <div class="row">
                         <div class="sign__group">
                             <label class="sign__label" for="movieID">Movie</label>
                             <select name="movieID" id="movieID" class="sign__select" required>
-
                             </select>
                         </div>
 
                         <div class="col-12">
                             <div class="sign__group">
-									<label class="sign__label" for="roomName">Room</label>
-							        <input type="text" id="roomName" name="roomName" class="sign__input" value="${room.roomName}" readonly>
-
+                                <label class="sign__label" for="roomName">Room</label>
+                                <input type="text" id="roomName" name="roomName" class="sign__input" readonly>
                             </div>
                         </div>
-                        
+
                         <!-- Date Screening -->
                         <div class="col-12">
                             <div class="sign__group">
@@ -155,14 +167,14 @@
                                 <input id="startHour" type="time" name="startHour" class="sign__input" required>
                             </div>
                         </div>
-                        
+
                         <div class="col-12">
                             <div class="sign__group">
                                 <label class="sign__label" for="endHour">End Hour</label>
                                 <input id="endHour" type="time" name="endHour" class="sign__input" required>
                             </div>
                         </div>
-                        
+
                         <div class="col-12">
                             <div class="sign__group">
                                 <label class="sign__label" for="status">Status</label>
@@ -172,10 +184,10 @@
                                 </select>
                             </div>
                         </div>
-                        
+
                         <div class="col-12 col-lg-6 offset-lg-3">
                             <button type="submit" class="sign__btn sign__btn--modal">Add</button>
-                        </div>    
+                        </div>
                     </div>
                 </form>
             </div>
@@ -184,7 +196,7 @@
 </div>
 <!-- end add modal -->
 
-	<!-- Delete Modal -->
+<!-- Delete Modal -->
 <div class="modal fade" id="modal-delete" tabindex="-1" aria-labelledby="modal-delete" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
         <div class="modal-content">
@@ -197,7 +209,8 @@
                     <input type="hidden" name="cinemaID" id="deleteCinemaId">
                     <div class="modal__btns">
                         <button type="submit" class="modal__btn modal__btn--apply">Delete</button>
-                        <button type="button" class="modal__btn modal__btn--dismiss" data-bs-dismiss="modal">Dismiss</button>
+                        <button type="button" class="modal__btn modal__btn--dismiss" data-bs-dismiss="modal">Dismiss
+                        </button>
                     </div>
                 </form>
             </div>
@@ -205,70 +218,62 @@
     </div>
 </div>
 
-	<script>
-	document.querySelectorAll('.catalog__btn--delete').forEach(button => {
-	    button.addEventListener('click', function() {
-	        const msID = this.getAttribute('data-ms-id');
-	        const roomID = this.getAttribute('data-room-id');
-	        const cinemaID = this.getAttribute('data-cinema-id');
-	        document.getElementById('deleteMovieScreeningId').value = msID;
-	        document.getElementById('deleteRoomId').value = roomID;
-	        document.getElementById('deleteCinemaId').value = cinemaID;
-	    });
-	});
+<script>
+    document.addEventListener("click", function(event) {
+        if (event.target.closest(".catalog__btn--delete")) {
+            const button = event.target.closest(".catalog__btn--delete");
+            document.getElementById("deleteMovieScreeningId").value = button.getAttribute("data-ms-id");
+        }
+    });
+
     function renderMovieScreenings(movieScreenings, cinemaId) {
         const screeningTableBody = document.getElementById("screeningTableBody");
         screeningTableBody.innerHTML = ""; // Xóa dữ liệu cũ
-
         movieScreenings.forEach(screening => {
-            const statusClass = screening.status ? "catalog__text--green" : "catalog__text--red";
-            const statusText = screening.status ? "Active" : "Inactive";
 
             const row = `
             <tr>
-                <td><div class="catalog__text">${screening.msID}</div></td>
+                <td><div class="catalog__text">${screening.movieScreenId}</div></td>
                 <td>
                     <div class="catalog__text">
-                        <a href="/admin/seatrooms?msID=${screening.msID}&roomID=${screening.room.roomID}&cinemaId=${cinemaId}">
-                            ${screening.movie.movieName}
+                        <a href="/admin/seatrooms?movieScreenID=${screening.movieScreenId}&roomID=${screening.roomId}">
+                            ${screening.movieName}
                         </a>
                     </div>
                 </td>
-                <td><div class="catalog__text">${screening.room.roomName}</div></td>
-                <td><div class="catalog__text">${formatDate(screening.screeningDate, 'MM-dd-yyyy')}</div></td>
-                <td><div class="catalog__text">${formatDate(screening.startHour, 'HH:mm')}</div></td>
-                <td><div class="catalog__text">${formatDate(screening.endHour, 'HH:mm')}</div></td>
-                <td>
-                    <div class="catalog__text ${statusClass}">${statusText}</div>
-                </td>
+                <td><div class="catalog__text">${screening.roomName}</div></td>
+                <td><div class="catalog__text">${formatDate(screening.screeningDate, 'dd-MM-yyyy')}</div></td>
+                <td><div class="catalog__text">${formatDate(screening.startTime, 'HH:mm')}</div></td>
+                <td><div class="catalog__text">${formatDate(screening.endTime, 'HH:mm')}</div></td>
+                 <td><div class="catalog__text ${screening.status ? 'catalog__text--green' : 'catalog__text--red'}">${screening.status ? 'Active' : 'Inactive'}</div></td>
                 <td>
                     <div class="catalog__btns">
-                        <a href="/admin/editMovieScreening?msID=${screening.msID}&roomID=${screening.room.roomID}&cinemaId=${cinemaId}"
+                        <a href="/admin/movie-screen/editMovieScreening?msId=${screening.movieScreenId}&roomId=${screening.roomId}"
                            class="catalog__btn catalog__btn--edit">
                             <i class="ti ti-edit"></i>
                         </a>
                         <button type="button" class="catalog__btn catalog__btn--delete"
                                 data-bs-toggle="modal" data-bs-target="#modal-delete"
-                                data-ms-id="${screening.msID}" data-room-id="${screening.room.roomID}"
-                                data-cinema-id="${screening.room.cinema.cinemaID}">
+                                data-ms-id="${screening.movieScreenId}">
                             <i class="ti ti-trash"></i>
                         </button>
                     </div>
                 </td>
             </tr>
         `;
-
             screeningTableBody.innerHTML += row;
         });
     }
+
     // Hàm định dạng ngày giờ
     function formatDate(dateString, format) {
         const date = new Date(dateString);
         const options = {};
-        if (format === 'MM-dd-yyyy') {
-            options.month = '2-digit';
-            options.day = '2-digit';
-            options.year = 'numeric';
+        if (format === 'dd-MM-yyyy') {
+            console.log(dateString);
+            if (!dateString) return 'N/A';
+            const date = new Date(dateString);
+            return date.toLocaleDateString('vi-VN');
         } else if (format === 'HH:mm') {
             options.hour = '2-digit';
             options.minute = '2-digit';
@@ -276,16 +281,284 @@
         }
         return new Intl.DateTimeFormat('en-US', options).format(date);
     }
+
     function renderMovieOptions(movies) {
         const movieSelect = document.getElementById("movieID");
         movieSelect.innerHTML = '<option value="">-- Select a Movie --</option>'; // Tuỳ chọn mặc định
-
         movies.forEach(movie => {
             const option = document.createElement("option");
             option.value = movie.movieID;
             option.textContent = movie.movieName;
+            option.dataset.duration = movie.movieDuration; // Lưu thời lượng vào datase
             movieSelect.appendChild(option);
         });
     }
-	</script>
+    const movieSelect = document.getElementById("movieID");
+    const startHourInput = document.getElementById("startHour");
+    const endHourInput = document.getElementById("endHour");
+
+    let selectedDuration = ""; // Lưu thời lượng phim
+    movieSelect.addEventListener("change", function () {
+        selectedDuration = this.options[this.selectedIndex].dataset.duration || "";
+        updateEndTime();
+    });
+    // Khi thay đổi giờ bắt đầu → Cập nhật giờ kết thúc
+    startHourInput.addEventListener("input", updateEndTime);
+    // Hàm tính toán giờ kết thúc
+    function updateEndTime() {
+        const startTime = startHourInput.value;
+        if (!startTime || !selectedDuration) {
+            endHourInput.value = ""; // Xóa nếu chưa có dữ liệu hợp lệ
+            return;
+        }
+
+        // Trích xuất số phút từ duration ("144 phút" → 144)
+        const durationMinutes = parseInt(selectedDuration.match(/\d+/)[0], 10);
+        if (isNaN(durationMinutes)) {
+            endHourInput.value = "";
+            return;
+        }
+
+        // Chuyển startTime (HH:mm) thành đối tượng Date
+        const [hours, minutes] = startTime.split(":").map(Number);
+        const startDateTime = new Date();
+        startDateTime.setHours(hours, minutes, 0);
+
+        // Cộng số phút vào startTime
+        startDateTime.setMinutes(startDateTime.getMinutes() + durationMinutes);
+
+        // Cập nhật endHour với định dạng HH:mm
+        endHourInput.value = startDateTime.toTimeString().slice(0, 5);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        const urlParams = new URLSearchParams(window.location.search);
+        const cinemaId = urlParams.get("cinemaId");
+        const roomId = urlParams.get("roomId");
+        document.getElementById("roomId").value = roomId;
+        document.getElementById("cinemaId").value = cinemaId;
+        let currentPage = 1;
+        let recordsPerPage = 5;
+
+        function loadMovieScreen() {
+            const apiUrl = `/admin/movie-screens?roomId=${roomId}&page=${currentPage}&soluong=${recordsPerPage}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    renderMovieScreenings(data.movieScreen);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("totalMovieScreen").innerText = data.noOfRecords;
+                    document.getElementById("cinemaId").value = cinemaId;
+                    const buttonAdd = document.getElementById("buttonAdd");
+                    buttonAdd.setAttribute("data-room-name", data.roomName);
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+
+        function updatePagination(noOfPages, currentPage) {
+            document.getElementById("noOfPages").innerText = noOfPages;
+            document.getElementById("currentPage").innerText = currentPage;
+            const paginationContainer = document.getElementById("paginationNumbers");
+            paginationContainer.innerHTML = "";
+            let totalPages = noOfPages;
+
+            if (totalPages <= 1) return;
+
+            const createPageItem = (page) => {
+                let pageItem = document.createElement("li");
+                pageItem.classList.add("paginator__item");
+                if (page === currentPage) {
+                    pageItem.classList.add("paginator__item--active");
+                }
+                pageItem.innerHTML = `<a href="#">${page}</a>`;
+                pageItem.addEventListener("click", function () {
+                    if (currentPage !== page) {
+                        searchMs(page);
+                    }
+                });
+                paginationContainer.appendChild(pageItem);
+            };
+            const prevPage = document.getElementById("prevPage");
+            const nextPage = document.getElementById("nextPage");
+
+            // Xử lý Previous
+            prevPage.classList.toggle("disabled", currentPage === 1);
+            prevPage.onclick = currentPage > 1 ? () => searchMs(currentPage - 1) : null;
+
+            // Xử lý trang đầu và dấu "..."
+            const firstPage = document.getElementById("firstPage");
+            const dotsBefore = document.getElementById("dotsBefore");
+            firstPage.style.display = currentPage > 2 ? "block" : "none";
+            dotsBefore.style.display = currentPage > 3 ? "block" : "none";
+
+            if (currentPage > 2) {
+                firstPage.innerHTML = `<a href="#">1</a>`;
+                firstPage.onclick = () => searchMs(1);
+            }
+
+            // Hiển thị các trang xung quanh trang hiện tại
+            let startPage = Math.max(1, currentPage - 1);
+            let endPage = Math.min(totalPages, currentPage + 1);
+            for (let page = startPage; page <= endPage; page++) {
+                createPageItem(page);
+            }
+            // Xử lý trang cuối và dấu "..."
+            const lastPage = document.getElementById("lastPage");
+            const dotsAfter = document.getElementById("dotsAfter");
+            lastPage.style.display = currentPage < totalPages - 1 ? "block" : "none";
+            dotsAfter.style.display = currentPage < totalPages - 2 ? "block" : "none";
+
+            if (currentPage < totalPages - 1) {
+                lastPage.innerHTML = `<a href="#">${totalPages}</a>`;
+                lastPage.onclick = () => searchMs(totalPages);
+            }
+            // Xử lý Next
+            nextPage.classList.toggle("disabled", currentPage === totalPages);
+            nextPage.onclick = currentPage < totalPages ? () => searchMs(currentPage + 1) : null;
+        }
+
+        function loadMovies() {
+            fetch("/admin/movies/coming-soon")
+                .then(response => response.json())
+                .then(data => {
+                    renderMovieOptions(data.movies);
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+
+        document.querySelectorAll('.main__title-link').forEach(button => {
+            button.addEventListener('click', function () {
+                document.getElementById("roomName").value = this.getAttribute('data-room-name');
+                loadMovies();
+            });
+        });
+
+        function searchMs(currentPage) {
+            const keyword = document.getElementById("keywordInput").value;
+            const recordsPerPage = document.getElementById("soluong").value;
+            const apiUrl = `/admin/movie-screens/search?page=${currentPage}&soluong=${recordsPerPage}&keyword=${keyword}&roomId=${roomId}`;
+            fetch(apiUrl)
+                .then(response => response.json())
+                .then(data => {
+                    console.log(data)
+                    renderMovieScreenings(data.movieScreen);
+                    updatePagination(data.noOfPages, data.currentPage);
+                    document.getElementById("totalMovieScreen").innerText = data.noOfRecords;
+                    document.getElementById("keywordInput").text = data.keyword;
+                    let quantity = String(data.recordsPerPage); // Ép kiểu về string
+                    console.log(quantity)
+                    document.querySelectorAll("#soluong option").forEach(option => {
+                        if (option.value === quantity) {
+                            option.setAttribute("selected", "selected"); // Chọn đúng option
+                        } else {
+                            option.removeAttribute("selected"); // Xóa selected nếu không khớp
+                        }
+                    });
+                })
+                .catch(error => console.error("Error fetching movies:", error));
+        }
+
+        loadMovieScreen()
+        document.getElementById("searchMSForm").addEventListener("change", function (event) {
+            event.preventDefault();
+            searchMs(currentPage);
+        });
+        document.getElementById("soluong").addEventListener("change", function (event) {
+            event.preventDefault();
+            searchMs(document.getElementById("currentPage").innerText);
+        });
+    })
+
+    document.getElementById("addMSForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const screenDate = document.getElementById("dateScreening").value; // "2025-03-25"
+        const startTime = document.getElementById("startHour").value; // "14:55"
+        const endTime = document.getElementById("endHour").value; // "16:30"
+
+        const formattedStartTime = new Date(`${screenDate}T${startTime}:00`).getTime();
+        const formattedEndTime = new Date(`${screenDate}T${endTime}:00`).getTime();
+        const msData = {
+            movieId: document.getElementById("movieID").value,
+            roomId: document.getElementById("roomId").value,
+            screenDate: screenDate,
+            startTime: formattedStartTime,
+            endTime: formattedEndTime,
+            status: document.getElementById("status").value
+        };
+        try {
+            const response = await fetch(`/admin/movie-screens`, {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "credentials": "include"
+                },
+                body: JSON.stringify(msData)
+            });
+
+            if (!response.ok) {
+                Swal.fire({
+                    icon: "error",
+                    title: "Add Movie Screen failed!",
+                    text: "Please try again.",
+                    customClass: {
+                        confirmButton: "btn btn-danger",
+                    },
+                    buttonsStyling: false
+                });
+            } else {
+                Swal.fire({
+                    icon: "success",
+                    title: "Add Movie Screen successfully!",
+                    timer: 3000
+                }).then(() => {
+                    window.location.reload();
+                });
+            }
+        } catch (error) {
+            console.log(error)
+            Swal.fire({
+                icon: "error",
+                title: "Add Movie Screen failed!",
+                text: "Please try again.",
+                customClass: {
+                    confirmButton: "btn btn-danger",
+                },
+                buttonsStyling: false
+            });
+        }
+    });
+
+    document.getElementById("deleteMSForm").addEventListener("submit", async function (event) {
+        event.preventDefault();
+        const movieScreen = document.getElementById("deleteMovieScreeningId").value;
+        try {
+            const response = await fetch(`/admin/movie-screens/${movieScreen}`, {
+                method: "DELETE",
+                credentials: "include"
+            });
+
+            if (!response.ok) {
+                throw new Error(`Lỗi HTTP: ${response.status}`);
+            }
+
+            // Hiển thị thông báo thành công với SweetAlert2
+            Swal.fire({
+                icon: "success",
+                title: "Deleted!",
+                text: "The movie screen has been deleted successfully.",
+                confirmButtonText: "OK"
+            }).then(() => {
+                window.location.reload();
+            });
+
+        } catch (error) {
+            Swal.fire({
+                icon: "error",
+                title: "Error!",
+                text: "Failed to delete the movie screen. Please try again later.",
+                confirmButtonText: "OK"
+            });
+        }
+    })
+</script>
 </body>
