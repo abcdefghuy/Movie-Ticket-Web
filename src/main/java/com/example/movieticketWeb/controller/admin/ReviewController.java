@@ -10,7 +10,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/admin/review")
 public class ReviewController {
     @GetMapping()
-    public ModelAndView list(@RequestParam(name="movieId", defaultValue = "") Long id) {
+    public ModelAndView list(@RequestParam(name = "movieId", defaultValue = "") Long id) {
         return new ModelAndView("admin/review");
     }
 }

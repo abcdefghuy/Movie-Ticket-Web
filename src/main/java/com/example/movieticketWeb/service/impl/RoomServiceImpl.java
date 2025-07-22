@@ -1,32 +1,29 @@
 package com.example.movieticketWeb.service.impl;
 
-import com.example.movieticketWeb.dto.request.RoomRequest;
-import com.example.movieticketWeb.dto.response.CinemaResponse;
-import com.example.movieticketWeb.dto.response.RoomResponse;
-import com.example.movieticketWeb.entity.Cinema;
-import com.example.movieticketWeb.entity.Room;
-import com.example.movieticketWeb.mapper.ReviewMapper;
-import com.example.movieticketWeb.mapper.RoomMapper;
-import com.example.movieticketWeb.repository.ICinemaRepository;
-import com.example.movieticketWeb.repository.IRoomRepository;
-import com.example.movieticketWeb.service.ICinemaService;
-import com.example.movieticketWeb.service.IRoomService;
-import com.example.movieticketWeb.service.ISeatService;
-import jakarta.persistence.EntityNotFoundException;
-import jakarta.transaction.Transactional;
-import javassist.NotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Service;
-
 import java.time.Duration;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+import javassist.NotFoundException;
+
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
+
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
+import com.example.movieticketWeb.dto.request.RoomRequest;
+import com.example.movieticketWeb.dto.response.RoomResponse;
+import com.example.movieticketWeb.entity.Cinema;
+import com.example.movieticketWeb.entity.Room;
+import com.example.movieticketWeb.mapper.RoomMapper;
+import com.example.movieticketWeb.repository.ICinemaRepository;
+import com.example.movieticketWeb.repository.IRoomRepository;
+import com.example.movieticketWeb.service.IRoomService;
+import com.example.movieticketWeb.service.ISeatService;
+
 @Service
 public class RoomServiceImpl implements IRoomService {
     private final IRoomRepository roomRepository;
@@ -35,28 +32,36 @@ public class RoomServiceImpl implements IRoomService {
     private final ISeatService seatService;
     private final RedisTemplate<String, Object> redisTemplate;
 
-    public RoomServiceImpl(IRoomRepository roomRepository, RedisTemplate<String, Object> redisTemplate, ICinemaRepository cinemaRepository, ISeatService seatService) {
+    public RoomServiceImpl(
+            IRoomRepository roomRepository,
+            RedisTemplate<String, Object> redisTemplate,
+            ICinemaRepository cinemaRepository,
+            ISeatService seatService) {
         this.roomRepository = roomRepository;
         this.redisTemplate = redisTemplate;
         this.seatService = seatService;
         this.roomMapper = new RoomMapper();
         this.cinemaRepository = cinemaRepository;
     }
+
     @Override
     public List<RoomResponse> getRoomByCinemaId(Long cinemaId) {
         redisTemplate.getConnectionFactory().getConnection().flushDb();
         String cacheKey = "roomsByCinema:" + cinemaId;
         // 🔥 Kiểm tra xem danh sách phòng đã có trong cache chưa
-        List<RoomResponse> cachedRooms = (List<RoomResponse>) redisTemplate.opsForValue().get(cacheKey);
+        List<RoomResponse> cachedRooms =
+                (List<RoomResponse>) redisTemplate.opsForValue().get(cacheKey);
         if (cachedRooms == null) {
             List<RoomResponse> rooms = roomRepository.findByCinemaId(cinemaId).stream()
-                    .map(roomMapper::toDTO).collect(Collectors.toList());
+                    .map(roomMapper::toDTO)
+                    .collect(Collectors.toList());
             redisTemplate.opsForValue().set(cacheKey, rooms, Duration.ofHours(1));
             return rooms;
         }
         // ✅ Trả về danh sách phòng từ cache
         return cachedRooms;
     }
+
     @Override
     public RoomResponse getRoomById(Long id) throws NotFoundException {
         String cacheKey = "room:" + id;
@@ -84,10 +89,12 @@ public class RoomServiceImpl implements IRoomService {
     @Transactional
     public boolean addRoom(RoomRequest roomRequest) {
         try {
-            Cinema cinema = cinemaRepository.findById(roomRequest.getCinemaId())
-                    .orElseThrow(() -> new EntityNotFoundException("Cinema not found with ID: " + roomRequest.getCinemaId()));
+            Cinema cinema = cinemaRepository
+                    .findById(roomRequest.getCinemaId())
+                    .orElseThrow(() ->
+                            new EntityNotFoundException("Cinema not found with ID: " + roomRequest.getCinemaId()));
             Room savedRoom = roomRepository.save(roomMapper.toEntity(roomRequest, cinema));
-            if(savedRoom != null){
+            if (savedRoom != null) {
                 seatService.addSeatsForRoom(savedRoom);
             }
             redisTemplate.delete("roomsByCinema:" + roomRequest.getCinemaId());
@@ -126,29 +133,30 @@ public class RoomServiceImpl implements IRoomService {
 
     @Override
     public boolean deleteRoomById(Long roomId, Long cinemaId) {
-       try {
-              roomRepository.deleteById(roomId);
-              redisTemplate.delete("room:" + roomId);
-              redisTemplate.delete("roomsByCinema:" + cinemaId);
-              return true;
-         } catch (Exception e) {
-              return false;
-       }
+        try {
+            roomRepository.deleteById(roomId);
+            redisTemplate.delete("room:" + roomId);
+            redisTemplate.delete("roomsByCinema:" + cinemaId);
+            return true;
+        } catch (Exception e) {
+            return false;
+        }
     }
 
     @Override
     public List<RoomResponse> searchRoomsByScreenType(String screenType, Long cinemaId) {
         String cacheKey = "roomsByCinema:" + cinemaId;
         // 🔥 Kiểm tra xem danh sách phòng đã có trong cache chưa
-        List<RoomResponse> cachedRooms = (List<RoomResponse>) redisTemplate.opsForValue().get(cacheKey);
+        List<RoomResponse> cachedRooms =
+                (List<RoomResponse>) redisTemplate.opsForValue().get(cacheKey);
         if (cachedRooms != null && !cachedRooms.isEmpty()) {
             // Nếu có dữ liệu trong Redis, lọc theo từ khóa và phân trang
             List<RoomResponse> filteredMovies = filterCinemaByKeyword(cachedRooms, screenType);
             return filteredMovies;
-        }
-        else{
-            List<RoomResponse> rooms = roomRepository.searchRoomByKeyWordAndCinemaId(screenType,cinemaId).stream()
-                    .map(roomMapper::toDTO).collect(Collectors.toList());
+        } else {
+            List<RoomResponse> rooms = roomRepository.searchRoomByKeyWordAndCinemaId(screenType, cinemaId).stream()
+                    .map(roomMapper::toDTO)
+                    .collect(Collectors.toList());
             redisTemplate.opsForValue().set(cacheKey, rooms, Duration.ofHours(1));
             return rooms;
         }
@@ -159,7 +167,8 @@ public class RoomServiceImpl implements IRoomService {
         redisTemplate.getConnectionFactory().getConnection().flushDb();
         String cacheKey = "roomsByCinema:" + cinemaId;
         // 🔥 Kiểm tra xem danh sách phòng đã có trong cache chưa
-        List<RoomResponse> cachedRooms = (List<RoomResponse>) redisTemplate.opsForValue().get(cacheKey);
+        List<RoomResponse> cachedRooms =
+                (List<RoomResponse>) redisTemplate.opsForValue().get(cacheKey);
         if (cachedRooms != null && !cachedRooms.isEmpty()) {
             // Nếu có dữ liệu trong Redis, trả về luôn
             Map<String, Object> response = new HashMap<>();
@@ -168,14 +177,14 @@ public class RoomServiceImpl implements IRoomService {
             response.put("cinemaName", cachedRooms.getFirst().getCinemaName());
             return response;
         }
-        List<RoomResponse> rooms = roomRepository.findByCinemaId(cinemaId)
-                .stream()
+        List<RoomResponse> rooms = roomRepository.findByCinemaId(cinemaId).stream()
                 .map(roomMapper::toDTO)
                 .collect(Collectors.toList());
         String cinemaName = rooms.stream()
                 .findFirst()
                 .map(RoomResponse::getCinemaName)
-                .orElseGet(() -> cinemaRepository.findById(cinemaId)
+                .orElseGet(() -> cinemaRepository
+                        .findById(cinemaId)
                         .map(Cinema::getCinemaName)
                         .orElse("Tên rạp chưa xác định"));
         redisTemplate.opsForValue().set(cacheKey, rooms, Duration.ofHours(1));
@@ -187,11 +196,9 @@ public class RoomServiceImpl implements IRoomService {
         return response;
     }
 
-
     private List<RoomResponse> filterCinemaByKeyword(List<RoomResponse> rooms, String keyword) {
         return rooms.stream()
                 .filter(room -> room.getScreenType().toLowerCase().contains(keyword.toLowerCase()))
                 .collect(Collectors.toList());
     }
-
 }

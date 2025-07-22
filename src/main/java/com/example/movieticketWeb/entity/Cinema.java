@@ -1,24 +1,28 @@
 package com.example.movieticketWeb.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="cinema")
+@Table(name = "cinema")
 @Builder
 public class Cinema {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int cinemaId;
-    @Column(name = "cinemaName", nullable = false , columnDefinition = "NVARCHAR(500)")
+
+    @Column(name = "cinemaName", nullable = false, columnDefinition = "NVARCHAR(500)")
     private String cinemaName;
-    @Column(name = "address" , columnDefinition = "NVARCHAR(500)")
+
+    @Column(name = "address", columnDefinition = "NVARCHAR(500)")
     private String address;
+
     @Column(name = "location", columnDefinition = "NVARCHAR(500)")
     private String location;
 
@@ -28,6 +32,6 @@ public class Cinema {
     @Column(name = "roomCount", nullable = false)
     private int roomCount; // New field for the number of rooms
 
-    @OneToMany(mappedBy = "cinema" ,cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "cinema", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Room> rooms;
 }

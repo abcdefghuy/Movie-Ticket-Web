@@ -1,9 +1,11 @@
 package com.example.movieticketWeb.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 
-import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -22,9 +24,8 @@ public class Conversation {
 
     @OneToMany(mappedBy = "conversation")
     private List<Message> messages;
-    
+
     @ManyToOne
     @JoinColumn(name = "adminID", nullable = false)
     private Person admin;
-
 }

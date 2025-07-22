@@ -1,22 +1,22 @@
 package com.example.movieticketWeb.service;
 
+import java.security.Key;
+import java.util.Date;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.function.Function;
+
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.entity.Person;
+
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
-import org.springframework.beans.factory.annotation.Value;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.stereotype.Service;
-
-import java.security.Key;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.function.Function;
 
 @Service
 public class JwtService {
@@ -43,8 +43,7 @@ public class JwtService {
     }
 
     public String generateAccessToken(Person userDetails) {
-        String role = userDetails.getAuthorities()
-                .stream()
+        String role = userDetails.getAuthorities().stream()
                 .map(GrantedAuthority::getAuthority)
                 .findFirst()
                 .orElseThrow(() -> new RuntimeException("User has no role assigned!"));
@@ -81,6 +80,7 @@ public class JwtService {
     public void revokeToken(String token) {
         tokenBlacklist.put(token, extractExpiration(token));
     }
+
     public String extractUserRole(String token) {
         return extractClaim(token, claims -> claims.get("role", String.class));
     }

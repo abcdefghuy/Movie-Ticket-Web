@@ -8,8 +8,7 @@ import org.springframework.cache.annotation.EnableCaching;
 @EnableCaching
 public class MovieticketWebApplication {
 
-	public static void main(String[] args) {
-		SpringApplication.run(MovieticketWebApplication.class, args);
-	}
-
+    public static void main(String[] args) {
+        SpringApplication.run(MovieticketWebApplication.class, args);
+    }
 }

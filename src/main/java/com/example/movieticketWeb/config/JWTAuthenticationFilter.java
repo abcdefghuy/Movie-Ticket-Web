@@ -1,13 +1,13 @@
 package com.example.movieticketWeb.config;
 
-import com.example.movieticketWeb.entity.Person;
-import com.example.movieticketWeb.service.IAESService;
-import com.example.movieticketWeb.service.JwtService;
+import java.io.IOException;
+
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+
 import org.springframework.lang.NonNull;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -18,7 +18,9 @@ import org.springframework.stereotype.Component;
 import org.springframework.web.filter.OncePerRequestFilter;
 import org.springframework.web.servlet.HandlerExceptionResolver;
 
-import java.io.IOException;
+import com.example.movieticketWeb.entity.Person;
+import com.example.movieticketWeb.service.IAESService;
+import com.example.movieticketWeb.service.JwtService;
 
 @Component
 public class JWTAuthenticationFilter extends OncePerRequestFilter {
@@ -31,8 +33,7 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
             JwtService jwtService,
             UserDetailsService userDetailsService,
             HandlerExceptionResolver handlerExceptionResolver,
-            IAESService IAESService
-    ) {
+            IAESService IAESService) {
         this.jwtService = jwtService;
         this.userDetailsService = userDetailsService;
         this.handlerExceptionResolver = handlerExceptionResolver;
@@ -43,8 +44,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
     protected void doFilterInternal(
             @NonNull HttpServletRequest request,
             @NonNull HttpServletResponse response,
-            @NonNull FilterChain filterChain
-    ) throws ServletException, IOException {
+            @NonNull FilterChain filterChain)
+            throws ServletException, IOException {
 
         String jwt = null;
 
@@ -52,7 +53,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         String authHeader = request.getHeader("Authorization");
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             jwt = authHeader.substring(7);
-        }if (jwt == null) {
+        }
+        if (jwt == null) {
             Cookie[] cookies = request.getCookies();
             if (cookies != null) {
                 for (Cookie cookie : cookies) {
@@ -69,7 +71,8 @@ public class JWTAuthenticationFilter extends OncePerRequestFilter {
         if (jwt != null) {
             try {
                 final String userEmail = jwtService.extractUsername(jwt);
-                Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+                Authentication authentication =
+                        SecurityContextHolder.getContext().getAuthentication();
                 if (userEmail != null && authentication == null) {
                     Person userDetails = (Person) this.userDetailsService.loadUserByUsername(userEmail);
                     if (jwtService.isTokenValid(jwt, userDetails)) {

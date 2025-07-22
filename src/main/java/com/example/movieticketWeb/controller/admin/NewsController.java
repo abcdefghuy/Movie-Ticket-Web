@@ -11,17 +11,16 @@ import org.springframework.web.servlet.ModelAndView;
 public class NewsController {
     @GetMapping("/news-list")
     public ModelAndView listNews() {
-        return  new ModelAndView("admin/newsordiscount-list");
+        return new ModelAndView("admin/newsordiscount-list");
     }
 
     @GetMapping("/editNews")
     public ModelAndView editNews(@RequestParam("newsID") int id) {
         return new ModelAndView("admin/newsordiscount-edit");
     }
+
     @GetMapping("/addNews")
     public ModelAndView addNews() {
         return new ModelAndView("admin/newsordiscount-add");
     }
-
-
 }

@@ -1,14 +1,11 @@
 package com.example.movieticketWeb.dto.response;
 
-import lombok.Data;
+import lombok.*;
 
-@Data
+@AllArgsConstructor
+@NoArgsConstructor
+@Getter
+@Setter
 public class LoginResponse {
     private String token;
-    private long expiresIn;
-
-    public LoginResponse(String token, long expiresIn) {
-        this.token = token;
-        this.expiresIn = expiresIn;
-    }
 }

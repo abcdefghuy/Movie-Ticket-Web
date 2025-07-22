@@ -1,5 +1,13 @@
 package com.example.movieticketWeb.service.impl;
 
+import java.io.*;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.security.GeneralSecurityException;
+import java.util.Collections;
+
+import org.springframework.beans.factory.annotation.Autowired;
+
 import com.example.movieticketWeb.entity.Res;
 import com.example.movieticketWeb.repository.IImageRepository;
 import com.example.movieticketWeb.service.IImageService;
@@ -10,14 +18,6 @@ import com.google.api.client.json.JsonFactory;
 import com.google.api.client.json.gson.GsonFactory;
 import com.google.api.services.drive.Drive;
 import com.google.api.services.drive.DriveScopes;
-import org.springframework.beans.factory.annotation.Autowired;
-
-
-import java.io.*;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.security.GeneralSecurityException;
-import java.util.Collections;
 
 @org.springframework.stereotype.Service
 public class ImageServiceImpl implements IImageService {
@@ -36,28 +36,28 @@ public class ImageServiceImpl implements IImageService {
     public Res uploadImageToDrive(File file, String fileName) throws GeneralSecurityException, IOException {
         Res res = new Res();
 
-        try{
+        try {
             String folderId = "1HKsOgFeVrp4sYX3dPIu-FtmErOPTgUzy";
             Drive drive = createDriveService();
             com.google.api.services.drive.model.File fileMetaData = new com.google.api.services.drive.model.File();
             fileMetaData.setName(fileName);
             fileMetaData.setParents(Collections.singletonList(folderId));
             FileContent mediaContent = new FileContent("image/jpeg", file);
-            com.google.api.services.drive.model.File uploadedFile = drive.files().create(fileMetaData, mediaContent)
-                    .setFields("id").execute();
-            String imageUrl = "https://drive.google.com/thumbnail?id="+uploadedFile.getId();
-            System.out.println("IMAGE URL: " + imageUrl);
+            com.google.api.services.drive.model.File uploadedFile = drive.files()
+                    .create(fileMetaData, mediaContent)
+                    .setFields("id")
+                    .execute();
+            String imageUrl = "https://drive.google.com/thumbnail?id=" + uploadedFile.getId();
             file.delete();
             res.setStatus(200);
             res.setMessage("Image Successfully Uploaded To Drive");
             res.setUrl(imageUrl);
-        }catch (Exception e){
+        } catch (Exception e) {
             System.out.println(e.getMessage());
             res.setStatus(500);
             res.setMessage(e.getMessage());
         }
-        return  res;
-
+        return res;
     }
 
     @Override
@@ -78,11 +78,6 @@ public class ImageServiceImpl implements IImageService {
         GoogleCredential credential = GoogleCredential.fromStream(new FileInputStream(SERVICE_ACOUNT_KEY_PATH))
                 .createScoped(Collections.singleton(DriveScopes.DRIVE));
 
-        return new Drive.Builder(
-                GoogleNetHttpTransport.newTrustedTransport(),
-                JSON_FACTORY,
-                credential)
-                .build();
-
+        return new Drive.Builder(GoogleNetHttpTransport.newTrustedTransport(), JSON_FACTORY, credential).build();
     }
 }

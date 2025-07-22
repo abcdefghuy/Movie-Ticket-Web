@@ -1,16 +1,17 @@
 package com.example.movieticketWeb.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.userdetails.UserDetails;
-
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collection;
 import java.util.Date;
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
+
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -26,7 +27,11 @@ public class Person implements UserDetails {
     @Column(name = "fullName", columnDefinition = "nvarchar(50)", nullable = true) // Cho phép null
     private String username;
 
-    @Column(name = "email", nullable = false, unique = true, columnDefinition = "nvarchar(50)") // email vẫn không cho phép null
+    @Column(
+            name = "email",
+            nullable = false,
+            unique = true,
+            columnDefinition = "nvarchar(50)") // email vẫn không cho phép null
     private String email;
 
     @Column(name = "password", nullable = false, columnDefinition = "nvarchar(500)") // password vẫn không cho phép null
@@ -58,11 +63,21 @@ public class Person implements UserDetails {
 
     @Column(name = "verification_code")
     private String verificationCode;
+
     @Column(name = "verification_expiration")
     private LocalDateTime verificationCodeExpiresAt;
+
     private boolean enabled;
 
-    public Person(String username, String email, String password, String phone, String role, Integer gender, Date birthDate, String region) {
+    public Person(
+            String username,
+            String email,
+            String password,
+            String phone,
+            String role,
+            Integer gender,
+            Date birthDate,
+            String region) {
         this.username = username;
         this.email = email;
         this.password = password;
@@ -78,7 +93,7 @@ public class Person implements UserDetails {
         return List.of(new SimpleGrantedAuthority(this.role));
     }
 
-    //TODO: add proper boolean checks
+    // TODO: add proper boolean checks
     @Override
     public boolean isAccountNonExpired() {
         return true;
@@ -99,4 +114,3 @@ public class Person implements UserDetails {
         return enabled;
     }
 }
-

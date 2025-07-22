@@ -1,6 +1,7 @@
 package com.example.movieticketWeb.entity;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 
 @Data
@@ -17,7 +18,7 @@ public class Review {
     @Column(name = "content", nullable = false, columnDefinition = "NVARCHAR(1000)")
     private String content;
 
-    @Column(name = "evaluate",nullable = false)
+    @Column(name = "evaluate", nullable = false)
     private float evaluate;
 
     @ManyToOne
@@ -27,5 +28,4 @@ public class Review {
     @ManyToOne
     @JoinColumn(name = "perID", nullable = false)
     private Person person;
-
 }

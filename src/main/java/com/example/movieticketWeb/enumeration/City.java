@@ -1,4 +1,5 @@
 package com.example.movieticketWeb.enumeration;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -60,8 +61,7 @@ public enum City {
     BINH_DUONG("Bình Dương"),
     BINH_PHUOC("Bình Phước"),
     DONG_NAI("Đồng Nai"),
-    TAY_NINH("Tây Ninh")
-    ;
+    TAY_NINH("Tây Ninh");
 
     private final String vietnameseName;
 
@@ -73,7 +73,7 @@ public enum City {
         return vietnameseName;
     }
 
-    public static List<String> getListCity(){
+    public static List<String> getListCity() {
         List<String> listcity = new ArrayList<String>();
         for (City city : City.values()) {
             listcity.add(city.getVietnameseName());
@@ -81,4 +81,3 @@ public enum City {
         return listcity;
     }
 }
-

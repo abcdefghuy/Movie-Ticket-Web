@@ -1,13 +1,14 @@
 package com.example.movieticketWeb.service.impl;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.entity.Room;
 import com.example.movieticketWeb.entity.Seat;
 import com.example.movieticketWeb.repository.SeatRepository;
 import com.example.movieticketWeb.service.ISeatService;
-import org.springframework.stereotype.Service;
-
-import java.util.ArrayList;
-import java.util.List;
 
 @Service
 public class SeatServiceImpl implements ISeatService {

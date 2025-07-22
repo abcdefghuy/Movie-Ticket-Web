@@ -12,6 +12,7 @@ public class CinemaController {
     public ModelAndView list() {
         return new ModelAndView("admin/cinema-list");
     }
+
     @RequestMapping("/editCinema")
     public String editCinema() {
         return "admin/cinema-edit";

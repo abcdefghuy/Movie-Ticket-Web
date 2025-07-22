@@ -1,10 +1,10 @@
 package com.example.movieticketWeb.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
-import java.time.LocalDateTime;
 import java.util.Date;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -31,5 +31,4 @@ public class SeatStatus {
 
     @Column(name = "bookingTime")
     private Date bookingTime;
-
 }

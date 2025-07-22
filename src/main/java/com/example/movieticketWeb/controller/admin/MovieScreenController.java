@@ -13,8 +13,10 @@ public class MovieScreenController {
     public ModelAndView showMovieScreenList(@RequestParam(name = "roomId") Long roomId) {
         return new ModelAndView("admin/movieScreen-list");
     }
+
     @GetMapping("/editMovieScreening")
-    public ModelAndView editMovieScreening(@RequestParam(name = "roomId") Long roomId, @RequestParam(name = "msId") Long msId) {
+    public ModelAndView editMovieScreening(
+            @RequestParam(name = "roomId") Long roomId, @RequestParam(name = "msId") Long msId) {
         return new ModelAndView("admin/movieScreen-edit");
     }
 }

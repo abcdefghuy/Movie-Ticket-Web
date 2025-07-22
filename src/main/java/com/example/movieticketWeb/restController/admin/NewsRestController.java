@@ -1,20 +1,6 @@
-package com.example.movieticketWeb.RestController.admin;
+package com.example.movieticketWeb.restController.admin;
 
-import com.example.movieticketWeb.dto.request.MovieRequest;
-import com.example.movieticketWeb.dto.request.NewsOrDiscountRequest;
-import com.example.movieticketWeb.entity.NewsOrDiscount;
-import com.example.movieticketWeb.entity.Person;
-import com.example.movieticketWeb.entity.Res;
-import com.example.movieticketWeb.service.IImageService;
-import com.example.movieticketWeb.service.IMovieService;
-import com.example.movieticketWeb.service.INewsService;
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.io.File;
 import java.io.IOException;
@@ -24,7 +10,16 @@ import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.Map;
 
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import jakarta.validation.Valid;
+
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.movieticketWeb.dto.request.NewsOrDiscountRequest;
+import com.example.movieticketWeb.entity.Res;
+import com.example.movieticketWeb.service.IImageService;
+import com.example.movieticketWeb.service.INewsService;
 
 @RestController
 @RequestMapping("/admin/news")
@@ -38,13 +33,14 @@ public class NewsRestController {
     }
 
     @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addMovie(@RequestPart("news") @Valid NewsOrDiscountRequest newsRequest,
-                                      @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
+    public ResponseEntity<?> addMovie(
+            @RequestPart("news") @Valid NewsOrDiscountRequest newsRequest,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile)
+            throws IOException, GeneralSecurityException {
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = handleImageUpload(imageFile);
             newsRequest.setImages(imageUrl);
-        }
-        else {
+        } else {
             newsRequest.setImages(
                     "https://thumbs.dreamstime.com/b/news-woodn-dice-depicting-letters-bundle-small-newspapers-leaning-left-dice-34802664.jpg");
         }
@@ -55,10 +51,13 @@ public class NewsRestController {
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Add News failed"));
     }
+
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMovie(@PathVariable Long id,
-                                         @RequestPart("news") @Valid NewsOrDiscountRequest newsRequest,
-                                         @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
+    public ResponseEntity<?> updateMovie(
+            @PathVariable Long id,
+            @RequestPart("news") @Valid NewsOrDiscountRequest newsRequest,
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile)
+            throws IOException, GeneralSecurityException {
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = handleImageUpload(imageFile);
             newsRequest.setImages(imageUrl);
@@ -70,6 +69,7 @@ public class NewsRestController {
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Update News failed"));
     }
+
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
         boolean isDeleted = newsService.deleteNews(id);
@@ -78,18 +78,20 @@ public class NewsRestController {
         }
         return ResponseEntity.badRequest().body(Map.of("error", "Delete News failed"));
     }
+
     @GetMapping()
-    public ResponseEntity<?> getAllMovies(@RequestParam(defaultValue = "1") int page,
-                                          @RequestParam(defaultValue = "5") int recordPerPage) {
+    public ResponseEntity<?> getAllMovies(
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int recordPerPage) {
         return ResponseEntity.ok(newsService.getAllNews(page, recordPerPage));
     }
+
     @GetMapping("/{id}")
     public ResponseEntity<?> getMovieById(@PathVariable Long id) {
         return ResponseEntity.ok(newsService.getNewsById(id));
     }
 
-
-    private String handleImageUpload(MultipartFile file) throws IOException, NoSuchAlgorithmException, GeneralSecurityException {
+    private String handleImageUpload(MultipartFile file)
+            throws IOException, NoSuchAlgorithmException, GeneralSecurityException {
         String originalFileName = file.getOriginalFilename();
 
         String existingImageUrl = getSavedImageUrl(originalFileName);
@@ -97,7 +99,7 @@ public class NewsRestController {
 
             // Thay vì tải file, chỉ lấy InputStream từ Google Drive
             try (InputStream existingFileInputStream = imageService.getFileInputStream(existingImageUrl);
-                 InputStream newFileInputStream = file.getInputStream()) {
+                    InputStream newFileInputStream = file.getInputStream()) {
 
                 String existingFileHash = getChecksum(existingFileInputStream);
                 String newFileHash = getChecksum(newFileInputStream);
@@ -146,9 +148,9 @@ public class NewsRestController {
 
         return hexString.toString();
     }
+
     private String getSavedImageUrl(String fileName) {
         // Truy vấn Google Drive hoặc database để lấy URL ảnh dựa trên tên file
         return imageService.findUrlByFileName(fileName);
     }
-
 }

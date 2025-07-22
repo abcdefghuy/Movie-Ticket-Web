@@ -1,9 +1,11 @@
 package com.example.movieticketWeb.entity;
 
+import java.util.List;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 
-import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor

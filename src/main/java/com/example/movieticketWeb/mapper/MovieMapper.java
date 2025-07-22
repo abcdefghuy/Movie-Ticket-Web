@@ -1,11 +1,10 @@
 package com.example.movieticketWeb.mapper;
 
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.dto.request.MovieRequest;
 import com.example.movieticketWeb.dto.response.MovieResponse;
-import com.example.movieticketWeb.dto.response.PersonInfoResponse;
 import com.example.movieticketWeb.entity.Movie;
-import com.example.movieticketWeb.entity.Person;
-import org.springframework.stereotype.Service;
 
 @Service
 public class MovieMapper {
@@ -21,10 +20,11 @@ public class MovieMapper {
                 .rating(movie.getRating())
                 .status(movie.isStatus())
                 .movieTrailer(movie.getMovieTrailer())
-                //.movieScreenings(movie.getMovieScreenings())
-                //.reviews(movie.getReviews())
+                // .movieScreenings(movie.getMovieScreenings())
+                // .reviews(movie.getReviews())
                 .build();
     }
+
     public Movie toEntity(MovieRequest movieRequest) {
         return Movie.builder()
                 .movieName(movieRequest.getMovieName())

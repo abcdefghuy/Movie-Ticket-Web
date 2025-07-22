@@ -1,9 +1,9 @@
 package com.example.movieticketWeb.dto.response;
 
+import java.util.Date;
+
 import lombok.*;
 
-import java.time.LocalDate;
-import java.util.Date;
 @Setter
 @Getter
 @Builder

@@ -1,9 +1,10 @@
 package com.example.movieticketWeb.mapper;
 
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.dto.request.NewsOrDiscountRequest;
 import com.example.movieticketWeb.dto.response.NewsOrDiscountResponse;
 import com.example.movieticketWeb.entity.NewsOrDiscount;
-import org.springframework.stereotype.Service;
 
 @Service
 public class NewsMapper {
@@ -17,6 +18,7 @@ public class NewsMapper {
                 .date(newsRequest.getDate())
                 .build();
     }
+
     public NewsOrDiscountResponse toDTO(NewsOrDiscount news) {
         return NewsOrDiscountResponse.builder()
                 .newsID(news.getNewsID())

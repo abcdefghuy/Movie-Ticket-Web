@@ -1,8 +1,9 @@
 package com.example.movieticketWeb.service;
 
+import org.springframework.data.domain.Page;
+
 import com.example.movieticketWeb.dto.request.CouponRequest;
 import com.example.movieticketWeb.dto.response.CouponResponse;
-import org.springframework.data.domain.Page;
 
 public interface ICouponService {
     Page<CouponResponse> getCoupons(int page, int soluong);

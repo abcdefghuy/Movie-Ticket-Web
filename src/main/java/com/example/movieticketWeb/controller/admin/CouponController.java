@@ -9,7 +9,7 @@ import org.springframework.web.servlet.ModelAndView;
 @RequestMapping("/admin/coupons")
 public class CouponController {
     @GetMapping("/coupon-list")
-    public ModelAndView couponList(){
+    public ModelAndView couponList() {
         return new ModelAndView("admin/coupon/coupon-list");
     }
 }

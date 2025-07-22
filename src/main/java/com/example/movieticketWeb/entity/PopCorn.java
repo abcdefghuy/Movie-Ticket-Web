@@ -1,10 +1,11 @@
 package com.example.movieticketWeb.entity;
 
+import java.util.List;
 
 import jakarta.persistence.*;
+
 import lombok.*;
 
-import java.util.List;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,8 +27,8 @@ public class PopCorn {
     private double price;
 
     @Column(name = "status", nullable = false)
-    private boolean  status;
+    private boolean status;
 
-    @OneToMany(mappedBy = "popcorn", cascade =CascadeType.ALL )
+    @OneToMany(mappedBy = "popcorn", cascade = CascadeType.ALL)
     private List<PopCornPayment> popcornPayments;
 }

@@ -1,44 +1,38 @@
 package com.example.movieticketWeb.service.impl;
 
-import com.example.movieticketWeb.dto.response.MovieScreenResponse;
-import com.example.movieticketWeb.dto.response.SeatStatusResponse;
-import com.example.movieticketWeb.entity.MovieScreenings;
-import com.example.movieticketWeb.entity.Seat;
-import com.example.movieticketWeb.entity.SeatStatus;
-import com.example.movieticketWeb.mapper.SeatStatusMapper;
-import com.example.movieticketWeb.repository.IMovieScreenRepository;
-import com.example.movieticketWeb.repository.ISeatStatusRepository;
-import com.example.movieticketWeb.service.IMovieScreenService;
-import com.example.movieticketWeb.service.ISeatService;
-import com.example.movieticketWeb.service.ISeatStatusService;
-import javassist.NotFoundException;
-import org.springframework.stereotype.Service;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
 
+import org.springframework.stereotype.Service;
+
+import com.example.movieticketWeb.dto.response.SeatStatusResponse;
+import com.example.movieticketWeb.entity.MovieScreenings;
+import com.example.movieticketWeb.entity.Seat;
+import com.example.movieticketWeb.entity.SeatStatus;
+import com.example.movieticketWeb.mapper.SeatStatusMapper;
+import com.example.movieticketWeb.repository.ISeatStatusRepository;
+import com.example.movieticketWeb.service.ISeatService;
+import com.example.movieticketWeb.service.ISeatStatusService;
+
 @Service
 public class SeatStatusServiceImpl implements ISeatStatusService {
     private final ISeatStatusRepository seatStatusRepository;
-    private final SeatStatusMapper seatStatusMapper ;
+    private final SeatStatusMapper seatStatusMapper;
     private final ISeatService seatService;
-    private final IMovieScreenService movieScreeningService;
 
-    public SeatStatusServiceImpl(ISeatStatusRepository seatStatusRepository, SeatStatusMapper seatStatusMapper, ISeatService seatService, IMovieScreenService movieScreeningService) {
+    public SeatStatusServiceImpl(
+            ISeatStatusRepository seatStatusRepository, SeatStatusMapper seatStatusMapper, ISeatService seatService) {
         this.seatStatusRepository = seatStatusRepository;
         this.seatStatusMapper = seatStatusMapper;
         this.seatService = seatService;
-        this.movieScreeningService = movieScreeningService;
     }
 
     @Override
     public List<SeatStatusResponse> getSeatStatusesByScreeningAndRoom(int msID, int roomID) {
         List<SeatStatus> seatStatuses = seatStatusRepository.findByScreeningAndRoom(msID, roomID);
-        return seatStatuses.stream()
-                .map(seatStatusMapper::toDTO)
-                .collect(Collectors.toList());
+        return seatStatuses.stream().map(seatStatusMapper::toDTO).collect(Collectors.toList());
     }
 
     @Override
@@ -53,13 +47,6 @@ public class SeatStatusServiceImpl implements ISeatStatusService {
             seatStatuses.add(seatStatus);
         }
         seatStatusRepository.saveAll(seatStatuses); // Lưu một lần để tối ưu hiệu suất
-    }
-
-    @Override
-    public MovieScreenResponse getScreeningInfo(List<SeatStatusResponse> seatStatusResponses, long msID) throws NotFoundException {
-       MovieScreenResponse movieScreenResponse = movieScreeningService.getMovieScreenById(msID);
-       movieScreenResponse.setAvailableSeats(seatStatusResponses.stream().filter(seatStatusResponse -> !seatStatusResponse.isStatus()).count());
-       return movieScreenResponse;
     }
 
     @Override

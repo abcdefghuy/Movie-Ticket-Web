@@ -1,0 +1,72 @@
+package com.example.movieticketWeb.enumeration;
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+
+@Getter
+@AllArgsConstructor
+public enum ErrorCode {
+
+    // Success Codes (1xxx)
+    SUCCESS(1000, "Request processed successfully"),
+    CREATED(1001, "Created successfully"),
+    UPDATED(1002, "Data updated successfully"),
+    DELETED(1003, "Data deleted successfully"),
+    LOGIN_SUCCESS(1004, "Login successful"),
+    SUCCESS_ACCOUNT_VERIFIED(1005, "Account has already been verified successfully"),
+    SUCCESS_OTP_SENT(1006, "OTP has been sent to your email address"),
+    SUCCESS_PASSWORD_RESET(1007, "Password has been reset successfully"),
+    BOOKMARK_ADDED_SUCCESSFULLY(1008, "Bookmark added successfully"),
+    REVIEW_ADDED_SUCCESSFULLY(1009, "Review added successfully"),
+    LESSON_PROGRESS_UPDATED(1010, "Lesson progress updated successfully"),
+    LOGOUT_SUCCESS(1011, "Logout successful"),
+    SUCCESS_REFRESH_TOKEN(1012, "Success refreshed token"),
+
+    // Authentication & Authorization Errors (2xxx)
+    INVALID_CREDENTIALS(2000, "Invalid email or password"),
+    ACCOUNT_NOT_VERIFIED(2001, "Account not verified. Please verify your account."),
+    REFRESH_TOKEN_MISSING(2003, "Token missing"),
+    REFRESH_TOKEN_EXPIRED(2004, "Token expired"),
+    ACCESS_TOKEN_MISSING(2005, "Access token missing"),
+    ACCESS_TOKEN_EXPIRED(2006, "Access token expired"),
+    INVALID_REFRESH_TOKEN(2007, "Invalid refresh token"),
+    INVALID_ACCESS_TOKEN(2008, "Invalid access token"),
+    ACCESS_DENIED(2009, "Access denied"),
+
+    // Bad Request & Validation Errors (3xxx)
+    INVALID_REQUEST_PARAMETERS(3000, "Invalid request parameters"),
+    MISSING_REQUIRED_PARAMETER(3001, "Missing required parameter"),
+    INVALID_EMAIL_FORMAT(3002, "Please provide a valid email address."),
+    PASSWORD_LENGTH_INVALID(3003, "Password length must be between 8 and 30 characters."),
+    PASSWORD_INVALID_FORMAT(3004, "Password must contain at least one letter, one number, and one special character."),
+    INVALID_OTP_FORMAT(3006, "OTP must be 6 digits."),
+    INVALID_DATE_FORMAT(3007, "Invalid date format."),
+
+    // Data Errors (4xxx)
+    USER_NOT_FOUND(4000, "User not found"),
+    EMAIL_ALREADY_REGISTERED(4001, "Email is already registered"),
+    ACCOUNT_ALREADY_VERIFIED(4002, "Account is already verified"),
+    OTP_EXPIRED(4003, "OTP has expired"),
+    OTP_STILL_VALID(4005, "OTP is still valid. Please wait until it expires."),
+    INVALID_OTP(4007, "Invalid OTP. Please check the code and try again."),
+    EXPIRED_OTP(4008, "OTP has expired. Please request a new OTP."),
+    CATEGORY_NOT_FOUND(4009, "Category not found"),
+    COURSE_NOT_FOUND(4010, "Course not found"),
+    BOOKMARK_ALREADY_EXISTS(4011, "Bookmark already exists"),
+    INVALID_REQUEST(4012, "User ID and Course ID are required"),
+    BOOKMARK_NOT_FOUND(4013, "Bookmark not found"),
+    REVIEW_NOT_FOUND(4014, "Review not found"),
+    ORDER_NOT_FOUND(4015, "Payment order not found"),
+    INVALID_SIGNATURE(4016, "Invalid secure hash signature from VNPay"),
+    LESSON_NOT_FOUND(4017, "Lesson not found"),
+
+    // Server Errors (5xxx)
+    INTERNAL_SERVER_ERROR(5000, "An unexpected error occurred. Please try again later."),
+    USER_REGISTRATION_FAILED(5001, "User registration failed"),
+    USER_VERIFICATION_FAILED(5002, "User verification failed"),
+    OTP_RESEND_FAILED(5003, "Failed to resend OTP"),
+    REDIS_ERROR(5004, "Redis error occurred");
+
+    private final int code;
+    private final String message;
+}
