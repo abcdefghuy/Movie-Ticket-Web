@@ -1,7 +1,7 @@
 package com.example.movieticketWeb.entity;
 
-
 import jakarta.persistence.*;
+
 import lombok.*;
 
 @Data
@@ -23,5 +23,4 @@ public class TicketPayment {
     @ManyToOne
     @JoinColumn(name = "ticketID")
     private Ticket ticket;
-    
 }

@@ -1,11 +1,12 @@
 package com.example.movieticketWeb.repository;
 
-import com.example.movieticketWeb.entity.SeatStatus;
+import java.util.List;
+
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
-import java.util.List;
+import com.example.movieticketWeb.entity.SeatStatus;
 
 @Repository
 public interface ISeatStatusRepository extends JpaRepository<SeatStatus, Integer> {

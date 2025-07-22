@@ -1,10 +1,9 @@
 package com.example.movieticketWeb.service;
 
-import com.example.movieticketWeb.dto.request.CinemaRequest;
-import com.example.movieticketWeb.dto.response.CinemaResponse;
 import org.springframework.data.domain.Page;
 
-import java.util.Map;
+import com.example.movieticketWeb.dto.request.CinemaRequest;
+import com.example.movieticketWeb.dto.response.CinemaResponse;
 
 public interface ICinemaService {
     boolean addCinema(CinemaRequest cinemaRequest);

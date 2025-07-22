@@ -1,19 +1,20 @@
 package com.example.movieticketWeb.service.impl;
 
-import com.example.movieticketWeb.dto.response.ReviewResponse;
-import com.example.movieticketWeb.mapper.ReviewMapper;
-import com.example.movieticketWeb.repository.IReviewRepository;
-import com.example.movieticketWeb.service.IMovieService;
-import com.example.movieticketWeb.service.IPersonService;
-import com.example.movieticketWeb.service.IReviewService;
+import java.time.Duration;
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.redis.core.RedisTemplate;
 import org.springframework.stereotype.Service;
 
-import java.time.Duration;
-import java.util.List;
+import com.example.movieticketWeb.dto.response.ReviewResponse;
+import com.example.movieticketWeb.mapper.ReviewMapper;
+import com.example.movieticketWeb.repository.IReviewRepository;
+import com.example.movieticketWeb.service.IMovieService;
+import com.example.movieticketWeb.service.IPersonService;
+import com.example.movieticketWeb.service.IReviewService;
 
 @Service
 public class ReviewServiceImpl implements IReviewService {
@@ -23,7 +24,13 @@ public class ReviewServiceImpl implements IReviewService {
     private static final String REVIEW_CACHE_KEY = "allReviews";
     private final RedisTemplate<String, Object> redisTemplate;
     private final ReviewMapper reviewMapper;
-    public ReviewServiceImpl(IReviewRepository reviewRepository, IMovieService movieService, IPersonService personService, RedisTemplate<String, Object> redisTemplate, ReviewMapper reviewMapper) {
+
+    public ReviewServiceImpl(
+            IReviewRepository reviewRepository,
+            IMovieService movieService,
+            IPersonService personService,
+            RedisTemplate<String, Object> redisTemplate,
+            ReviewMapper reviewMapper) {
         this.reviewRepository = reviewRepository;
         this.movieService = movieService;
         this.personService = personService;
@@ -32,12 +39,12 @@ public class ReviewServiceImpl implements IReviewService {
     }
 
     @Override
-    public Page<ReviewResponse> getAllReviews(Long id,int page, int recordPerPage) {
-        List<ReviewResponse> reviews = (List<ReviewResponse>) redisTemplate.opsForValue().get(REVIEW_CACHE_KEY);
-        if(reviews != null){
+    public Page<ReviewResponse> getAllReviews(Long id, int page, int recordPerPage) {
+        List<ReviewResponse> reviews =
+                (List<ReviewResponse>) redisTemplate.opsForValue().get(REVIEW_CACHE_KEY);
+        if (reviews != null) {
             return paginationReview(reviews, page, recordPerPage);
-        }
-        else{
+        } else {
             List<ReviewResponse> reviewResponseList = reviewRepository.findByMovieId(id).stream()
                     .map(reviewMapper::toDTO)
                     .toList();
@@ -58,8 +65,7 @@ public class ReviewServiceImpl implements IReviewService {
             reviewRepository.deleteById(id);
             redisTemplate.delete(REVIEW_CACHE_KEY);
             return true;
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             return false;
         }
     }

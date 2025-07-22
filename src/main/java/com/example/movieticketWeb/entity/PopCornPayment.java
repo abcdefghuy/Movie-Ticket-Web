@@ -1,7 +1,7 @@
 package com.example.movieticketWeb.entity;
 
-
 import jakarta.persistence.*;
+
 import lombok.*;
 
 @Data
@@ -26,5 +26,4 @@ public class PopCornPayment {
 
     @Column(name = "quantity", nullable = false)
     private int quantity;
-    
 }

@@ -1,13 +1,13 @@
 package com.example.movieticketWeb.service;
 
+import java.util.Date;
+import java.util.List;
+import java.util.Map;
+import javassist.NotFoundException;
+
 import com.example.movieticketWeb.dto.request.MovieScreenRequest;
 import com.example.movieticketWeb.dto.response.MovieScreenResponse;
-import com.example.movieticketWeb.entity.MovieScreenings;
-import javassist.NotFoundException;
-import lombok.Data;
-
-import java.util.Date;
-import java.util.Map;
+import com.example.movieticketWeb.dto.response.SeatStatusResponse;
 
 public interface IMovieScreenService {
     Map<String, Object> getMovieScreens(Long roomId, int page, int soluong);
@@ -21,4 +21,6 @@ public interface IMovieScreenService {
     MovieScreenResponse getMovieScreenById(Long id) throws NotFoundException;
 
     Map<String, Object> searchMovieScreen(Long roomId, int page, int soluong, Date keyword);
+
+    MovieScreenResponse getScreeningInfo(List<SeatStatusResponse> seatStatusResponses, long msID);
 }

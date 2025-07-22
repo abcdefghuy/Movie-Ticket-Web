@@ -1,12 +1,11 @@
 package com.example.movieticketWeb.dto.response;
 
+import java.util.Date;
+
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
-
-import java.util.Date;
-import java.util.List;
 
 @Data
 @AllArgsConstructor
@@ -23,7 +22,7 @@ public class MovieResponse {
     private float rating;
     private boolean status;
     private String movieTrailer;
-  //  private List<MovieScreeningsResponse> movieScreenings;
-//private List<ReviewResponse> reviews;
+    //  private List<MovieScreeningsResponse> movieScreenings;
+    // private List<ReviewResponse> reviews;
 
 }

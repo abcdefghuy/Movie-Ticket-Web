@@ -1,10 +1,10 @@
 package com.example.movieticketWeb.dto.request;
 
-import jakarta.validation.constraints.*;
-import lombok.*;
-
-import java.time.LocalDate;
 import java.util.Date;
+
+import jakarta.validation.constraints.*;
+
+import lombok.*;
 
 @Data
 @NoArgsConstructor
@@ -28,7 +28,8 @@ public class RegisterUserRequest {
     private String phone;
 
     @NotNull(message = "Gender is required")
-    @Min(0) @Max(1)
+    @Min(0)
+    @Max(1)
     private Integer gender; // 0: Male, 1: Female
 
     @NotNull(message = "Region is required")
@@ -37,5 +38,4 @@ public class RegisterUserRequest {
     @NotNull(message = "Date of birth is required")
     @Past(message = "Date of birth must be in the past")
     private Date dob;
-
 }

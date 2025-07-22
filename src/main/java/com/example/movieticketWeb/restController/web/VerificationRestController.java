@@ -1,21 +1,21 @@
-package com.example.movieticketWeb.RestController.web;
+package com.example.movieticketWeb.restController.web;
 
-import com.example.movieticketWeb.dto.request.VerifyUserRequest;
-import com.example.movieticketWeb.service.AuthenticationService;
-import com.example.movieticketWeb.service.JwtService;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpSession;
+import java.util.Map;
+
 import jakarta.validation.Valid;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
-import org.springframework.web.servlet.ModelAndView;
 
-import java.util.Collections;
-import java.util.Map;
+import com.example.movieticketWeb.aop.ApiException;
+import com.example.movieticketWeb.dto.request.VerifyUserRequest;
+import com.example.movieticketWeb.dto.response.ApiResponse;
+import com.example.movieticketWeb.enumeration.ErrorCode;
+import com.example.movieticketWeb.service.AuthenticationService;
+import com.example.movieticketWeb.service.JwtService;
 
 @RestController
 public class VerificationRestController {
@@ -29,15 +29,16 @@ public class VerificationRestController {
     }
 
     @PostMapping(value = "/verify", consumes = "application/json", produces = "application/json")
-    public ResponseEntity<?> verifyUser(@Valid @RequestBody VerifyUserRequest verifyUserRequest, BindingResult bindingResult) {
+    public ResponseEntity<?> verifyUser(
+            @Valid @RequestBody VerifyUserRequest verifyUserRequest, BindingResult bindingResult) {
         ResponseEntity<?> errors = SignupRestController.getResponseEntity(bindingResult);
         if (errors != null) return errors;
 
         try {
             authenticationService.verifyUser(verifyUserRequest);
-            return ResponseEntity.ok().body(Map.of("message", "Account verified successfully"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Map.of("error", e.getMessage()));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS));
+        } catch (ApiException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getErrorCode()));
         }
     }
 
@@ -46,11 +47,9 @@ public class VerificationRestController {
         try {
             String email = request.get("email");
             authenticationService.resendVerificationCode(email);
-            return ResponseEntity.ok(Collections.singletonMap("message", "Verification code sent"));
-        } catch (RuntimeException e) {
-            return ResponseEntity.badRequest().body(Collections.singletonMap("message", e.getMessage()));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS_OTP_SENT));
+        } catch (ApiException e) {
+            return ResponseEntity.badRequest().body(ApiResponse.error(e.getErrorCode()));
         }
     }
-
-
 }

@@ -1,8 +1,9 @@
 package com.example.movieticketWeb.mapper;
 
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.dto.response.SeatStatusResponse;
 import com.example.movieticketWeb.entity.SeatStatus;
-import org.springframework.stereotype.Service;
 
 @Service
 public class SeatStatusMapper {

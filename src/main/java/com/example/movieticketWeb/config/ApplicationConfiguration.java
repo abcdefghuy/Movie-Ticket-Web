@@ -1,6 +1,5 @@
 package com.example.movieticketWeb.config;
 
-import com.example.movieticketWeb.repository.IUserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,16 +9,21 @@ import org.springframework.security.config.annotation.authentication.configurati
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+
+import com.example.movieticketWeb.repository.IUserRepository;
+
 @Configuration
 public class ApplicationConfiguration {
     private final IUserRepository IUserRepository;
+
     public ApplicationConfiguration(IUserRepository IUserRepository) {
         this.IUserRepository = IUserRepository;
     }
 
     @Bean
     UserDetailsService userDetailsService() {
-        return username -> IUserRepository.findByEmail(username).orElseThrow(() -> new UsernameNotFoundException("User not found"));
+        return username -> IUserRepository.findByEmail(username)
+                .orElseThrow(() -> new UsernameNotFoundException("User not found"));
     }
 
     @Bean

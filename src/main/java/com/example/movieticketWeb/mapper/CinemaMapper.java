@@ -1,9 +1,10 @@
 package com.example.movieticketWeb.mapper;
 
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.dto.request.CinemaRequest;
 import com.example.movieticketWeb.dto.response.CinemaResponse;
 import com.example.movieticketWeb.entity.Cinema;
-import org.springframework.stereotype.Service;
 
 @Service
 public class CinemaMapper {
@@ -18,7 +19,7 @@ public class CinemaMapper {
                 .build();
     }
 
-    public  Cinema toEntity(CinemaRequest cinemaRequest) {
+    public Cinema toEntity(CinemaRequest cinemaRequest) {
         return Cinema.builder()
                 .cinemaName(cinemaRequest.getCinemaName())
                 .address(cinemaRequest.getAddress())

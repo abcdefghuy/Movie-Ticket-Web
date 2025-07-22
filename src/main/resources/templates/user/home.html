@@ -254,7 +254,16 @@
 		});
 		function fetchMovies() {
 			fetch("/user/movieList")
-					.then(response => response.json())
+					.then(response => {
+						if (!response.ok) {
+							if (response.status === 401) {
+								window.location.href = "/login"; // Chuyển hướng đến trang đăng nhập
+								throw new Error("Unauthorized: Chuyển hướng đến trang đăng nhập.");
+							}
+							throw new Error(`Lỗi: ${response.status} - ${response.statusText}`);
+						}
+						return response.json();
+					})
 					.then(data => {
 						renderMovies(data.moviesShowing,"movies-showing-carousel");
 						renderMovies(data.moviesComingSoon,"movies-coming-carousel");

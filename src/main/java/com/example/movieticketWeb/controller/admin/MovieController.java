@@ -1,12 +1,13 @@
 package com.example.movieticketWeb.controller.admin;
 
-import com.example.movieticketWeb.entity.Person;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.servlet.ModelAndView;
+
+import com.example.movieticketWeb.entity.Person;
 
 @Controller
 @RequestMapping("/admin")
@@ -18,6 +19,7 @@ public class MovieController {
         }
         return new ModelAndView("admin/movie-list");
     }
+
     @GetMapping("/movies/add")
     public ModelAndView addMovie(@AuthenticationPrincipal Person person) {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
@@ -25,9 +27,9 @@ public class MovieController {
         }
         return new ModelAndView("admin/movie-add");
     }
+
     @GetMapping("/movies/{id}/edit")
-    public ModelAndView editMovie(@AuthenticationPrincipal Person person,
-                                  @PathVariable("id") Long movieID) {
+    public ModelAndView editMovie(@AuthenticationPrincipal Person person, @PathVariable("id") Long movieID) {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return new ModelAndView("web/signin");
         }

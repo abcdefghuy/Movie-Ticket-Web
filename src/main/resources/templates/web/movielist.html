@@ -24,10 +24,10 @@
                                 <div class="left">
                                     <div class="item">
                                         <span class="show">Sort By :</span>
-                                        <select class="select-bar" onchange="location = this.value;">
-                                            <option value="?filter=showing" th:selected="${param.filter != null and param.filter[0] == 'showing'}">Phim Đang Chiếu</option>
-                                            <option value="?filter=comingSoon" th:selected="${param.filter != null and param.filter[0] == 'comingSoon'}">Phim Sắp Chiếu</option>
-                                            <option value="@{/userMovieList}" th:selected="${param.filter == null}">Tất Cả Phim</option>
+                                        <select class="select-bar" id="filter" onchange="fetchMovies(this.value)">
+                                            <option value="showing">Phim Đang Chiếu</option>
+                                            <option value="comingSoon">Phim Sắp Chiếu</option>
+                                            <option value="all">Tất Cả Phim</option>
                                         </select>
                                     </div>
                                 </div>
@@ -40,32 +40,8 @@
                         <div class="tab-area">
                             <div class="tab-item">
                                 <div class="row mb-10 justify-content-center">
-                                    <div class="col-sm-6 col-lg-4" th:each="movie : ${movies}">
+                                    <div class="col-sm-6 col-lg-4" >
                                         <div class="movie-grid">
-                                            <div class="movie-thumb c-thumb">
-                                                <a th:href="@{/review(movieID=${movie.movieID})}">
-                                                    <img th:src="${movie.image.startsWith('https') ? movie.image : '/image?fname=' + movie.image}"
-                                                         th:alt="${movie.movieName}" class="movie-img">
-                                                </a>
-                                            </div>
-
-                                            <div class="movie-content bg-one">
-                                                <h5 class="title m-0">
-                                                    <a th:href="@{/review(movieID=${movie.movieID})}" th:text="${movie.movieName}"></a>
-                                                </h5>
-
-                                                <ul class="movie-action-list">
-                                                    <div>
-                                                        <a th:href="@{/signin}" class="custom-button">
-                                                            <i class="bi bi-ticket-perforated-fill"></i> Book Ticket
-                                                        </a>
-                                                    </div>
-                                                    <div>
-                                                        <a th:href="@{/review(movieID=${movie.movieID})}" class="custom-button flaticon-loupe">Detail</a>
-                                                    </div>
-                                                </ul>
-                                            </div>
-                                            <br>
                                         </div>
                                     </div>
                                 </div>
@@ -73,73 +49,7 @@
 
                             <div class="tab-item active">
                                 <div class="movie-area mb-10">
-                                    <div class="movie-list" th:each="movie : ${movies}">
-                                        <div class="movie-thumb c-thumb">
-                                            <a th:href="@{/review(movieID=${movie.movieID})}">
-                                                <img th:src="${movie.image.startsWith('https') ? movie.image : '/image?fname=' + movie.image}"
-                                                     th:alt="${movie.movieName}" class="movie-img">
-                                            </a>
-                                        </div>
-
-                                        <div class="movie-content bg-one">
-                                            <h5 class="title">
-                                                <a th:href="@{/review(movieID=${movie.movieID})}" th:text="${movie.movieName}"></a>
-                                            </h5>
-
-                                            <p class="duration">
-                                                <strong>Thời lượng:</strong> <span th:text="${movie.movieDuration}"></span>
-                                            </p>
-
-                                            <ul class="movie-rating-percent">
-                                                <li>
-                                                    <div class="thumb">
-                                                        <img th:src="@{static/assets/images/movie/tomato.png}" alt="movie">
-                                                    </div>
-                                                    <span class="content"><strong>Thể loại:</strong> <span th:text="${movie.category}"></span></span>
-                                                </li>
-                                                <li>
-                                                    <div class="thumb">
-                                                        <img th:src="@{static/assets/images/movie/cake.png}" alt="movie">
-                                                    </div>
-                                                    <span class="content">
-                                                    <strong>Khởi chiếu:</strong> <span th:text="${#dates.format(movie.releaseDay, 'dd/MM/yyyy')}"></span>
-                                                </span>
-                                                </li>
-                                            </ul>
-
-                                            <div class="book-area">
-                                                <div class="book-ticket">
-                                                    <div class="react-item mr-auto">
-                                                        <a th:href="@{/signin}">
-                                                            <div class="thumb">
-                                                                <img th:src="@{static/assets/images/icons/book.png}" alt="icons">
-                                                            </div>
-                                                            <span>book ticket</span>
-                                                        </a>
-                                                    </div>
-                                                    <div class="react-item mr-auto">
-                                                        <a th:href="@{/review(movieID=${movie.movieID})}">
-                                                            <div class="thumb">
-                                                                <img th:src="@{static/assets/images/icons/play-button.png}" alt="icons">
-                                                            </div>
-                                                            <span>Movie Detail</span>
-                                                        </a>
-                                                    </div>
-                                                    <div class="react-item">
-                                                        <a th:if="${not #strings.isEmpty(movie.movieTrailer)}" th:href="${movie.movieTrailer}" class="video-popup"
-                                                           th:title="'Watch the trailer for ' + ${movie.movieName}"
-                                                           th:aria-label="'Watch the trailer for ' + ${movie.movieName}">
-                                                            <div class="thumb">
-                                                                <img th:src="@{/assets/images/icons/heart.png}"
-                                                                     th:onerror="|this.src='@{static/assets/images/icons/default.png}'|">
-                                                            </div>
-                                                            <span>watch trailer</span>
-                                                        </a>
-                                                        <span th:unless="${not #strings.isEmpty(movie.movieTrailer)}">No trailer available</span>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
+                                    <div class="movie-list">
                                     </div> <!-- END movie-list -->
                                 </div>
                             </div> <!-- END tab-item active -->
@@ -153,7 +63,117 @@
 <!-- ==========Preloader========== -->
 
 </body>
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        fetchMovies("showing"); // Mặc định hiển thị phim đang chiếu
+    });
 
+    async function fetchMovies(filter) {
+        const moviesGrid = document.getElementById("movies-grid"); // Grid view
+        const moviesList = document.getElementById("movies-list"); // List view
+
+        moviesGrid.innerHTML = "<p>Đang tải...</p>";
+        moviesList.innerHTML = "<p>Đang tải...</p>";
+
+        try {
+            let apiUrl = "/movies"; // API mặc định
+            if (filter === "showing") apiUrl = "movies/showing";
+            if (filter === "comingSoon") apiUrl = "movies/coming-soon";
+
+            const response = await fetch(apiUrl);
+            const movies = await response.json();
+
+            if (movies.length === 0) {
+                moviesGrid.innerHTML = "<p>Không có phim nào.</p>";
+                moviesList.innerHTML = "<p>Không có phim nào.</p>";
+                return;
+            }
+
+            // Render dạng Grid
+            moviesGrid.innerHTML = movies.map(movie => `
+            <div class="col-sm-6 col-lg-4">
+                <div class="movie-grid">
+                    <div class="movie-thumb c-thumb">
+                        <a href="/review?movieID=${movie.movieID}">
+                            <img src="${movie.image.startsWith('https') ? movie.image : '/image?fname=' + movie.image}"
+                                 alt="${movie.movieName}" class="movie-img">
+                        </a>
+                    </div>
+                    <div class="movie-content bg-one">
+                        <h5 class="title m-0">
+                            <a href="/review?movieID=${movie.movieID}">${movie.movieName}</a>
+                        </h5>
+                        <ul class="movie-action-list">
+                            <div>
+                                <a href="/signin" class="custom-button">
+                                    <i class="bi bi-ticket-perforated-fill"></i> Book Ticket
+                                </a>
+                            </div>
+                            <div>
+                                <a href="/review?movieID=${movie.movieID}" class="custom-button flaticon-loupe">Detail</a>
+                            </div>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+            // Render dạng List
+            moviesList.innerHTML = movies.map(movie => `
+            <div class="movie-list">
+                <div class="movie-thumb c-thumb">
+                    <a href="/review?movieID=${movie.movieID}">
+                        <img src="${movie.image.startsWith('https') ? movie.image : '/image?fname=' + movie.image}"
+                             alt="${movie.movieName}" class="movie-img">
+                    </a>
+                </div>
+
+                <div class="movie-content bg-one">
+                    <h5 class="title">
+                        <a href="/review?movieID=${movie.movieID}">${movie.movieName}</a>
+                    </h5>
+                    <p class="duration">
+                        <strong>Thời lượng:</strong> ${movie.movieDuration} phút
+                    </p>
+                    <ul class="movie-rating-percent">
+                        <li>
+                            <span class="content"><strong>Thể loại:</strong> ${movie.category}</span>
+                        </li>
+                        <li>
+                            <span class="content"><strong>Khởi chiếu:</strong> ${new Date(movie.releaseDay).toLocaleDateString('vi-VN')}</span>
+                        </li>
+                    </ul>
+                    <div class="book-area">
+                        <div class="book-ticket">
+                            <div class="react-item mr-auto">
+                                <a href="/signin">
+                                    <div class="thumb">
+                                        <img src="/assets/images/icons/book.png" alt="icons">
+                                    </div>
+                                    <span>Đặt vé</span>
+                                </a>
+                            </div>
+                            <div class="react-item mr-auto">
+                                <a href="/review?movieID=${movie.movieID}">
+                                    <div class="thumb">
+                                        <img src="/assets/images/icons/play-button.png" alt="icons">
+                                    </div>
+                                    <span>Chi tiết</span>
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        `).join("");
+
+        } catch (error) {
+            console.error("Lỗi khi tải phim:", error);
+            moviesGrid.innerHTML = "<p>Lỗi khi tải dữ liệu!</p>";
+            moviesList.innerHTML = "<p>Lỗi khi tải dữ liệu!</p>";
+        }
+    }
+</script>
 
 <!-- Mirrored from pixner.net/boleto/demo/movielist.html by HTTrack Website Copier/3.x [XR&CO'2014], Sun, 03 Nov 2024 06:26:33 GMT -->
 </html>

@@ -1,11 +1,12 @@
 package com.example.movieticketWeb.entity;
 
-
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.Date;
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import lombok.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -24,13 +25,13 @@ public class Payment {
     @JoinColumn(name = "couponID", nullable = true)
     private Coupon coupon;
 
-	@Column(name = "totalPrice")
+    @Column(name = "totalPrice")
     private double totalPrice;
 
-	@Column(name = "createdDate")
+    @Column(name = "createdDate")
     private Date createdDate;
 
-	@Column(name = "status")
+    @Column(name = "status")
     private int status;
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -38,5 +39,4 @@ public class Payment {
 
     @OneToMany(mappedBy = "payment", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<PopCornPayment> popCornPayments;
-
 }

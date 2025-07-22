@@ -1,9 +1,11 @@
 package com.example.movieticketWeb.entity;
 
+import java.util.Date;
+
 import jakarta.persistence.*;
+
 import lombok.*;
 
-import java.util.Date;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -26,10 +28,10 @@ public class NewsOrDiscount {
 
     @Column(name = "images", columnDefinition = "NVARCHAR(500)")
     private String images;
+
     @Column(name = "author", columnDefinition = "NVARCHAR(500)")
     private String author;
 
     @Column(name = "date", nullable = false)
     private Date date;
-
 }

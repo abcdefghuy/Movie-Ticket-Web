@@ -1,11 +1,18 @@
 package com.example.movieticketWeb.service.impl;
 
+import java.time.Duration;
+import java.util.*;
+import java.util.stream.Collectors;
+import javassist.NotFoundException;
+
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.redis.core.RedisTemplate;
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.dto.request.MovieScreenRequest;
-import com.example.movieticketWeb.dto.response.CinemaResponse;
-import com.example.movieticketWeb.dto.response.MovieResponse;
-import com.example.movieticketWeb.dto.response.MovieScreenResponse;
-import com.example.movieticketWeb.dto.response.RoomResponse;
-import com.example.movieticketWeb.entity.Cinema;
+import com.example.movieticketWeb.dto.response.*;
 import com.example.movieticketWeb.entity.Movie;
 import com.example.movieticketWeb.entity.MovieScreenings;
 import com.example.movieticketWeb.entity.Room;
@@ -14,17 +21,6 @@ import com.example.movieticketWeb.repository.IMovieRepository;
 import com.example.movieticketWeb.repository.IMovieScreenRepository;
 import com.example.movieticketWeb.repository.IRoomRepository;
 import com.example.movieticketWeb.service.IMovieScreenService;
-import javassist.NotFoundException;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.http.ResponseEntity;
-import org.springframework.stereotype.Service;
-
-import java.time.Duration;
-import java.util.*;
-import java.util.stream.Collectors;
 
 @Service
 public class MovieScreenServiceImpl implements IMovieScreenService {
@@ -34,7 +30,14 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
     private final MovieScreenMapper movieScreenMapper;
     private final SeatStatusServiceImpl seatStatusService;
     private final RedisTemplate<String, Object> redisTemplate;
-    public MovieScreenServiceImpl(IMovieScreenRepository movieScreenRepository, IRoomRepository roomRepository, IMovieRepository movieRepository, MovieScreenMapper movieScreenMapper, SeatStatusServiceImpl seatStatusService, RedisTemplate<String, Object> redisTemplate) {
+
+    public MovieScreenServiceImpl(
+            IMovieScreenRepository movieScreenRepository,
+            IRoomRepository roomRepository,
+            IMovieRepository movieRepository,
+            MovieScreenMapper movieScreenMapper,
+            SeatStatusServiceImpl seatStatusService,
+            RedisTemplate<String, Object> redisTemplate) {
         this.movieScreenRepository = movieScreenRepository;
         this.roomRepository = roomRepository;
         this.movieRepository = movieRepository;
@@ -42,25 +45,25 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
         this.seatStatusService = seatStatusService;
         this.redisTemplate = redisTemplate;
     }
+
     @Override
     public Map<String, Object> getMovieScreens(Long roomId, int page, int soluong) {
         String cacheKey = "movieScreenByRoom:" + roomId;
-        List<MovieScreenResponse> cachedMovieScreens = (List<MovieScreenResponse>) redisTemplate.opsForValue().get(cacheKey);
+        List<MovieScreenResponse> cachedMovieScreens =
+                (List<MovieScreenResponse>) redisTemplate.opsForValue().get(cacheKey);
         Page<MovieScreenResponse> movies = null;
         if (cachedMovieScreens != null) {
             movies = paginateMovieScreen(cachedMovieScreens, page, soluong);
         }
-        Page<MovieScreenings> movieScreenPage = movieScreenRepository.getMovieScreenByRoomId(
-                roomId, PageRequest.of(page - 1, soluong)
-        );
+        Page<MovieScreenings> movieScreenPage =
+                movieScreenRepository.getMovieScreenByRoomId(roomId, PageRequest.of(page - 1, soluong));
         movies = movieScreenPage.map(movieScreenMapper::toDTO);
         Map<String, Object> response = new HashMap<>();
         String roomName = movies.stream()
                 .findFirst()
                 .map(MovieScreenResponse::getRoomName)
-                .orElseGet(() -> roomRepository.findById(roomId)
-                        .map(Room::getRoomName)
-                        .orElse("Tên phòng chưa xác định"));
+                .orElseGet(() ->
+                        roomRepository.findById(roomId).map(Room::getRoomName).orElse("Tên phòng chưa xác định"));
         response.put("movieScreen", movies.getContent());
         response.put("noOfPages", movies.getTotalPages());
         response.put("currentPage", page);
@@ -70,18 +73,25 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
         redisTemplate.opsForValue().set(cacheKey, movies.getContent());
         return response;
     }
-    private Page<MovieScreenResponse> paginateMovieScreen(List<MovieScreenResponse> cachedMovieScreens, int page, int recordsPerPage) {
+
+    private Page<MovieScreenResponse> paginateMovieScreen(
+            List<MovieScreenResponse> cachedMovieScreens, int page, int recordsPerPage) {
         int start = (page - 1) * recordsPerPage;
         int end = Math.min(start + recordsPerPage, cachedMovieScreens.size());
-        return new PageImpl<>(cachedMovieScreens.subList(start, end), PageRequest.of(page - 1, recordsPerPage), cachedMovieScreens.size());
+        return new PageImpl<>(
+                cachedMovieScreens.subList(start, end),
+                PageRequest.of(page - 1, recordsPerPage),
+                cachedMovieScreens.size());
     }
 
     @Override
     public boolean addMovieScreen(MovieScreenRequest movieScreenRequest) {
         try {
-            Movie movie = movieRepository.findById(movieScreenRequest.getMovieId()).orElseThrow();
+            Movie movie =
+                    movieRepository.findById(movieScreenRequest.getMovieId()).orElseThrow();
             Room room = roomRepository.findById(movieScreenRequest.getRoomId()).orElseThrow();
-            MovieScreenings movieScreening = movieScreenRepository.save(movieScreenMapper.toEntity(movieScreenRequest, movie, room));
+            MovieScreenings movieScreening =
+                    movieScreenRepository.save(movieScreenMapper.toEntity(movieScreenRequest, movie, room));
             seatStatusService.addSeatStatusForScreening(movieScreening); // Thêm tất cả SeatStatus
             redisTemplate.delete("movieScreenByRoom:" + movieScreenRequest.getRoomId());
             return true;
@@ -98,8 +108,11 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
                 MovieScreenings movieScreenings = movieScreeningsOptional.get();
                 // 🔄 Cập nhật thông tin Room từ request
                 movieScreenings.setScreeningDate(movieScreenRequest.getScreenDate());
-                movieScreenings.setMovie(movieRepository.findById(movieScreenRequest.getMovieId()).orElseThrow());
-                movieScreenings.setRoom(roomRepository.findById(movieScreenRequest.getRoomId()).orElseThrow());
+                movieScreenings.setMovie(movieRepository
+                        .findById(movieScreenRequest.getMovieId())
+                        .orElseThrow());
+                movieScreenings.setRoom(
+                        roomRepository.findById(movieScreenRequest.getRoomId()).orElseThrow());
                 movieScreenings.setStartHour(movieScreenRequest.getStartTime());
                 movieScreenings.setEndHour(movieScreenRequest.getEndTime());
                 movieScreenings.setStatus(movieScreenRequest.isStatus());
@@ -123,7 +136,8 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
             MovieScreenings movieScreenings = movieScreenRepository.findById(id).orElseThrow();
             movieScreenRepository.delete(movieScreenings);
             redisTemplate.delete("movie screen:" + id);
-            redisTemplate.delete("movieScreenByRoom:" + movieScreenings.getRoom().getRoomId());
+            redisTemplate.delete(
+                    "movieScreenByRoom:" + movieScreenings.getRoom().getRoomId());
             return true;
         } catch (Exception e) {
             return false;
@@ -134,11 +148,12 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
     public MovieScreenResponse getMovieScreenById(Long id) throws NotFoundException {
         String cacheKey = "movie screen:" + id;
         // 🔥 Kiểm tra xem phòng có trong cache không
-        MovieScreenResponse cachedMovieScreen = (MovieScreenResponse) redisTemplate.opsForValue().get(cacheKey);
+        MovieScreenResponse cachedMovieScreen =
+                (MovieScreenResponse) redisTemplate.opsForValue().get(cacheKey);
         if (cachedMovieScreen != null) {
             return cachedMovieScreen;
         }
-        MovieScreenings movieScreenings= movieScreenRepository.findById(id).orElse(null);
+        MovieScreenings movieScreenings = movieScreenRepository.findById(id).orElse(null);
         if (movieScreenings == null) {
             throw new NotFoundException("Không tìm thấy suất chiếu với ID: " + id);
         }
@@ -151,14 +166,17 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
     @Override
     public Map<String, Object> searchMovieScreen(Long roomId, int page, int soluong, Date keyword) {
         String cacheKey = "movieScreenByRoom:" + roomId;
-        List<MovieScreenResponse> cachedMovieScreens = (List<MovieScreenResponse>) redisTemplate.opsForValue().get(cacheKey);
+        List<MovieScreenResponse> cachedMovieScreens =
+                (List<MovieScreenResponse>) redisTemplate.opsForValue().get(cacheKey);
         Page<MovieScreenResponse> movies = null;
         if (cachedMovieScreens != null) {
             List<MovieScreenResponse> filteredMovieScreens = filterMovieScreenByKeyword(cachedMovieScreens, keyword);
             movies = paginateMovieScreen(filteredMovieScreens, page, soluong);
         }
-        List<MovieScreenings> movieScreenPage = movieScreenRepository.searchMovieScreeningsByScreenDate(roomId, keyword);
-        movies = paginateMovieScreen(movieScreenPage.stream().map(movieScreenMapper::toDTO).collect(Collectors.toList()), page, soluong);
+        List<MovieScreenings> movieScreenPage =
+                movieScreenRepository.searchMovieScreeningsByScreenDate(roomId, keyword);
+        movies = paginateMovieScreen(
+                movieScreenPage.stream().map(movieScreenMapper::toDTO).collect(Collectors.toList()), page, soluong);
         Map<String, Object> response = new HashMap<>();
         response.put("movieScreen", movies.getContent());
         response.put("noOfPages", movies.getTotalPages());
@@ -169,9 +187,23 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
         return response;
     }
 
-    private List<MovieScreenResponse> filterMovieScreenByKeyword(List<MovieScreenResponse> cachedMovieScreens, Date keyword) {
+    private List<MovieScreenResponse> filterMovieScreenByKeyword(
+            List<MovieScreenResponse> cachedMovieScreens, Date keyword) {
         return cachedMovieScreens.stream()
                 .filter(movieScreen -> movieScreen.getScreeningDate().equals(keyword))
                 .collect(Collectors.toList());
+    }
+
+    @Override
+    public MovieScreenResponse getScreeningInfo(List<SeatStatusResponse> seatStatusResponses, long msID) {
+        MovieScreenResponse movieScreenResponse = null; // this service's method
+        try {
+            movieScreenResponse = getMovieScreenById(msID);
+        } catch (NotFoundException e) {
+            throw new RuntimeException(e);
+        }
+        movieScreenResponse.setAvailableSeats(
+                seatStatusResponses.stream().filter(seat -> !seat.isStatus()).count());
+        return movieScreenResponse;
     }
 }

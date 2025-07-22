@@ -1,10 +1,10 @@
 package com.example.movieticketWeb.mapper;
 
+import org.springframework.stereotype.Service;
+
 import com.example.movieticketWeb.dto.request.UserRequest;
 import com.example.movieticketWeb.dto.response.PersonInfoResponse;
-import com.example.movieticketWeb.entity.Movie;
 import com.example.movieticketWeb.entity.Person;
-import org.springframework.stereotype.Service;
 
 @Service
 public class PersonMapper {
@@ -20,6 +20,7 @@ public class PersonMapper {
                 .role(user.getRole().replace("ROLE_", ""))
                 .build();
     }
+
     public Person toEntity(UserRequest user) {
         return Person.builder()
                 .birthDate(user.getBirthDate())

@@ -1,32 +1,10 @@
-package com.example.movieticketWeb.RestController.admin;
+package com.example.movieticketWeb.restController.admin;
 
-import com.example.movieticketWeb.dto.request.MovieRequest;
-import com.example.movieticketWeb.dto.response.MovieResponse;
-import com.example.movieticketWeb.entity.Movie;
-import com.example.movieticketWeb.entity.Person;
-import com.example.movieticketWeb.entity.Res;
-import com.example.movieticketWeb.service.IImageService;
-import com.example.movieticketWeb.service.IMovieService;
-import jakarta.validation.Valid;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.MediaType;
-import org.springframework.http.ResponseEntity;
-import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.validation.BindingResult;
-import org.springframework.web.bind.annotation.*;
-import org.springframework.web.multipart.MultipartFile;
+import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.InputStream;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.StandardCopyOption;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
@@ -34,20 +12,36 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static org.springframework.http.MediaType.MULTIPART_FORM_DATA_VALUE;
+import jakarta.validation.Valid;
+
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
+import com.example.movieticketWeb.dto.request.MovieRequest;
+import com.example.movieticketWeb.dto.response.MovieResponse;
+import com.example.movieticketWeb.entity.Person;
+import com.example.movieticketWeb.entity.Res;
+import com.example.movieticketWeb.service.IImageService;
+import com.example.movieticketWeb.service.IMovieService;
 
 @RestController
 @RequestMapping("/admin/movies")
 public class MovieRestController {
     @Autowired
     private IMovieService movieService;
+
     @Autowired
     private IImageService imageService;
+
     @GetMapping
     public ResponseEntity<Map<String, Object>> listMovies(
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "5") int soluong) {
-// Tính toán offset cho phân trang
+            @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int soluong) {
+        // Tính toán offset cho phân trang
         int offset = (page - 1) * soluong;
 
         // Lấy danh sách phim
@@ -71,10 +65,13 @@ public class MovieRestController {
     public ResponseEntity<MovieResponse> getMovieById(@PathVariable Long id) {
         return ResponseEntity.ok(movieService.getMovieById(id));
     }
-    @PostMapping( consumes = MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<?> addMovie(@AuthenticationPrincipal Person person,
+
+    @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<?> addMovie(
+            @AuthenticationPrincipal Person person,
             @RequestPart("movie") @Valid MovieRequest movieRequest,
-            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
+            @RequestPart(value = "imageFile", required = false) MultipartFile imageFile)
+            throws IOException, GeneralSecurityException {
         if (person == null || !person.getRole().equalsIgnoreCase("ROLE_ADMIN")) {
             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("Unauthorized");
         }
@@ -82,8 +79,7 @@ public class MovieRestController {
         if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = handleImageUpload(imageFile);
             movieRequest.setImage(imageUrl);
-        }
-        else {
+        } else {
             movieRequest.setImage(
                     "https://thumbs.dreamstime.com/b/news-woodn-dice-depicting-letters-bundle-small-newspapers-leaning-left-dice-34802664.jpg");
         }
@@ -96,9 +92,13 @@ public class MovieRestController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<?> updateMovie(@PathVariable Long id, @RequestPart("movie") @Valid MovieRequest movieDTO, @RequestParam(value = "imageFile",required = false) MultipartFile imageFile) throws IOException, GeneralSecurityException {
+    public ResponseEntity<?> updateMovie(
+            @PathVariable Long id,
+            @RequestPart("movie") @Valid MovieRequest movieDTO,
+            @RequestParam(value = "imageFile", required = false) MultipartFile imageFile)
+            throws IOException, GeneralSecurityException {
 
-        if(imageFile != null && !imageFile.isEmpty()) {
+        if (imageFile != null && !imageFile.isEmpty()) {
             String imageUrl = handleImageUpload(imageFile);
             movieDTO.setImage(imageUrl);
         }
@@ -107,14 +107,14 @@ public class MovieRestController {
             return ResponseEntity.ok("Movie updated successfully");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie update failed");
-//
+        //
 
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteMovie(@PathVariable Long id) {
-        boolean isDeleted= movieService.deleteMovie(id);
-        if(isDeleted){
+        boolean isDeleted = movieService.deleteMovie(id);
+        if (isDeleted) {
             return ResponseEntity.ok("Movie deleted successfully");
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie delete failed");
@@ -142,7 +142,7 @@ public class MovieRestController {
         response.put("recordsPerPage", recordsPerPage);
         response.put("keyword", keyword);
         response.put("category", categories != null ? String.join(",", categories) : "All");
-        response.put("noOfRecords",movies.getTotalElements());
+        response.put("noOfRecords", movies.getTotalElements());
 
         return ResponseEntity.ok(response);
     }
@@ -154,6 +154,7 @@ public class MovieRestController {
         response.put("movies", movies);
         return ResponseEntity.ok(response);
     }
+
     private String processYouTubeUrl(String url) {
         String videoId = null;
         if (url != null) {
@@ -178,7 +179,8 @@ public class MovieRestController {
         return url;
     }
 
-    private String handleImageUpload(MultipartFile file) throws IOException, NoSuchAlgorithmException, GeneralSecurityException {
+    private String handleImageUpload(MultipartFile file)
+            throws IOException, NoSuchAlgorithmException, GeneralSecurityException {
         String originalFileName = file.getOriginalFilename();
 
         String existingImageUrl = getSavedImageUrl(originalFileName);
@@ -186,7 +188,7 @@ public class MovieRestController {
 
             // Thay vì tải file, chỉ lấy InputStream từ Google Drive
             try (InputStream existingFileInputStream = imageService.getFileInputStream(existingImageUrl);
-                 InputStream newFileInputStream = file.getInputStream()) {
+                    InputStream newFileInputStream = file.getInputStream()) {
 
                 String existingFileHash = getChecksum(existingFileInputStream);
                 String newFileHash = getChecksum(newFileInputStream);
@@ -235,6 +237,7 @@ public class MovieRestController {
 
         return hexString.toString();
     }
+
     private String getSavedImageUrl(String fileName) {
         // Truy vấn Google Drive hoặc database để lấy URL ảnh dựa trên tên file
         return imageService.findUrlByFileName(fileName);

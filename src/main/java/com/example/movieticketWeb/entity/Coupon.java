@@ -1,10 +1,12 @@
 package com.example.movieticketWeb.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.Date;
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import lombok.*;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,23 +18,24 @@ public class Coupon {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int couponID;
 
-    @Column(name = "couponName",nullable = false)
+    @Column(name = "couponName", nullable = false)
     private String couponName;
 
-    @Column(name = "couponType",nullable = false)
+    @Column(name = "couponType", nullable = false)
     private String couponType;
 
-    @Column(name = "couponValue",nullable = false)
+    @Column(name = "couponValue", nullable = false)
     private double couponValue;
 
-    @Column(name = "startDate",nullable = false)
+    @Column(name = "startDate", nullable = false)
     private Date startDate;
 
-    @Column(name = "endDate",nullable = false)
+    @Column(name = "endDate", nullable = false)
     private Date endDate;
 
     @OneToMany(mappedBy = "coupon", orphanRemoval = false)
     private List<Payment> payments;
+
     @PreRemove
     private void preRemove() {
         // Hủy liên kết với tất cả các Payment trước khi xóa Coupon
@@ -40,5 +43,4 @@ public class Coupon {
             payment.setCoupon(null);
         }
     }
-
 }

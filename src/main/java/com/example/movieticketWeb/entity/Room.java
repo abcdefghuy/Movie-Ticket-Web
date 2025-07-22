@@ -1,15 +1,16 @@
 package com.example.movieticketWeb.entity;
 
-import jakarta.persistence.*;
-import lombok.*;
-
 import java.util.List;
+
+import jakarta.persistence.*;
+
+import lombok.*;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@Table(name="room")
+@Table(name = "room")
 @Getter
 @Setter
 @Builder
@@ -17,10 +18,11 @@ public class Room {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int roomId;
-    @Column(name = "roomName",nullable = false)
+
+    @Column(name = "roomName", nullable = false)
     private String roomName;
 
-    @Column(name="screenType",nullable = false)
+    @Column(name = "screenType", nullable = false)
     private String screenType;
 
     @Column(name = "chairNumber")

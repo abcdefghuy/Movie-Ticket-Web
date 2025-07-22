@@ -1,14 +1,16 @@
 package com.example.movieticketWeb.service;
 
+import java.util.Optional;
+
+import org.springframework.data.domain.Page;
+
 import com.example.movieticketWeb.dto.request.UserRequest;
 import com.example.movieticketWeb.dto.response.PersonInfoResponse;
 import com.example.movieticketWeb.entity.Person;
-import org.springframework.data.domain.Page;
-
-import java.util.Optional;
 
 public interface IPersonService {
     public Optional<Person> findByEmail(String email);
+
     public PersonInfoResponse getInfo(Person person);
 
     Page<PersonInfoResponse> getUsers(int page, int soluong);
@@ -20,6 +22,6 @@ public interface IPersonService {
     boolean updateUser(Long id, UserRequest user);
 
     PersonInfoResponse getUserById(Long id);
-    boolean addUser(UserRequest user);
 
+    boolean addUser(UserRequest user);
 }
