@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.example.movieticketWeb.dto.request.PopCornRequest;
 import com.example.movieticketWeb.dto.response.PopcornResponse;
 import com.example.movieticketWeb.entity.PopCorn;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.PopcornMapper;
 import com.example.movieticketWeb.repository.IPopCornRepository;
 import com.example.movieticketWeb.service.IPopCornService;
@@ -71,7 +70,7 @@ public class PopCornServiceImpl implements IPopCornService {
         }
         PopCorn popCorn = popCornRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("PopCorn", "id", id.toString()));
         redisTemplate.opsForValue().set(cacheKey, popCorn, Duration.ofHours(1));
         return popcornMapper.toDTO(popCorn);
     }
@@ -93,7 +92,7 @@ public class PopCornServiceImpl implements IPopCornService {
         try {
             PopCorn popcorn = popCornRepository
                     .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("PopCorn", "id", id.toString()));
             popcorn.setNamePopCorn(popCorn.getNamePopCorn());
             popcorn.setTypePopCorn(popCorn.getTypePopCorn());
             popcorn.setPrice(popCorn.getPrice());

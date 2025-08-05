@@ -27,7 +27,7 @@ public class CinemaRestController {
     public ResponseEntity<?> createCinema(@RequestBody CinemaRequest cinemaRequest) {
         boolean isAdded = cinemaService.addCinema(cinemaRequest);
         if (isAdded) {
-            return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.CREATED));
         }
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
@@ -42,8 +42,8 @@ public class CinemaRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CinemaResponse> getCinemaByID(@PathVariable Long id) {
-        return ResponseEntity.ok(cinemaService.getCinemaById(id));
+    public ResponseEntity<?> getCinemaByID(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, cinemaService.getCinemaById(id)));
     }
 
     @GetMapping()

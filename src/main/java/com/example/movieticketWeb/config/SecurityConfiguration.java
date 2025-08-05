@@ -43,7 +43,7 @@ public class SecurityConfiguration {
                                 "/signup",
                                 "/home",
                                 "/regions",
-                                "/logout",
+                                "api/logout",
                                 "/refresh",
                                 "/movie-list")
                         .permitAll()

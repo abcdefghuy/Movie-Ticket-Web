@@ -5,8 +5,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -16,6 +14,7 @@ import org.springframework.stereotype.Service;
 import com.example.movieticketWeb.dto.request.NewsOrDiscountRequest;
 import com.example.movieticketWeb.dto.response.NewsOrDiscountResponse;
 import com.example.movieticketWeb.entity.NewsOrDiscount;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.NewsMapper;
 import com.example.movieticketWeb.repository.INewsRepository;
 import com.example.movieticketWeb.service.INewsService;
@@ -51,7 +50,7 @@ public class NewsServiceImpl implements INewsService {
         try {
             NewsOrDiscount newsOrDiscount = newsRepository
                     .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("News not found with ID: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("NewsOrDiscount", "id", id.toString()));
             newsOrDiscount.setAuthor(newsRequest.getAuthor());
             newsOrDiscount.setDetail(newsRequest.getDetail());
             newsOrDiscount.setImages(newsRequest.getImages());
@@ -114,7 +113,7 @@ public class NewsServiceImpl implements INewsService {
         if (cachedMovie == null) {
             NewsOrDiscount newsOrDiscount = newsRepository
                     .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("News not found with ID: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("NewsOrDiscount", "id", id.toString()));
 
             // Chuyển đổi sang DTO trước khi lưu vào Redis
             cachedMovie = newsMapper.toDTO(newsOrDiscount);

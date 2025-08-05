@@ -3,7 +3,6 @@ package com.example.movieticketWeb.service.impl;
 import java.time.Duration;
 import java.util.*;
 import java.util.stream.Collectors;
-import javassist.NotFoundException;
 
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -16,6 +15,7 @@ import com.example.movieticketWeb.dto.response.*;
 import com.example.movieticketWeb.entity.Movie;
 import com.example.movieticketWeb.entity.MovieScreenings;
 import com.example.movieticketWeb.entity.Room;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.MovieScreenMapper;
 import com.example.movieticketWeb.repository.IMovieRepository;
 import com.example.movieticketWeb.repository.IMovieScreenRepository;
@@ -47,31 +47,24 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
     }
 
     @Override
-    public Map<String, Object> getMovieScreens(Long roomId, int page, int soluong) {
+    public Page<MovieScreenResponse> getMovieScreens(Long roomId, int page, int soluong) {
         String cacheKey = "movieScreenByRoom:" + roomId;
-        List<MovieScreenResponse> cachedMovieScreens =
+
+        List<MovieScreenResponse> cachedScreens =
                 (List<MovieScreenResponse>) redisTemplate.opsForValue().get(cacheKey);
-        Page<MovieScreenResponse> movies = null;
-        if (cachedMovieScreens != null) {
-            movies = paginateMovieScreen(cachedMovieScreens, page, soluong);
+
+        if (cachedScreens != null && !cachedScreens.isEmpty()) {
+            return paginateMovieScreen(cachedScreens, page, soluong);
         }
+
         Page<MovieScreenings> movieScreenPage =
                 movieScreenRepository.getMovieScreenByRoomId(roomId, PageRequest.of(page - 1, soluong));
-        movies = movieScreenPage.map(movieScreenMapper::toDTO);
-        Map<String, Object> response = new HashMap<>();
-        String roomName = movies.stream()
-                .findFirst()
-                .map(MovieScreenResponse::getRoomName)
-                .orElseGet(() ->
-                        roomRepository.findById(roomId).map(Room::getRoomName).orElse("Tên phòng chưa xác định"));
-        response.put("movieScreen", movies.getContent());
-        response.put("noOfPages", movies.getTotalPages());
-        response.put("currentPage", page);
-        response.put("recordsPerPage", soluong);
-        response.put("noOfRecords", movies.getTotalElements());
-        response.put("roomName", roomName);
-        redisTemplate.opsForValue().set(cacheKey, movies.getContent());
-        return response;
+
+        List<MovieScreenResponse> movieScreenResponses =
+                movieScreenPage.stream().map(movieScreenMapper::toDTO).collect(Collectors.toList());
+        redisTemplate.opsForValue().set(cacheKey, movieScreenResponses, Duration.ofMinutes(30));
+
+        return paginateMovieScreen(movieScreenResponses, page, soluong);
     }
 
     private Page<MovieScreenResponse> paginateMovieScreen(
@@ -133,7 +126,9 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
     @Override
     public boolean deleteMovieScreen(Long id) {
         try {
-            MovieScreenings movieScreenings = movieScreenRepository.findById(id).orElseThrow();
+            MovieScreenings movieScreenings = movieScreenRepository
+                    .findById(id)
+                    .orElseThrow(() -> new ResourceNotFoundException("MovieScreenings", "id", id.toString()));
             movieScreenRepository.delete(movieScreenings);
             redisTemplate.delete("movie screen:" + id);
             redisTemplate.delete(
@@ -145,7 +140,7 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
     }
 
     @Override
-    public MovieScreenResponse getMovieScreenById(Long id) throws NotFoundException {
+    public MovieScreenResponse getMovieScreenById(Long id) {
         String cacheKey = "movie screen:" + id;
         // 🔥 Kiểm tra xem phòng có trong cache không
         MovieScreenResponse cachedMovieScreen =
@@ -153,10 +148,9 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
         if (cachedMovieScreen != null) {
             return cachedMovieScreen;
         }
-        MovieScreenings movieScreenings = movieScreenRepository.findById(id).orElse(null);
-        if (movieScreenings == null) {
-            throw new NotFoundException("Không tìm thấy suất chiếu với ID: " + id);
-        }
+        MovieScreenings movieScreenings = movieScreenRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("MovieScreenings", "id", id.toString()));
         MovieScreenResponse movieScreenResponse = movieScreenMapper.toDTO(movieScreenings);
         // 🏦 Lưu vào Redis (lưu DTO, không lưu Entity)
         redisTemplate.opsForValue().set(cacheKey, movieScreenResponse, Duration.ofHours(1));
@@ -164,27 +158,19 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
     }
 
     @Override
-    public Map<String, Object> searchMovieScreen(Long roomId, int page, int soluong, Date keyword) {
+    public Page<MovieScreenResponse> searchMovieScreen(Long roomId, int page, int soluong, Date keyword) {
         String cacheKey = "movieScreenByRoom:" + roomId;
         List<MovieScreenResponse> cachedMovieScreens =
                 (List<MovieScreenResponse>) redisTemplate.opsForValue().get(cacheKey);
         Page<MovieScreenResponse> movies = null;
         if (cachedMovieScreens != null) {
             List<MovieScreenResponse> filteredMovieScreens = filterMovieScreenByKeyword(cachedMovieScreens, keyword);
-            movies = paginateMovieScreen(filteredMovieScreens, page, soluong);
+            return paginateMovieScreen(filteredMovieScreens, page, soluong);
         }
         List<MovieScreenings> movieScreenPage =
                 movieScreenRepository.searchMovieScreeningsByScreenDate(roomId, keyword);
-        movies = paginateMovieScreen(
+        return paginateMovieScreen(
                 movieScreenPage.stream().map(movieScreenMapper::toDTO).collect(Collectors.toList()), page, soluong);
-        Map<String, Object> response = new HashMap<>();
-        response.put("movieScreen", movies.getContent());
-        response.put("noOfPages", movies.getTotalPages());
-        response.put("currentPage", page);
-        response.put("recordsPerPage", soluong);
-        response.put("noOfRecords", movies.getTotalElements());
-        redisTemplate.opsForValue().set(cacheKey, movies.getContent());
-        return response;
     }
 
     private List<MovieScreenResponse> filterMovieScreenByKeyword(
@@ -199,8 +185,8 @@ public class MovieScreenServiceImpl implements IMovieScreenService {
         MovieScreenResponse movieScreenResponse = null; // this service's method
         try {
             movieScreenResponse = getMovieScreenById(msID);
-        } catch (NotFoundException e) {
-            throw new RuntimeException(e);
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException("MovieScreenings", "id", String.valueOf(msID));
         }
         movieScreenResponse.setAvailableSeats(
                 seatStatusResponses.stream().filter(seat -> !seat.isStatus()).count());

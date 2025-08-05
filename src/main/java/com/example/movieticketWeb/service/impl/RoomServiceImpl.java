@@ -6,9 +6,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
-import javassist.NotFoundException;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.redis.core.RedisTemplate;
@@ -18,6 +16,7 @@ import com.example.movieticketWeb.dto.request.RoomRequest;
 import com.example.movieticketWeb.dto.response.RoomResponse;
 import com.example.movieticketWeb.entity.Cinema;
 import com.example.movieticketWeb.entity.Room;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.RoomMapper;
 import com.example.movieticketWeb.repository.ICinemaRepository;
 import com.example.movieticketWeb.repository.IRoomRepository;
@@ -63,7 +62,7 @@ public class RoomServiceImpl implements IRoomService {
     }
 
     @Override
-    public RoomResponse getRoomById(Long id) throws NotFoundException {
+    public RoomResponse getRoomById(Long id) {
         String cacheKey = "room:" + id;
 
         // 🔥 Kiểm tra xem phòng có trong cache không
@@ -72,10 +71,9 @@ public class RoomServiceImpl implements IRoomService {
             return cachedRoom;
         }
 
-        Room room = roomRepository.findById(id).orElse(null);
-        if (room == null) {
-            throw new NotFoundException("Không tìm thấy phòng với ID: " + id);
-        }
+        Room room = roomRepository
+                .findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Room", "id", id.toString()));
 
         RoomResponse roomResponse = roomMapper.toDTO(room);
 
@@ -91,8 +89,8 @@ public class RoomServiceImpl implements IRoomService {
         try {
             Cinema cinema = cinemaRepository
                     .findById(roomRequest.getCinemaId())
-                    .orElseThrow(() ->
-                            new EntityNotFoundException("Cinema not found with ID: " + roomRequest.getCinemaId()));
+                    .orElseThrow(() -> new ResourceNotFoundException(
+                            "Cinema", "id", roomRequest.getCinemaId().toString()));
             Room savedRoom = roomRepository.save(roomMapper.toEntity(roomRequest, cinema));
             if (savedRoom != null) {
                 seatService.addSeatsForRoom(savedRoom);

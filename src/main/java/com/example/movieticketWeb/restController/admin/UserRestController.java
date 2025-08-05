@@ -2,19 +2,18 @@ package com.example.movieticketWeb.restController.admin;
 
 import static com.example.movieticketWeb.restController.web.SignupRestController.getResponseEntity;
 
-import java.util.HashMap;
-import java.util.Map;
-
 import jakarta.validation.Valid;
 
 import org.springframework.data.domain.Page;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.movieticketWeb.dto.request.UserRequest;
+import com.example.movieticketWeb.dto.response.ApiResponse;
+import com.example.movieticketWeb.dto.response.PagedResponse;
 import com.example.movieticketWeb.dto.response.PersonInfoResponse;
+import com.example.movieticketWeb.enumeration.ErrorCode;
 import com.example.movieticketWeb.service.IPersonService;
 
 @RestController
@@ -27,16 +26,17 @@ public class UserRestController {
     }
 
     @GetMapping()
-    public ResponseEntity<Map<String, Object>> getListUser(
+    public ResponseEntity<?> getListUser(
             @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int soluong) {
         Page<PersonInfoResponse> users = userService.getUsers(page, soluong);
-        Map<String, Object> response = new HashMap<>();
-        response.put("users", users.getContent());
-        response.put("noOfPages", users.getTotalPages());
-        response.put("currentPage", page);
-        response.put("recordsPerPage", soluong);
-        response.put("noOfRecords", users.getTotalElements());
-        return ResponseEntity.ok(response);
+        PagedResponse<PersonInfoResponse> response = new PagedResponse<>(
+                users.getContent(),
+                users.getNumber(),
+                users.getSize(),
+                users.getTotalElements(),
+                users.getTotalPages(),
+                users.isLast());
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, response));
     }
 
     @PostMapping()
@@ -45,9 +45,9 @@ public class UserRestController {
         if (errors != null) return errors;
         boolean isAdded = userService.addUser(userRequest);
         if (isAdded) {
-            return ResponseEntity.ok(Map.of("message", "Add user successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Add user failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping("/{id}")
@@ -62,36 +62,34 @@ public class UserRestController {
         if (errors != null) return errors;
         boolean isUpdated = userService.updateUser(id, user);
         if (isUpdated) {
-            return ResponseEntity.ok(Map.of("message", "Update user successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Update failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteUser(@PathVariable Long id) {
+    public ResponseEntity<?> deleteUser(@PathVariable Long id) {
         boolean isDeleted = userService.deleteUser(id);
         if (isDeleted) {
-            return ResponseEntity.ok("Delete user successfully");
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Delete user failed");
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchMovies(
+    public ResponseEntity<?> searchMovies(
             @RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "soluong", defaultValue = "5") int recordsPerPage) {
 
-        Page<PersonInfoResponse> users = null;
-        users = userService.searchUser(keyword, page, recordsPerPage);
-        Map<String, Object> response = new HashMap<>();
-        response.put("users", users.getContent());
-        response.put("noOfPages", users.getTotalElements());
-        response.put("currentPage", page);
-        response.put("recordsPerPage", recordsPerPage);
-        response.put("keyword", keyword);
-        response.put("noOfRecords", users.getTotalElements());
-
-        return ResponseEntity.ok(response);
+        Page<PersonInfoResponse> users = userService.searchUser(keyword, page, recordsPerPage);
+        PagedResponse<PersonInfoResponse> response = new PagedResponse<>(
+                users.getContent(),
+                users.getNumber(),
+                users.getSize(),
+                users.getTotalElements(),
+                users.getTotalPages(),
+                users.isLast());
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, response));
     }
 }

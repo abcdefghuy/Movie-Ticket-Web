@@ -1,7 +1,5 @@
 package com.example.movieticketWeb.restController.admin;
 
-import java.util.Map;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -38,34 +36,34 @@ public class CouponRestController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<CouponResponse> getCouponById(@PathVariable("id") Long id) {
-        return ResponseEntity.ok(couponService.getCouponById(id));
+    public ResponseEntity<?> getCouponById(@PathVariable("id") Long id) {
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, couponService.getCouponById(id)));
     }
 
     @PostMapping()
     public ResponseEntity<?> createCoupon(@RequestBody CouponRequest couponRequest) {
         boolean isAdded = couponService.addCoupon(couponRequest);
         if (isAdded) {
-            return ResponseEntity.ok(Map.of("message", "Add coupon successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.CREATED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Add coupon failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updateCoupon(@PathVariable Long id, @RequestBody CouponRequest couponRequest) {
         boolean isUpdated = couponService.updateCoupon(id, couponRequest);
         if (isUpdated) {
-            return ResponseEntity.ok(Map.of("message", "Update coupon successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.UPDATED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Update coupon failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteCoupon(@PathVariable Long id) {
         boolean isDeleted = couponService.deleteCoupon(id);
         if (isDeleted) {
-            return ResponseEntity.ok(Map.of("message", "Delete coupon successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.DELETED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Delete coupon failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

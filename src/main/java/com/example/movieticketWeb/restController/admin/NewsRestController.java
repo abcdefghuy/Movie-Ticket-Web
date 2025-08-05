@@ -8,16 +8,20 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.Map;
 
 import jakarta.validation.Valid;
 
+import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.movieticketWeb.dto.request.NewsOrDiscountRequest;
+import com.example.movieticketWeb.dto.response.ApiResponse;
+import com.example.movieticketWeb.dto.response.NewsOrDiscountResponse;
+import com.example.movieticketWeb.dto.response.PagedResponse;
 import com.example.movieticketWeb.entity.Res;
+import com.example.movieticketWeb.enumeration.ErrorCode;
 import com.example.movieticketWeb.service.IImageService;
 import com.example.movieticketWeb.service.INewsService;
 
@@ -47,9 +51,9 @@ public class NewsRestController {
 
         boolean isAdded = newsService.addNews(newsRequest);
         if (isAdded) {
-            return ResponseEntity.ok(Map.of("message", "Add News successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.CREATED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Add News failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @PutMapping("/{id}")
@@ -65,29 +69,37 @@ public class NewsRestController {
 
         boolean isUpdated = newsService.updateNews(id, newsRequest);
         if (isUpdated) {
-            return ResponseEntity.ok(Map.of("message", "Update News successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.UPDATED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Update News failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
         boolean isDeleted = newsService.deleteNews(id);
         if (isDeleted) {
-            return ResponseEntity.ok(Map.of("message", "Delete News successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.DELETED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Delete News failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping()
     public ResponseEntity<?> getAllMovies(
             @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int recordPerPage) {
-        return ResponseEntity.ok(newsService.getAllNews(page, recordPerPage));
+        Page<NewsOrDiscountResponse> news = newsService.getAllNews(page, recordPerPage);
+        PagedResponse<NewsOrDiscountResponse> response = new PagedResponse<>(
+                news.getContent(),
+                news.getNumber(),
+                news.getSize(),
+                news.getTotalElements(),
+                news.getTotalPages(),
+                news.isLast());
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, response));
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<?> getMovieById(@PathVariable Long id) {
-        return ResponseEntity.ok(newsService.getNewsById(id));
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, newsService.getNewsById(id)));
     }
 
     private String handleImageUpload(MultipartFile file)

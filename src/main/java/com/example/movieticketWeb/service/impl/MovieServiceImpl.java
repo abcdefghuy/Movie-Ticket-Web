@@ -7,8 +7,6 @@ import java.util.*;
 import java.util.concurrent.TimeUnit;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.cache.annotation.CacheEvict;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -19,6 +17,7 @@ import org.springframework.stereotype.Service;
 import com.example.movieticketWeb.dto.request.MovieRequest;
 import com.example.movieticketWeb.dto.response.MovieResponse;
 import com.example.movieticketWeb.entity.Movie;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.MovieMapper;
 import com.example.movieticketWeb.repository.IMovieRepository;
 import com.example.movieticketWeb.service.IMovieService;
@@ -60,7 +59,7 @@ public class MovieServiceImpl implements IMovieService {
         if (cachedMovie == null) {
             Movie movie = movieRepository
                     .findById(movieID)
-                    .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + movieID));
+                    .orElseThrow(() -> new ResourceNotFoundException("Movie", "movieId", movieID.toString()));
 
             // Chuyển đổi sang DTO trước khi lưu vào Redis
             cachedMovie = movieMapper.toDTO(movie);
@@ -129,7 +128,7 @@ public class MovieServiceImpl implements IMovieService {
 
     @Override
     @CacheEvict(value = "allMovies", allEntries = true)
-    public List<MovieResponse> getMovies(int offset, int limit) {
+    public Page<MovieResponse> getMovies(int offset, int limit) {
         // Kiểm tra trong Redis trước
         List<MovieResponse> cachedMovies =
                 (List<MovieResponse>) redisTemplate.opsForValue().get(MOVIE_CACHE_KEY);
@@ -137,20 +136,12 @@ public class MovieServiceImpl implements IMovieService {
             // Nếu chưa có cache, lấy dữ liệu từ database và lưu vào Redis
             List<MovieResponse> movies =
                     movieRepository.findAll().stream().map(movieMapper::toDTO).collect(Collectors.toList());
-
             // Lưu vào Redis với TTL là 30 phút
             redisTemplate.opsForValue().set(MOVIE_CACHE_KEY, movies, Duration.ofMinutes(30));
 
-            return paginateMovies(movies, offset, limit);
+            return paginateMovie(movies, offset, limit);
         }
-        return paginateMovies(cachedMovies, offset, limit);
-    }
-
-    // Hàm phân trang từ danh sách đã cache
-    private List<MovieResponse> paginateMovies(List<MovieResponse> movies, int offset, int limit) {
-        int start = Math.min(offset, movies.size());
-        int end = Math.min(start + limit, movies.size());
-        return movies.subList(start, end);
+        return paginateMovie(cachedMovies, offset, limit);
     }
 
     @Override
@@ -282,7 +273,6 @@ public class MovieServiceImpl implements IMovieService {
                 .count();
     }
 
-    // Đếm số lượng kết quả theo từ khóa + danh mục
     @Override
     public int getNoOfSearchResults(String keyword, List<String> categories) {
         List<MovieResponse> cachedMovies = getMoviesFromCache();
@@ -308,11 +298,7 @@ public class MovieServiceImpl implements IMovieService {
         page = Math.max(page, 1);
         int start = (page - 1) * recordsPerPage;
         int end = Math.min(start + recordsPerPage, movies.size());
-
-        // Kiểm tra nếu start vượt quá số lượng phần tử -> Trả về danh sách rỗng
         List<MovieResponse> pageContent = (start < movies.size()) ? movies.subList(start, end) : List.of();
-
-        // Trả về PageImpl chứa dữ liệu phân trang
         return new PageImpl<>(pageContent, PageRequest.of(page - 1, recordsPerPage), movies.size());
     }
 }

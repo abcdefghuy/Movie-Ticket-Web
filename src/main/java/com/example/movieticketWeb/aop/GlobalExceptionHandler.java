@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.ExceptionHandler;
 
 import com.example.movieticketWeb.dto.response.ApiResponse;
 import com.example.movieticketWeb.enumeration.ErrorCode;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 
 @ControllerAdvice
 public class GlobalExceptionHandler {
@@ -28,5 +29,11 @@ public class GlobalExceptionHandler {
         String enumKey = exception.getFieldError().getDefaultMessage();
         ErrorCode errorCode = ErrorCode.valueOf(enumKey);
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(errorCode));
+    }
+
+    @ExceptionHandler(ResourceNotFoundException.class)
+    public ResponseEntity<ApiResponse<Void>> handleResourceNotFoundException(ResourceNotFoundException exception) {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                .body(ApiResponse.error(ErrorCode.RESOURCE_NOT_FOUND, exception.getMessage()));
     }
 }

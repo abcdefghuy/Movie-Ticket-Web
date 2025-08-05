@@ -1,13 +1,14 @@
 package com.example.movieticketWeb.restController.admin;
 
-import java.util.Map;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import com.example.movieticketWeb.dto.request.PopCornRequest;
+import com.example.movieticketWeb.dto.response.ApiResponse;
+import com.example.movieticketWeb.dto.response.PagedResponse;
 import com.example.movieticketWeb.dto.response.PopcornResponse;
+import com.example.movieticketWeb.enumeration.ErrorCode;
 import com.example.movieticketWeb.service.IPopCornService;
 
 @RestController
@@ -20,52 +21,48 @@ public class PopCornRestController {
     }
 
     @GetMapping()
-    public ResponseEntity<Map<String, Object>> getAllPopCorns(
+    public ResponseEntity<?> getAllPopCorns(
             @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int soluong) {
         Page<PopcornResponse> popCorns = popCornService.getAllPopCorn(page, soluong);
-        Map<String, Object> response = Map.of(
-                "popCorns",
+        PagedResponse<PopcornResponse> response = new PagedResponse<>(
                 popCorns.getContent(),
-                "noOfPages",
+                popCorns.getNumber(),
+                popCorns.getSize(),
+                popCorns.getTotalElements(),
                 popCorns.getTotalPages(),
-                "currentPage",
-                page,
-                "recordsPerPage",
-                soluong,
-                "noOfRecords",
-                popCorns.getTotalElements());
-        return ResponseEntity.ok(response);
+                popCorns.isLast());
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<PopcornResponse> getPopCornById(@PathVariable Long id) {
-        return ResponseEntity.ok(popCornService.getPopCornById(id));
+    public ResponseEntity<?> getPopCornById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, popCornService.getPopCornById(id)));
     }
 
     @PostMapping()
     public ResponseEntity<?> createPopCorn(@RequestBody PopCornRequest popCornRequest) {
         boolean isAdded = popCornService.addPopCorn(popCornRequest);
         if (isAdded) {
-            return ResponseEntity.ok(Map.of("message", "Add popCorn successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.CREATED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Add popCorn failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<?> updatePopCorn(@PathVariable Long id, @RequestBody PopCornRequest popCornRequest) {
         boolean isUpdated = popCornService.updatePopCorn(popCornRequest, id);
         if (isUpdated) {
-            return ResponseEntity.ok(Map.of("message", "Update popCorn successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.UPDATED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Update popCorn failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<?> deletePopCorn(@PathVariable Long id) {
         boolean isDeleted = popCornService.deletePopCorn(id);
         if (isDeleted) {
-            return ResponseEntity.ok(Map.of("message", "Delete popCorn successfully"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.DELETED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Delete popCorn failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

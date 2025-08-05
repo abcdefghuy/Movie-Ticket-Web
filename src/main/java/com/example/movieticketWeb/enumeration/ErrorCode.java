@@ -59,13 +59,14 @@ public enum ErrorCode {
     ORDER_NOT_FOUND(4015, "Payment order not found"),
     INVALID_SIGNATURE(4016, "Invalid secure hash signature from VNPay"),
     LESSON_NOT_FOUND(4017, "Lesson not found"),
-
+    RESOURCE_NOT_FOUND(4018, "Resource not found"),
     // Server Errors (5xxx)
     INTERNAL_SERVER_ERROR(5000, "An unexpected error occurred. Please try again later."),
     USER_REGISTRATION_FAILED(5001, "User registration failed"),
     USER_VERIFICATION_FAILED(5002, "User verification failed"),
     OTP_RESEND_FAILED(5003, "Failed to resend OTP"),
-    REDIS_ERROR(5004, "Redis error occurred");
+    REDIS_ERROR(5004, "Redis error occurred"),
+    MOVIE_ADD_FAILED(5005, "Movie add failed");
 
     private final int code;
     private final String message;

@@ -20,7 +20,7 @@ public interface IMovieService {
 
     List<MovieResponse> searchMovie(String movieName);
 
-    List<MovieResponse> getMovies(int offset, int soluong);
+    Page<MovieResponse> getMovies(int offset, int soluong);
 
     int getNoOfRecords();
 

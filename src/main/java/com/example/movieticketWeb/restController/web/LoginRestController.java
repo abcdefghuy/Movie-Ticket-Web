@@ -111,7 +111,7 @@ public class LoginRestController {
         return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS_REFRESH_TOKEN));
     }
 
-    @PostMapping("/logout")
+    @PostMapping("api/logout")
     public ResponseEntity<?> logout(HttpServletResponse response, @AuthenticationPrincipal Person user) {
         if (user != null) {
             IRefreshTokenService.deleteRefreshToken(user.getEmail());

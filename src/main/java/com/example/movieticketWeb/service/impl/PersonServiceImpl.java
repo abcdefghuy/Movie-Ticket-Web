@@ -5,8 +5,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -18,6 +16,7 @@ import org.springframework.stereotype.Service;
 import com.example.movieticketWeb.dto.request.UserRequest;
 import com.example.movieticketWeb.dto.response.PersonInfoResponse;
 import com.example.movieticketWeb.entity.Person;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.PersonMapper;
 import com.example.movieticketWeb.repository.IUserRepository;
 import com.example.movieticketWeb.service.IPersonService;
@@ -132,7 +131,7 @@ public class PersonServiceImpl implements IPersonService {
         }
         Person person1 = userRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("User", "id", id.toString()));
 
         // 🟢 Lưu lại vào cache để lần sau lấy nhanh hơn
         redisTemplate.opsForValue().set(cacheKey, person1, Duration.ofHours(1));

@@ -1,12 +1,13 @@
 package com.example.movieticketWeb.restController.admin;
 
-import java.util.Map;
-
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import com.example.movieticketWeb.dto.response.ApiResponse;
+import com.example.movieticketWeb.dto.response.PagedResponse;
 import com.example.movieticketWeb.dto.response.ReviewResponse;
+import com.example.movieticketWeb.enumeration.ErrorCode;
 import com.example.movieticketWeb.service.IReviewService;
 
 @RestController
@@ -19,31 +20,27 @@ public class ReviewRestController {
     }
 
     @GetMapping()
-    public ResponseEntity<Map<String, Object>> getAllReviews(
+    public ResponseEntity<?> getAllReviews(
             @RequestParam(name = "page", defaultValue = "1") int page,
             @RequestParam(name = "soluong", defaultValue = "5") int recordPerPage,
             @RequestParam(name = "movieId", defaultValue = "") Long id) {
         Page<ReviewResponse> reviews = reviewService.getAllReviews(id, page, recordPerPage);
-        Map<String, Object> response = Map.of(
-                "reviews",
+        PagedResponse<ReviewResponse> response = new PagedResponse<>(
                 reviews.getContent(),
-                "noOfPages",
+                reviews.getNumber(),
+                reviews.getSize(),
+                reviews.getTotalElements(),
                 reviews.getTotalPages(),
-                "currentPage",
-                page,
-                "recordsPerPage",
-                recordPerPage,
-                "noOfRecords",
-                reviews.getTotalElements());
-        return ResponseEntity.ok(response);
+                reviews.isLast());
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, response));
     }
 
     @DeleteMapping("{id}")
     public ResponseEntity<?> deleteReview(@PathVariable("id") Long id) {
         boolean isDeleted = reviewService.deleteReview(id);
         if (isDeleted) {
-            return ResponseEntity.ok(Map.of("message", "Delete review successful"));
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.DELETED));
         }
-        return ResponseEntity.badRequest().body(Map.of("error", "Delete review failed"));
+        return ResponseEntity.badRequest().body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 }

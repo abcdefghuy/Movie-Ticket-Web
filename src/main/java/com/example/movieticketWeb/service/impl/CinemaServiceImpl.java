@@ -4,7 +4,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
 import jakarta.transaction.Transactional;
 
 import org.springframework.data.domain.Page;
@@ -16,6 +15,7 @@ import org.springframework.stereotype.Service;
 import com.example.movieticketWeb.dto.request.CinemaRequest;
 import com.example.movieticketWeb.dto.response.CinemaResponse;
 import com.example.movieticketWeb.entity.Cinema;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.CinemaMapper;
 import com.example.movieticketWeb.repository.ICinemaRepository;
 import com.example.movieticketWeb.service.ICinemaService;
@@ -89,7 +89,7 @@ public class CinemaServiceImpl implements ICinemaService {
         }
         Cinema cinema1 = cinemaRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Cinema not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Cinema", "id", id.toString()));
         CinemaResponse cinemaResponse = cinemaMapper.toDTO(cinema1);
         redisTemplate.opsForValue().set(cacheKey, cinemaResponse, Duration.ofHours(1));
         return cinemaResponse;

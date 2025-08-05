@@ -4,8 +4,6 @@ import java.time.Duration;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -15,6 +13,7 @@ import org.springframework.stereotype.Service;
 import com.example.movieticketWeb.dto.request.CouponRequest;
 import com.example.movieticketWeb.dto.response.CouponResponse;
 import com.example.movieticketWeb.entity.Coupon;
+import com.example.movieticketWeb.exception.ResourceNotFoundException;
 import com.example.movieticketWeb.mapper.CouponMapper;
 import com.example.movieticketWeb.repository.ICouponRepository;
 import com.example.movieticketWeb.service.ICouponService;
@@ -59,7 +58,7 @@ public class CouponServiceImpl implements ICouponService {
         }
         Coupon coupon = couponRepository
                 .findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
+                .orElseThrow(() -> new ResourceNotFoundException("Coupon", "id", id.toString()));
         redisTemplate.opsForValue().set(cacheKey, coupon, Duration.ofHours(1));
         return couponMapper.toDTO(coupon);
     }
@@ -81,7 +80,7 @@ public class CouponServiceImpl implements ICouponService {
         try {
             Coupon coupon = couponRepository
                     .findById(id)
-                    .orElseThrow(() -> new EntityNotFoundException("Movie not found with ID: " + id));
+                    .orElseThrow(() -> new ResourceNotFoundException("Coupon", "id", id.toString()));
             coupon.setCouponName(couponRequest.getCouponName());
             coupon.setCouponType(couponRequest.getCouponType());
             coupon.setCouponValue(couponRequest.getCouponValue());

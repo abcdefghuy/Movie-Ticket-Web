@@ -8,9 +8,7 @@ import java.io.InputStream;
 import java.security.GeneralSecurityException;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 import jakarta.validation.Valid;
 
@@ -23,9 +21,12 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import com.example.movieticketWeb.dto.request.MovieRequest;
+import com.example.movieticketWeb.dto.response.ApiResponse;
 import com.example.movieticketWeb.dto.response.MovieResponse;
+import com.example.movieticketWeb.dto.response.PagedResponse;
 import com.example.movieticketWeb.entity.Person;
 import com.example.movieticketWeb.entity.Res;
+import com.example.movieticketWeb.enumeration.ErrorCode;
 import com.example.movieticketWeb.service.IImageService;
 import com.example.movieticketWeb.service.IMovieService;
 
@@ -39,31 +40,23 @@ public class MovieRestController {
     private IImageService imageService;
 
     @GetMapping
-    public ResponseEntity<Map<String, Object>> listMovies(
+    public ResponseEntity<?> listMovies(
             @RequestParam(defaultValue = "1") int page, @RequestParam(defaultValue = "5") int soluong) {
-        // Tính toán offset cho phân trang
-        int offset = (page - 1) * soluong;
-
         // Lấy danh sách phim
-        List<MovieResponse> movies = movieService.getMovies(offset, soluong);
-        // Lấy tổng số records
-        int noOfRecords = movieService.getNoOfRecords();
-        int noOfPages = (int) Math.ceil((double) noOfRecords / soluong);
-
-        // Tạo response JSON
-        Map<String, Object> response = new HashMap<>();
-        response.put("movies", movies);
-        response.put("noOfPages", noOfPages);
-        response.put("currentPage", page);
-        response.put("recordsPerPage", soluong);
-        response.put("noOfRecords", noOfRecords);
-
-        return ResponseEntity.ok(response);
+        Page<MovieResponse> movies = movieService.getMovies(page, soluong);
+        PagedResponse<MovieResponse> response = new PagedResponse<>(
+                movies.getContent(),
+                movies.getNumber(),
+                movies.getSize(),
+                movies.getTotalElements(),
+                movies.getTotalPages(),
+                movies.isLast());
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, response));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<MovieResponse> getMovieById(@PathVariable Long id) {
-        return ResponseEntity.ok(movieService.getMovieById(id));
+    public ResponseEntity<?> getMovieById(@PathVariable Long id) {
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, movieService.getMovieById(id)));
     }
 
     @PostMapping(consumes = MULTIPART_FORM_DATA_VALUE)
@@ -86,9 +79,9 @@ public class MovieRestController {
 
         boolean isAdded = movieService.addMovie(movieRequest);
         if (isAdded) {
-            return ResponseEntity.ok(movieRequest);
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.CREATED));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie add failed");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @PutMapping("/{id}")
@@ -104,24 +97,24 @@ public class MovieRestController {
         }
         boolean isEdited = movieService.updateMovie(id, movieDTO);
         if (isEdited) {
-            return ResponseEntity.ok("Movie updated successfully");
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.UPDATED));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie update failed");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
         //
 
     }
 
     @DeleteMapping("/{id}")
-    public ResponseEntity<String> deleteMovie(@PathVariable Long id) {
+    public ResponseEntity<?> deleteMovie(@PathVariable Long id) {
         boolean isDeleted = movieService.deleteMovie(id);
         if (isDeleted) {
-            return ResponseEntity.ok("Movie deleted successfully");
+            return ResponseEntity.ok(ApiResponse.success(ErrorCode.DELETED));
         }
-        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("Movie delete failed");
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(ApiResponse.error(ErrorCode.INTERNAL_SERVER_ERROR));
     }
 
     @GetMapping("/search")
-    public ResponseEntity<Map<String, Object>> searchMovies(
+    public ResponseEntity<?> searchMovies(
             @RequestParam(name = "keyword", required = false, defaultValue = "") String keyword,
             @RequestParam(name = "category", required = false) List<String> categories,
             @RequestParam(name = "page", defaultValue = "1") int page,
@@ -135,25 +128,23 @@ public class MovieRestController {
         } else {
             movies = movieService.searchMovies(keyword, categories, page, recordsPerPage);
         }
-        Map<String, Object> response = new HashMap<>();
-        response.put("movies", movies.getContent());
-        response.put("noOfPages", movies.getTotalPages());
-        response.put("currentPage", page);
-        response.put("recordsPerPage", recordsPerPage);
-        response.put("keyword", keyword);
-        response.put("category", categories != null ? String.join(",", categories) : "All");
-        response.put("noOfRecords", movies.getTotalElements());
-
-        return ResponseEntity.ok(response);
+        PagedResponse<MovieResponse> response = new PagedResponse<>(
+                movies.getContent(),
+                movies.getNumber(),
+                movies.getSize(),
+                movies.getTotalElements(),
+                movies.getTotalPages(),
+                movies.isLast());
+        return ResponseEntity.ok(ApiResponse.success(ErrorCode.SUCCESS, response));
     }
 
-    @GetMapping("/coming-soon")
-    public ResponseEntity<Map<String, Object>> getComingSoonMovies() {
-        List<MovieResponse> movies = movieService.getComingSoonMovies();
-        Map<String, Object> response = new HashMap<>();
-        response.put("movies", movies);
-        return ResponseEntity.ok(response);
-    }
+    //    @GetMapping("/coming-soon")
+    //    public ResponseEntity<?> getComingSoonMovies() {
+    //        List<MovieResponse> movies = movieService.getComingSoonMovies();
+    //        Map<String, Object> response = new HashMap<>();
+    //        response.put("movies", movies);
+    //        return ResponseEntity.ok(response);
+    //    }
 
     private String processYouTubeUrl(String url) {
         String videoId = null;
